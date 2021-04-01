@@ -1,0 +1,235 @@
+"CREATE TABLE ClubMember
+  (
+    CustomerID       INT NOT NULL,
+    ActiveStatus    VARCHAR(32) NULL,
+    Name        VARCHAR(128) NOT NULL,
+    MembershipLevel VARCHAR(128) NOT NULL,
+    Address          VARCHAR(128),
+    Phone            VARCHAR(128),
+    Email            VARCHAR(128),
+	PRIMARY KEY(CustomerID),
+	UNIQUE (Phone),
+	UNIQUE (Email)
+  );"
+
+"CREATE TABLE Shipment
+  (
+    ShipmentID  CHAR(6) NOT NULL,
+	Type VARCHAR(20) NOT NULL,
+    SentBy VARCHAR(128) NOT NULL,
+    ReceivedBy VARCHAR(128) NOT NULL,
+    SentDate DATE  NOT NULL,
+    ReceivedDate DATE  NOT NULL,
+    PRIMARY KEY(ShipmentID)
+  );"
+ 
+"CREATE TABLE Store
+  (
+	StoreID CHAR(5) NOT NULL,
+	ManagerID  INT  NOT NULL,
+    StoreAddress  VARCHAR(128) NOT NULL,
+    PhoneNumber   VARCHAR(128) NOT NULL,
+	PRIMARY KEY(StoreID),
+	UNIQUE(PhoneNumber),
+	UNIQUE (StoreAddress)
+	  );"
+ 
+"CREATE TABLE StaffMember
+  (
+    StaffID  INT NOT NULL,
+    StoreID  CHAR(5) NOT NULL,
+    Name     VARCHAR(128) NOT NULL,
+    Age      INT,
+    Address  VARCHAR(128) NOT NULL,
+    JobTitle VARCHAR(128) NOT NULL,     
+    PhoneNumber  VARCHAR(128) NOT NULL,
+    Email  VARCHAR(128),
+	JoiningDate  DATE NOT NULL,
+	PRIMARY KEY(StaffID),
+	FOREIGN KEY(StoreID) REFERENCES Store (StoreID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE Supplier
+  (
+	SupplierID	  CHAR(6) NOT NULL,
+    SupplierName  VARCHAR(128) NOT NULL,
+    PhoneNumber   VARCHAR(128) NOT NULL,
+    Email  VARCHAR(128) NOT NULL,
+    Location  VARCHAR(128) NOT NULL,
+    UNIQUE(Email),
+    UNIQUE(PhoneNumber),
+	PRIMARY KEY(supplierID)
+	  );"
+ 
+ "CREATE TABLE Merchandise
+  (
+    ProductID  CHAR(7) NOT NULL,
+	ProductName  VARCHAR(128) NOT NULL,
+    SupplierID  CHAR(6) NOT NULL,
+  	Quantity  INT NOT NULL,
+	BuyPrice  DECIMAL(9,2) NOT NULL,
+ 	MarketPrice  DECIMAL(9,2) NOT NULL,
+	ManufactureDate  DATE NOT NULL,
+	ExpirationDate  DATE NOT NULL,
+     	PRIMARY KEY(ProductID),
+	FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE BillingExecutive
+  (
+     StaffID INT NOT NULL,
+     PRIMARY KEY(StaffID),
+     FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE Admin
+  (
+     StaffID INT NOT NULL,
+     PRIMARY KEY(StaffID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  );"
+ 
+"CREATE TABLE Cashier
+  (
+     StaffID INT NOT NULL,
+     PRIMARY KEY(StaffID),
+     FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE RegistrationStaff
+  (
+    StaffID INT NOT NULL,
+	PRIMARY KEY(StaffID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE WarehouseOperator
+  (
+	StaffID  INT  NOT NULL,
+	PRIMARY KEY(StaffID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+	  );"
+
+"CREATE TABLE Transaction
+  (
+	TransactionID  INT  NOT NULL,
+	StoreID  CHAR(5) NOT NULL,
+    CustomerID	 INT  NOT NULL,
+    CashierID  INT  NOT NULL,
+    PurchaseDate  DATE NOT NULL,
+    TotalPrice  DECIMAL(9,2) NOT NULL,
+	PRIMARY KEY(TransactionID),
+	FOREIGN KEY(CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE,
+	FOREIGN KEY(StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE,
+	FOREIGN KEY(CashierID) REFERENCES Cashier(StaffID) ON UPDATE CASCADE
+	  );"
+
+"CREATE TABLE Signup
+  (
+    StaffID INT NOT NULL,
+	CustomerID INT NOT NULL,
+	SignupDate DATE  NOT NULL,
+    PRIMARY KEY(CustomerID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE,
+    FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE	
+  );"
+ 
+"CREATE TABLE CustomerPaysBillTo
+  (
+    CustomerID    INT NOT NULL,
+    TransactionID INT NOT NULL,
+    PRIMARY KEY(CustomerID, TransactionID),
+    FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE, 	
+    FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE ShipmentConsistsOf
+  (
+    ShipmentID CHAR(6) NOT NULL,
+    ProductID CHAR(7) NOT NULL,
+	Quantity INT NOT NULL,
+    PRIMARY KEY(ShipmentID, ProductID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
+  );"
+
+"CREATE TABLE CustomerShipment
+  (
+    ShipmentID  CHAR(6) NOT NULL,
+    PRIMARY KEY(ShipmentID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
+  );"
+ 
+"CREATE TABLE SupplierShipment
+  (
+    ShipmentID  CHAR(6) NOT NULL,
+    PRIMARY KEY(ShipmentID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
+  );"
+ 
+"CREATE TABLE StoreShipment
+  (
+	ShipmentID CHAR(6) NOT NULL,
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
+	  );"
+ 
+"CREATE TABLE ShipmentBill
+  (
+    BillID INT NOT NULL,
+	ShipmentID CHAR(6) NOT NULL,
+	Amount DECIMAL(9,2) NOT NULL,
+    BillingDate DATE NOT NULL,
+	BillingExecutiveID INT NOT NULL,
+    PRIMARY KEY(BillID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment (ShipmentID) ON UPDATE CASCADE,
+	FOREIGN KEY (BillingExecutiveID) REFERENCES BillingExecutive(StaffID) ON UPDATE CASCADE
+  );"
+ 
+"CREATE TABLE PurchasedItems
+  (
+	TransactionID INT  NOT NULL,
+	ProductID  CHAR(7)  NOT NULL,
+    Quantity  INT  NOT NULL,
+	PRIMARY KEY(TransactionID, ProductID),
+	FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID) ON UPDATE CASCADE,
+	FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
+	  );"
+ 
+
+"CREATE TABLE Report
+(
+    ReportID INT NOT NULL,
+	FromDate  DATE  NOT NULL,
+	ToDate  DATE NOT NULL,
+	ReportType VARCHAR(128),
+	ReportDetail VARCHAR(128),
+	PRIMARY KEY(ReportID)
+);"
+ 
+"CREATE TABLE Rewards
+  (
+	PromoID  CHAR(5) NOT NULL,
+	Discount  DECIMAL(9,2)  NOT NULL,
+	ValidThrough	 DATE  NOT NULL,
+	MembershipLevel  VARCHAR(10)  NOT NULL,
+	PRIMARY KEY(PromoID)
+  );"
+
+"CREATE TABLE RewardsEligibleFor
+  (
+    CustomerID INT NOT NULL,
+	PromoID  CHAR(5) NOT NULL,
+	PRIMARY KEY(CustomerID, PromoID),
+	FOREIGN KEY (PromoID) REFERENCES Rewards(PromoID) ON UPDATE CASCADE,
+	FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE
+	  );"
+ 
+"CREATE TABLE StoreStock 
+(
+	StoreID  CHAR(5) NOT NULL,
+    ProductID  CHAR(7) NOT NULL,
+    Stock INT NOT NULL,
+    PRIMARY KEY (StoreID),
+    FOREIGN KEY (StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
+);"
