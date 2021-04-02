@@ -51,11 +51,12 @@ public class app {
 
     public static void createTables() {
         Statement stmt = null;
+        String content = null;
 
         try {
             // Read in create table statements into an array
             Path filePath = Paths.get("src", "main", "sql", "create_tables.txt");
-            String content = Files.readString(filePath);
+            content = Files.readString(filePath);
             String[] arrContent = content.split("\\r?\\n");
 
             // Execute each SQL command
