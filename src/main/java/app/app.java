@@ -3,7 +3,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 
-public class app {
+public class App {
     static Connection conn;
     static String userid;
     static String password;
