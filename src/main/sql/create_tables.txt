@@ -22,7 +22,7 @@
     ReceivedDate DATE  NOT NULL,
     PRIMARY KEY(ShipmentID)
   );"
- 
+
 "CREATE TABLE Store
   (
 	StoreID CHAR(5) NOT NULL,
@@ -33,7 +33,7 @@
 	UNIQUE(PhoneNumber),
 	UNIQUE (StoreAddress)
 	  );"
- 
+
 "CREATE TABLE StaffMember
   (
     StaffID  INT NOT NULL,
@@ -41,7 +41,7 @@
     Name     VARCHAR(128) NOT NULL,
     Age      INT,
     Address  VARCHAR(128) NOT NULL,
-    JobTitle VARCHAR(128) NOT NULL,     
+    JobTitle VARCHAR(128) NOT NULL,
     PhoneNumber  VARCHAR(128) NOT NULL,
     Email  VARCHAR(128),
 	JoiningDate  DATE NOT NULL,
@@ -60,7 +60,7 @@
     UNIQUE(PhoneNumber),
 	PRIMARY KEY(supplierID)
 	  );"
- 
+    
  "CREATE TABLE Merchandise
   (
     ProductID  CHAR(7) NOT NULL,
