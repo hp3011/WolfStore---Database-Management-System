@@ -25,6 +25,8 @@ public class app {
 
     public static Connection getConnection(){
 
+        Connection c = null;
+
         Scanner in = new Scanner(System.in);
         System.out.print("Enter database user id: ");
         userid = in.nextLine();
@@ -32,7 +34,7 @@ public class app {
         System.out.print("Enter database password: ");
         password = in.nextLine();
         in.close();
-        
+
         try {
             Class.forName("org.mariadb.jdbc.Driver");
          } catch (ClassNotFoundException e) {
@@ -40,10 +42,11 @@ public class app {
         }
 
         try {
-            return DriverManager.getConnection("jdbc:mariadb://classdb2.csc.ncsu.edu:3306/" + userid, userid, password);
+            c = DriverManager.getConnection("jdbc:mariadb://classdb2.csc.ncsu.edu:3306/" + userid, userid, password);
         } catch(Exception e){
             System.out.println(e);
         }
+        return c;
     }
 
     public static void createTables() {
