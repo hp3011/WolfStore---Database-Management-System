@@ -7,12 +7,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 public class ReadFileToStringArray {
-    public static void main(String[] args) 
-    {
-        readLineByLine();
-    }
- 
- 
+
     //Read file content into the string with - Files.lines(Path path, Charset cs)
  
     public static String[] readLineByLine() 
