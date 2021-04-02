@@ -17,7 +17,7 @@ public class app {
         // Setup db connection w username and password
         conn = getConnection();
 
-        // Create tables- loop through CREATE TABLE statements and execute each
+        // Create db and tables- loop through CREATE TABLE statements and execute each
         createTables();
 
 
@@ -32,6 +32,7 @@ public class app {
         System.out.print("Enter database password: ");
         password = in.nextLine();
         in.close();
+        
         try {
             Class.forName("org.mariadb.jdbc.Driver");
          } catch (ClassNotFoundException e) {
