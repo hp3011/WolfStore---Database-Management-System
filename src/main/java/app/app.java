@@ -1,10 +1,7 @@
 package main.java.app;
 import java.sql.*;  
 import java.util.Scanner;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
+
 
 public class app {
     static Connection conn;
@@ -51,30 +48,28 @@ public class app {
 
     public static void createTables() {
         Statement stmt = null;
-        String content = null;
 
         try {
-            // Read in create table statements into an array
-            Path filePath = Paths.get("src", "main", "sql", "create_tables.txt");
-            content = Files.readString(filePath);
-            String[] arrContent = content.split("\\r?\\n");
+            
+            String[] arrCommands = ReadFileToStringArray.readLineByLine();
 
             // Execute each SQL command
             try {
                 stmt = conn.createStatement();
             } catch (Exception e) { System.out.println(e); }
 
-            for (String a : arrContent){
+            for (String a : arrCommands){
                 try {
-                    System.out.println(a);
+                    //System.out.println(a);
                     stmt.executeUpdate(a);
                 } catch (Exception e) {
                     System.out.println(e);
                 }
             }
             
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
