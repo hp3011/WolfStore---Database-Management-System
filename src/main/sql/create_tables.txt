@@ -1,12 +1,12 @@
-"DROP DATABASE IF EXISTS wolfwr"
+DROP DATABASE IF EXISTS wolfwr
 
-"CREATE DATABASE wolfwr"
+CREATE DATABASE wolfwr
 
-"USE wolfwr"
+USE wolfwr
 
-"DROP TABLE IF EXISTS ClubMember CASCADE"
+DROP TABLE IF EXISTS ClubMember CASCADE
 
-"CREATE TABLE ClubMember
+CREATE TABLE ClubMember
   (
     CustomerID       INT NOT NULL,
     ActiveStatus    VARCHAR(32) NULL,
@@ -18,11 +18,11 @@
 	PRIMARY KEY(CustomerID),
 	UNIQUE (Phone),
 	UNIQUE (Email)
-  )"
+  )
 
-"DROP TABLE IF EXISTS Shipment CASCADE"
+DROP TABLE IF EXISTS Shipment CASCADE
 
-"CREATE TABLE Shipment
+CREATE TABLE Shipment
   (
     ShipmentID  CHAR(6) NOT NULL,
 	Type VARCHAR(20) NOT NULL,
@@ -31,11 +31,11 @@
     SentDate DATE  NOT NULL,
     ReceivedDate DATE  NOT NULL,
     PRIMARY KEY(ShipmentID)
-  )"
+  )
 
-"DROP TABLE IF EXISTS Store CASCADE"
+DROP TABLE IF EXISTS Store CASCADE
 
-"CREATE TABLE Store
+CREATE TABLE Store
   (
 	StoreID CHAR(5) NOT NULL,
 	ManagerID  INT  NOT NULL,
@@ -44,11 +44,11 @@
 	PRIMARY KEY(StoreID),
 	UNIQUE(PhoneNumber),
 	UNIQUE (StoreAddress)
-	  )"
+	  )
 
-"DROP TABLE IF EXISTS StaffMember CASCADE"
+DROP TABLE IF EXISTS StaffMember CASCADE
 
-"CREATE TABLE StaffMember
+CREATE TABLE StaffMember
   (
     StaffID  INT NOT NULL,
     StoreID  CHAR(5) NOT NULL,
@@ -61,11 +61,11 @@
 	JoiningDate  DATE NOT NULL,
 	PRIMARY KEY(StaffID),
 	FOREIGN KEY(StoreID) REFERENCES Store (StoreID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS Supplier CASCADE"
+DROP TABLE IF EXISTS Supplier CASCADE
 
-"CREATE TABLE Supplier
+CREATE TABLE Supplier
   (
 	SupplierID	  CHAR(6) NOT NULL,
     SupplierName  VARCHAR(128) NOT NULL,
@@ -75,10 +75,10 @@
     UNIQUE(Email),
     UNIQUE(PhoneNumber),
 	PRIMARY KEY(supplierID)
-	  )"
-    
-"DROP TABLE IF EXISTS Merchandise CASCADE"
- "CREATE TABLE Merchandise
+	  )
+
+DROP TABLE IF EXISTS Merchandise CASCADE
+ CREATE TABLE Merchandise
   (
     ProductID  CHAR(7) NOT NULL,
 	ProductName  VARCHAR(128) NOT NULL,
@@ -90,56 +90,56 @@
 	ExpirationDate  DATE NOT NULL,
      	PRIMARY KEY(ProductID),
 	FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS BillingExecutive CASCADE"
+DROP TABLE IF EXISTS BillingExecutive CASCADE
 
-"CREATE TABLE BillingExecutive
+CREATE TABLE BillingExecutive
   (
      StaffID INT NOT NULL,
      PRIMARY KEY(StaffID),
      FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS Admin CASCADE"
+DROP TABLE IF EXISTS Admin CASCADE
 
-"CREATE TABLE Admin
+CREATE TABLE Admin
   (
      StaffID INT NOT NULL,
      PRIMARY KEY(StaffID),
 	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS Cashier CASCADE"
+DROP TABLE IF EXISTS Cashier CASCADE
 
-"CREATE TABLE Cashier
+CREATE TABLE Cashier
   (
      StaffID INT NOT NULL,
      PRIMARY KEY(StaffID),
      FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS RegistrationStaff CASCADE"
+DROP TABLE IF EXISTS RegistrationStaff CASCADE
 
-"CREATE TABLE RegistrationStaff
+CREATE TABLE RegistrationStaff
   (
     StaffID INT NOT NULL,
 	PRIMARY KEY(StaffID),
 	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS WarehouseOperator CASCADE"
+DROP TABLE IF EXISTS WarehouseOperator CASCADE
 
-"CREATE TABLE WarehouseOperator
+CREATE TABLE WarehouseOperator
   (
 	StaffID  INT  NOT NULL,
 	PRIMARY KEY(StaffID),
 	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
-	  )"
+	  )
 
-"DROP TABLE IF EXISTS Transaction CASCADE"
+DROP TABLE IF EXISTS Transaction CASCADE
 
-"CREATE TABLE Transaction
+CREATE TABLE Transaction
   (
 	TransactionID  INT  NOT NULL,
 	StoreID  CHAR(5) NOT NULL,
@@ -151,11 +151,11 @@
 	FOREIGN KEY(CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE,
 	FOREIGN KEY(StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE,
 	FOREIGN KEY(CashierID) REFERENCES Cashier(StaffID) ON UPDATE CASCADE
-	  )"
+	  )
 
-"DROP TABLE IF EXISTS Signup CASCADE"
+DROP TABLE IF EXISTS Signup CASCADE
 
-"CREATE TABLE Signup
+CREATE TABLE Signup
   (
     StaffID INT NOT NULL,
 	CustomerID INT NOT NULL,
@@ -163,22 +163,22 @@
     PRIMARY KEY(CustomerID),
 	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE,
     FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE	
-  )"
+  )
 
-"DROP TABLE IF EXISTS CustomerPaysBillTo CASCADE"
+DROP TABLE IF EXISTS CustomerPaysBillTo CASCADE
  
-"CREATE TABLE CustomerPaysBillTo
+CREATE TABLE CustomerPaysBillTo
   (
     CustomerID    INT NOT NULL,
     TransactionID INT NOT NULL,
     PRIMARY KEY(CustomerID, TransactionID),
     FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE, 	
     FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS ShipmentConsistsOf CASCADE"
+DROP TABLE IF EXISTS ShipmentConsistsOf CASCADE
 
-"CREATE TABLE ShipmentConsistsOf
+CREATE TABLE ShipmentConsistsOf
   (
     ShipmentID CHAR(6) NOT NULL,
     ProductID CHAR(7) NOT NULL,
@@ -186,37 +186,37 @@
     PRIMARY KEY(ShipmentID, ProductID),
 	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS CustomerShipment CASCADE"
+DROP TABLE IF EXISTS CustomerShipment CASCADE
 
-"CREATE TABLE CustomerShipment
+CREATE TABLE CustomerShipment
   (
     ShipmentID  CHAR(6) NOT NULL,
     PRIMARY KEY(ShipmentID),
 	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS SupplierShipment CASCADE"
+DROP TABLE IF EXISTS SupplierShipment CASCADE
 
-"CREATE TABLE SupplierShipment
+CREATE TABLE SupplierShipment
   (
     ShipmentID  CHAR(6) NOT NULL,
     PRIMARY KEY(ShipmentID),
 	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS StoreShipment CASCADE"
+DROP TABLE IF EXISTS StoreShipment CASCADE
  
-"CREATE TABLE StoreShipment
+CREATE TABLE StoreShipment
   (
 	ShipmentID CHAR(6) NOT NULL,
 	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
-	  )"
+	  )
 
-"DROP TABLE IF EXISTS ShipmentBill CASCADE"
+DROP TABLE IF EXISTS ShipmentBill CASCADE
  
-"CREATE TABLE ShipmentBill
+CREATE TABLE ShipmentBill
   (
     BillID INT NOT NULL,
 	ShipmentID CHAR(6) NOT NULL,
@@ -226,11 +226,11 @@
     PRIMARY KEY(BillID),
 	FOREIGN KEY (ShipmentID) REFERENCES Shipment (ShipmentID) ON UPDATE CASCADE,
 	FOREIGN KEY (BillingExecutiveID) REFERENCES BillingExecutive(StaffID) ON UPDATE CASCADE
-  )"
+  )
 
-"DROP TABLE IF EXISTS PurchasedItems CASCADE"
+DROP TABLE IF EXISTS PurchasedItems CASCADE
  
-"CREATE TABLE PurchasedItems
+CREATE TABLE PurchasedItems
   (
 	TransactionID INT  NOT NULL,
 	ProductID  CHAR(7)  NOT NULL,
@@ -238,11 +238,11 @@
 	PRIMARY KEY(TransactionID, ProductID),
 	FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID) ON UPDATE CASCADE,
 	FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
-	  )"
+	  )
 
-"DROP TABLE IF EXISTS Report CASCADE"
+DROP TABLE IF EXISTS Report CASCADE
 
-"CREATE TABLE Report
+CREATE TABLE Report
 (
     ReportID INT NOT NULL,
 	FromDate  DATE  NOT NULL,
@@ -250,33 +250,33 @@
 	ReportType VARCHAR(128),
 	ReportDetail VARCHAR(128),
 	PRIMARY KEY(ReportID)
-)"
+)
 
-"DROP TABLE IF EXISTS Rewards CASCADE"
+DROP TABLE IF EXISTS Rewards CASCADE
 
-"CREATE TABLE Rewards
+CREATE TABLE Rewards
   (
 	PromoID  CHAR(5) NOT NULL,
 	Discount  DECIMAL(9,2)  NOT NULL,
 	ValidThrough	 DATE  NOT NULL,
 	MembershipLevel  VARCHAR(10)  NOT NULL,
 	PRIMARY KEY(PromoID)
-  )"
+  )
 
-"DROP TABLE IF EXISTS RewardsEligibleFor CASCADE"
+DROP TABLE IF EXISTS RewardsEligibleFor CASCADE
 
-"CREATE TABLE RewardsEligibleFor
+CREATE TABLE RewardsEligibleFor
   (
     CustomerID INT NOT NULL,
 	PromoID  CHAR(5) NOT NULL,
 	PRIMARY KEY(CustomerID, PromoID),
 	FOREIGN KEY (PromoID) REFERENCES Rewards(PromoID) ON UPDATE CASCADE,
 	FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE
-	  )"
+	  )
 
-"DROP TABLE IF EXISTS StoreStock CASCADE"
+DROP TABLE IF EXISTS StoreStock CASCADE
  
-"CREATE TABLE StoreStock 
+CREATE TABLE StoreStock 
 (
 	StoreID  CHAR(5) NOT NULL,
     ProductID  CHAR(7) NOT NULL,
@@ -284,4 +284,4 @@
     PRIMARY KEY (StoreID),
     FOREIGN KEY (StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
-)"
+)
