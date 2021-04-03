@@ -3,6 +3,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 // when in remote server run from CSC540_WolfWR/src
+// javac main/java/app/*.java then java main/java/app/App
 
 public class App {
     static Connection conn;

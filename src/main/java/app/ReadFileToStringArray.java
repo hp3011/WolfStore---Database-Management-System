@@ -26,7 +26,7 @@ public class ReadFileToStringArray {
         }
  
         String content = contentBuilder.toString();
-        String[] arrContent = content.split("\\r?\\n");
+        String[] arrContent = content.split("\\r?\\n\\n");
         return arrContent;
     }
 }
