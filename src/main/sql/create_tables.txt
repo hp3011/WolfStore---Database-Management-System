@@ -318,6 +318,8 @@ INSERT INTO ClubMember (CustomerID,ActiveStatus,Name,MembershipLevel,Address,Pho
 (1008,"Active","Frances Wiley","Platinum","295-4154 Fringilla Rd., Cary","1-409-702-5355", "facilisis@risusDonec.com"),
 (1009,"Active","Grace Sparks","Platinum","251-3974 Sit Ave, Raleigh","1-804-629-4981", "mauris@liberonec.co.uk")
 
+INSERT INTO Cashier (StaffID) VALUES (104),(105),(106),(107),(108)
+
 INSERT INTO Transaction (TransactionID,StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (1,"ST002",1009,105,"2021/01/18",29.75), 
 (2,"ST002",1000,105,"2021/01/29",446.5),
 (3,"ST001",1008,104,"2021/02/16",207),
@@ -378,6 +380,8 @@ INSERT INTO SupplierShipment (ShipmentID) VALUES ("SHP110"),("SHP111"),("SHP112"
 
 INSERT INTO StoreShipment (ShipmentID) VALUES ("SHP106"),("SHP107"),("SHP108"),("SHP109")
 
+INSERT INTO BillingExecutive (StaffID) VALUES (100),(101)
+
 INSERT INTO ShipmentBill (BillID, ShipmentID , Amount, BillingDate , BillingExecutiveID ) VALUES 
 (100, "SHP100", 35,  "2021/02/03", 100 ),
 (101, "SHP101", 470,  "2021/02/09", 101 ),
@@ -429,11 +433,7 @@ INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES ("
 INSERT INTO RewardsEligibleFor (CustomerID, PromoID) VALUES 
 (1000,"OFF05"), (1001,"OFF05"), (1002,"OFF05"), (1003,"OFF05"), (1004,"OFF10"), (1005,"OFF10"), (1006,"OFF10"), (1007,"OFF20"), (1008,"OFF20"), (1009,"OFF20")
 
-INSERT INTO BillingExecutive (StaffID) VALUES (100),(101)
-
 INSERT INTO Admin (StaffID) VALUES (114)
-
-INSERT INTO Cashier (StaffID) VALUES (104),(105),(106),(107),(108)
 
 INSERT INTO RegistrationStaff (StaffID) VALUES (109),(110),(111),(112),(113)
 
