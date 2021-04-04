@@ -53,6 +53,7 @@ public class App {
 
         try {
             
+            // reads in sql command file, splits file to array by new lines resulting in an array of sql commands
             String[] arrCommands = ReadFileToStringArray.readLineByLine();
 
             // Execute each SQL command
