@@ -9,16 +9,61 @@ public class App {
     static Connection conn;
     static String userid;
     static String password;
-
+    static int menu = 0;
+    static int input;
+    static boolean exit = false;
     
     public static void main(String[] args) {
         
         // Setup db connection w username and password
+        System.out.println("Connecting to database...");
         conn = getConnection();
 
         // Create db and tables- loop through CREATE TABLE statements and execute each
+        System.out.println("Loading data...");
         setupDb();
 
+        Scanner in = new Scanner(System.in);
+
+        // show main menu
+        showOptions(0);
+
+        while (exit == false) {
+            
+            input = in.nextInt();
+
+            switch (menu) {
+
+                // main menu
+                case 1:
+                    if (input > 0 && input <5){
+                        // Display menu options
+                        showOptions(input);
+                        // Set menu to user's selected option
+                        menu = input;
+                    }
+                    else if (input == 0){
+                        exit = true;
+                        break;
+                    }
+                    else {
+                        System.out.println("Not a valid option, try again");
+                    }
+                    break;
+
+                // registration staff menu
+                case 2:
+                // billing staff menu
+                case 3:
+                // warehouse operator menu
+                case 4:
+                // admin menu
+                case 5:
+
+                default:
+                    break;
+            }
+        }
 
     }
 
@@ -73,6 +118,21 @@ public class App {
             
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void showOptions(int view){
+        switch(view) {
+            // main menu options
+            case 1:
+            // registration staff options
+            case 2:
+            // billing staff options
+            case 3:
+            // warehouse operator options
+            case 4:
+            // admin options
+            case 5:
         }
     }
 }
