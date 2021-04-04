@@ -17,7 +17,7 @@ public class App {
         conn = getConnection();
 
         // Create db and tables- loop through CREATE TABLE statements and execute each
-        createTables();
+        setupDb();
 
 
     }
@@ -48,7 +48,7 @@ public class App {
         return c;
     }
 
-    public static void createTables() {
+    public static void setupDb() {
         Statement stmt = null;
 
         try {
@@ -66,6 +66,7 @@ public class App {
                     stmt.executeUpdate(a);
                 } catch (Exception e) {
                     System.out.println(e);
+                    System.out.println(a);
                 }
             }
             
