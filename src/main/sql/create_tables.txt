@@ -285,6 +285,12 @@ CREATE TABLE StoreStock
     FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
 )
 
+INSERT INTO Store (StoreID,ManagerID,StoreAddress,PhoneNumber) VALUES ("ST001",100,"372 Vulputate Ave","1-697-890-1785"),
+("ST002",101,"Ap #130-2852 Eu Rd","1-127-970-2557"),
+("ST003",102,"4085 Venenatis Avenue","1-539-577-4357"),
+("ST004",103,"543-7199 Eleifend, Ave","1-830-830-0312"),
+("ST005",104,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
+
 INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (100,"ST001","Rae",37,"971-510 Sagittis Avenue","BillingExecutive","1-497-623-4521", "augue.id.ante@orci.ca", "2015/05/30"),
 (101,"ST002","Hedley",19,"465-8737 Sagittis St.","BillingExecutive","1-661-557-0964", "sagittis.Nullam.vitae@velsapien.net","2016/09/06"),
 (102,"ST001","Octavia",51,"493-6491 Sagittis Av.","WarehouseOperator","1-630-915-0875", "semper@euultrices.net","2016/02/13"),
@@ -300,6 +306,17 @@ INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,E
 (112,"ST004","Kennan",70,"P.O. Box 670, 6720 Consectetuer Ave","RegistrationStaff", "1-783-294-4530", "at@vitaeposuereat.ca","2016/05/21"),
 (113,"ST005","Velma",43,"530-4936 Augue Street","RegistrationStaff","1-965-665-0203", "Morbi@nulla.ca","2015/08/14"),
 (114,"ST001","Abbot",25,"5958 Non, St.","Admin","1-129-509-1332", "risus@nec.org", "2015/05/19")
+
+INSERT INTO ClubMember (CustomerID,ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (1000,"Active","Cameron Alvarado","Standard","5624 Mi Rd. , Charlotte", "1-877-521-8507", "nunc@acturpisegestas.edu"),
+(1001,"Active","Rachel Mathews","Standard","891 Lobortis Ave, Durham","1-343-898-4765", "et.magna.Praesent@massalobortisultrices.ca"),
+(1002,"Active","Hilary Ferrell","Standard","3158 Leo Rd., Raleigh","1-116-210-5233", "sit.amet@lacusAliquam.ca"),
+(1003,"Active","Hu Day","Standard","972, 6564 Dignissim Av., Cary","1-728-421-0844", "fermentum.arcu@mollisnec.co.uk"),
+(1004,"Active","Olan Watts","Gold","906-651 Bibendum Av, Charlotte.","1-693-658-9095", "Nullam.vitae@ridiculus.com"),
+(1005,"Active","Marah Jacobson","Gold","2299 Nulla Av., Raleigh","1-696-185-7661", "vehicula@nequeNullam.edu"),
+(1006,"Active","Ivanka Helms","Gold","6658 Sit Avenue, Durham","1-347-649-4851", "vulputate.risus.a@euismodestarcu.com"),
+(1007,"Active","Zane Mcintosh","Platinum","5152 Sit Avenue, Raleigh","1-135-801-8770", "ipsum@Morbimetus.org"),
+(1008,"Active","Frances Wiley","Platinum","295-4154 Fringilla Rd., Cary","1-409-702-5355", "facilisis@risusDonec.com"),
+(1009,"Active","Grace Sparks","Platinum","251-3974 Sit Ave, Raleigh","1-804-629-4981", "mauris@liberonec.co.uk")
 
 INSERT INTO Transaction (TransactionID,StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (1,"ST002",1009,105,"2021/01/18",29.75), 
 (2,"ST002",1000,105,"2021/01/29",446.5),
@@ -317,17 +334,6 @@ INSERT INTO Transaction (TransactionID,StoreID,CustomerID,CashierID,PurchaseDate
 (14,"ST004",1000,107,"2021/02/13",47.5),
 (15,"ST004",1002,107,"2021/02/18",437)
 
-INSERT INTO ClubMember (CustomerID,ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (1000,"Active","Cameron Alvarado","Standard","5624 Mi Rd. , Charlotte", "1-877-521-8507", "nunc@acturpisegestas.edu"),
-(1001,"Active","Rachel Mathews","Standard","891 Lobortis Ave, Durham","1-343-898-4765", "et.magna.Praesent@massalobortisultrices.ca"),
-(1002,"Active","Hilary Ferrell","Standard","3158 Leo Rd., Raleigh","1-116-210-5233", "sit.amet@lacusAliquam.ca"),
-(1003,"Active","Hu Day","Standard","972, 6564 Dignissim Av., Cary","1-728-421-0844", "fermentum.arcu@mollisnec.co.uk"),
-(1004,"Active","Olan Watts","Gold","906-651 Bibendum Av, Charlotte.","1-693-658-9095", "Nullam.vitae@ridiculus.com"),
-(1005,"Active","Marah Jacobson","Gold","2299 Nulla Av., Raleigh","1-696-185-7661", "vehicula@nequeNullam.edu"),
-(1006,"Active","Ivanka Helms","Gold","6658 Sit Avenue, Durham","1-347-649-4851", "vulputate.risus.a@euismodestarcu.com"),
-(1007,"Active","Zane Mcintosh","Platinum","5152 Sit Avenue, Raleigh","1-135-801-8770", "ipsum@Morbimetus.org"),
-(1008,"Active","Frances Wiley","Platinum","295-4154 Fringilla Rd., Cary","1-409-702-5355", "facilisis@risusDonec.com"),
-(1009,"Active","Grace Sparks","Platinum","251-3974 Sit Ave, Raleigh","1-804-629-4981", "mauris@liberonec.co.uk")
-
 INSERT INTO Shipment (ShipmentID,Type,SentBy,ReceivedBy,SentDate,ReceivedDate) VALUES 
 ("SHP100","Customer","Caesar Poole","ST003","2021/01/25","2021/02/02"),
 ("SHP101","Customer","Cameron Kelly","ST005","2021/01/24","2021/02/09"),
@@ -344,12 +350,6 @@ INSERT INTO Shipment (ShipmentID,Type,SentBy,ReceivedBy,SentDate,ReceivedDate) V
 ("SHP112","Supplier","SUP102","ST002","2021/01/13","2021/01/17"),
 ("SHP113","Supplier","SUP104","ST001","2021/02/06","2021/02/08"),
 ("SHP114","Supplier","SUP103","ST002","2021/01/10","2021/01/13")
-
-INSERT INTO Store (StoreID,ManagerID,StoreAddress,PhoneNumber) VALUES ("ST001",100,"372 Vulputate Ave","1-697-890-1785"),
-("ST002",101,"Ap #130-2852 Eu Rd","1-127-970-2557"),
-("ST003",102,"4085 Venenatis Avenue","1-539-577-4357"),
-("ST004",103,"543-7199 Eleifend, Ave","1-830-830-0312"),
-("ST005",104,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
 
 INSERT INTO Supplier (SupplierID,SupplierName,PhoneNumber,Email,Location) VALUES ("SUP100","Regan","1-630-479-2003","quam.elementum@acsemut.ca","P.O. Box 433, 3751 Ipsum Rd."),
 ("SUP101","Petra","1-496-664-6453","magna@Phasellus.org","P.O. Box 514, 3392 Luctus Road"),
