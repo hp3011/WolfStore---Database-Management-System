@@ -36,6 +36,7 @@ public class App {
 
                 // main menu
                 case 1:
+                    // Check for valid menu option
                     if (input > 0 && input <5){
                         // Display menu options
                         showOptions(input);
@@ -52,13 +53,79 @@ public class App {
                     break;
 
                 // registration staff menu
+                // Owner: Jake
                 case 2:
+                    switch (input) {
+                        // Exit
+                        case 0:
+                            exit = true;
+                            System.out.println("Exiting...");
+                        // Return to main menu
+                        case 1:
+                            menu = 1;
+                            System.out.println("Returning to main menu");
+                            showOptions(1);
+                        // To do: Build out remaining options
+                        //case 2:
+                    }
+
                 // billing staff menu
+                // Owner: Mithil
                 case 3:
+                    switch (input) {
+                        // Exit
+                        case 0:
+                            exit = true;
+                            System.out.println("Exiting...");
+
+                        // Return to main menu
+                        case 1:
+                            menu = 1;
+                            System.out.println("Returning to main menu");
+                            showOptions(1);
+
+                        // To do: Build out remaining options
+                        // case 2:
+                    }
+
                 // warehouse operator menu
+                // Owner: Hrishikesh
                 case 4:
+                    switch (input) {
+                        // Exit
+                        case 0:
+                            exit = true;
+                            System.out.println("Exiting...");
+
+                        // Return to main menu
+                        case 1:
+                            menu = 1;
+                            System.out.println("Returning to main menu");
+                            showOptions(1);
+
+                        // To do: Build out remaining options
+                        //case 2:
+                    }
+
                 // admin menu
+                // Owner: Parimal
                 case 5:
+                    switch (input) {
+
+                        // Exit
+                        case 0:
+                            exit = true;
+                            System.out.println("Exiting...");
+
+                        // Return to main menu
+                        case 1:
+                            menu = 1;
+                            System.out.println("Returning to main menu");
+                            showOptions(1);
+
+                        // To do: Build out remaining options
+                        //case 2:
+                    }
 
                 default:
                     break;
@@ -125,14 +192,28 @@ public class App {
         switch(view) {
             // main menu options
             case 1:
+            System.out.println("Which department do you belong to? Enter the corresponding number:");
+            System.out.println("2 - Registration Staff\n3 - Billing Staff\n4 - Warehouse\n5 - Admin\nEnter 0 to quit");
+
             // registration staff options
             case 2:
+            System.out.println("Welcome registration staff. Please choose from the available options below:");
+            System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+
             // billing staff options
             case 3:
+            System.out.println("Welcome billing staff. Please choose from the available options below:");
+            System.out.println("\t0 - Exit program\n\t1 - Return to main menu");           
+
             // warehouse operator options
             case 4:
+            System.out.println("Welcome warehouse staff. Please choose from the available options below:");
+            System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+
             // admin options
             case 5:
+            System.out.println("Welcome admin. Please choose from the available options below:");
+            System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
         }
     }
 }
