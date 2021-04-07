@@ -65,8 +65,10 @@ public class App {
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
+                        case 2:
+                            signUpMember();
                         // To do: Build out remaining options
-                        //case 2:
+
                     }
 
                 // billing staff menu
@@ -216,5 +218,30 @@ public class App {
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
         }
     }
-}
 
+    public static void signUpMember(){
+        // INSERT INTO ClubMember (CustomerID,ActiveStatus,Name,MembershipLevel,Address,Phone,Email)
+        String name;
+        String address;
+        String phone;
+        String email;
+
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("Beginning new member signup. Enter the following user information:");
+
+        System.out.println("\tName:");
+        name = in.nextLine();
+
+        System.out.println("\tAddress:");
+        address = in.nextLine();
+
+        System.out.println("\tPhone number (format #-###-###-####):");
+        phone = in.nextLine();
+
+        System.out.println("\tEmail address:");
+        email = in.nextLine();
+
+        in.close();
+    }
+}
