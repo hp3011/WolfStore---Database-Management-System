@@ -228,7 +228,7 @@ public class App {
         String phone;
         String email;
         String query;
-        int customerId;
+        int customerId=0;
         
 
         Scanner in = new Scanner(System.in);
@@ -259,15 +259,13 @@ public class App {
             }
         } catch (SQLException e) {
             System.out.println(e);
-            customerId = 0;
         }
 
 
         query = String.format("INSERT INTO ClubMember (%s, \"Active\", %s, \"Standard\", %s, %s, %s)", customerId, name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
-            ResultSet rs = stmt.executeQuery(query);
-
+            stmt.executeQuery(query);
         } catch (SQLException e) {
             System.out.println(e);
         }
