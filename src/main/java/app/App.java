@@ -66,7 +66,7 @@ public class App {
                             System.out.println("Returning to main menu");
                             showOptions(1);
                         case 2:
-                            signUpMember();
+                            signUpMember(conn);
                         // To do: Build out remaining options
 
                     }
@@ -219,12 +219,15 @@ public class App {
         }
     }
 
-    public static void signUpMember(){
+    public static void signUpMember(Connection con){
         // INSERT INTO ClubMember (CustomerID,ActiveStatus,Name,MembershipLevel,Address,Phone,Email)
         String name;
         String address;
         String phone;
         String email;
+        String selectQuery;
+        String insertQuery;
+        int customerId;
 
         Scanner in = new Scanner(System.in);
 
@@ -236,11 +239,35 @@ public class App {
         System.out.println("\tAddress:");
         address = in.nextLine();
 
-        System.out.println("\tPhone number (format #-###-###-####):");
-        phone = in.nextLine();
+        // Get phone number, validate format
+        do {
+            System.out.println("\tPhone number (format #-###-###-####):");
+            phone = in.nextLine();
+        } while (!in.hasNext("^[1-9]\d{1}-\d{2}-\d{3}-\d{4}"));
 
         System.out.println("\tEmail address:");
         email = in.nextLine();
+
+        // Get the next available CustomerID
+        try (Statement stmt = con.createStatement()){
+            ResultSet rs = stmt.executeQuery("SELECT max(CustomerID) as maxid FROM ClubMember");
+            while (rs.next()) {
+                int maxid = rs.getInt("maxid");
+                customerId = maxid+1;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+
+        query = String.format("INSERT INTO ClubMember (%s, \"Active\", %s, \"Standard\", %s, %s, %s)", customerId, name, address, phone, email);
+
+        try (Statement stmt = con.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
 
         in.close();
     }
