@@ -13,7 +13,7 @@ public class App {
     static int menu = 1;
     static int input;
     static boolean exit = false;
-    static Pattern phonePattern = Pattern.compile("^[1-9]\\d{1}-\\d{2}-\\d{3}-\\d{4}");
+    static Pattern phonePattern = Pattern.compile("\\d{1}-\\d{3}-\\d{3}-\\d{4}");
     private static Scanner in;
 
     public static void main(String[] args) {
@@ -29,7 +29,7 @@ public class App {
         in = new Scanner(System.in);
 
         // show main menu
-        showOptions(0);
+        showOptions(1);
 
         while (exit == false) {
             
@@ -199,26 +199,31 @@ public class App {
             case 1:
             System.out.println("Which department do you belong to? Enter the corresponding number:");
             System.out.println("2 - Registration Staff\n3 - Billing Staff\n4 - Warehouse\n5 - Admin\nEnter 0 to quit");
+            break;
 
             // registration staff options
             case 2:
             System.out.println("Welcome registration staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            break;
 
             // billing staff options
             case 3:
             System.out.println("Welcome billing staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");           
+            break;
 
             // warehouse operator options
             case 4:
             System.out.println("Welcome warehouse staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            break;
 
             // admin options
             case 5:
             System.out.println("Welcome admin. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            break;
         }
     }
 
