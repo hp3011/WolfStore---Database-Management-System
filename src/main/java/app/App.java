@@ -14,7 +14,8 @@ public class App {
     static int input;
     static boolean exit = false;
     static Pattern phonePattern = Pattern.compile("^[1-9]\\d{1}-\\d{2}-\\d{3}-\\d{4}");
-    
+    private static Scanner in;
+
     public static void main(String[] args) {
         
         // Setup db connection w username and password
@@ -25,7 +26,7 @@ public class App {
         System.out.println("Loading data...");
         setupDb();
 
-        Scanner in = new Scanner(System.in);
+        in = new Scanner(System.in);
 
         // show main menu
         showOptions(0);
@@ -136,7 +137,7 @@ public class App {
                     break;
             }
         }
-
+        in.close();
     }
 
     public static Connection getConnection(){
