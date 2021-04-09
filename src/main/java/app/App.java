@@ -21,6 +21,7 @@ public class App {
         // Setup db connection w username and password
         System.out.println("Connecting to database...");
         conn = getConnection();
+        // TO DO if connection can't be made then try again or exit
 
         // Create db and tables- loop through CREATE TABLE statements and execute each
         System.out.println("Loading data...");
@@ -241,19 +242,21 @@ public class App {
 
         System.out.println("Beginning new member signup. Enter the following user information:");
 
-        System.out.println("\tName:");
+        System.out.println("Name:");
         name = in.nextLine();
 
-        System.out.println("\tAddress:");
+        System.out.println("Address:");
         address = in.nextLine();
 
         // Get phone number, validate format
-        do {
-            System.out.println("\tPhone number (format #-###-###-####):");
-            phone = in.nextLine();
-        } while (!in.hasNext(phonePattern));
+        System.out.println("Phone number (format #-###-###-####):");
+        while (!in.hasNext(phonePattern)){
+            System.out.println("Invalid phone number format");
+            in.nextLine();
+        };
+        phone = in.nextLine();
 
-        System.out.println("\tEmail address:");
+        System.out.println("Email address:");
         email = in.nextLine();
 
         // Get the next available CustomerID
@@ -268,7 +271,7 @@ public class App {
         }
 
 
-        query = String.format("INSERT INTO ClubMember (%s, \"Active\", %s, \"Standard\", %s, %s, %s)", customerId, name, address, phone, email);
+        query = String.format("INSERT INTO ClubMember (%s, \"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", customerId, name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
