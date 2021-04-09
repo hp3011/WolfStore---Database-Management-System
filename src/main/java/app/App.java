@@ -259,6 +259,7 @@ public class App {
             }
         } catch (SQLException e) {
             System.out.println(e);
+            customerId = 0;
         }
 
 
