@@ -251,7 +251,7 @@ public class App {
         // Get phone number, validate format
         System.out.println("Phone number (format #-###-###-####):");
         while (!in.hasNext(phonePattern)){
-            System.out.println("Invalid phone number format");
+            System.out.println("Invalid phone number format, try again");
             in.nextLine();
         };
         phone = in.nextLine();
@@ -277,6 +277,7 @@ public class App {
             stmt.executeQuery(query);
         } catch (SQLException e) {
             System.out.println(e);
+            System.out.println(query);
         }
 
         in.close();
