@@ -10,7 +10,7 @@ public class App {
     static Connection conn;
     static String userid;
     static String password;
-    static int menu = 0;
+    static int menu = 1;
     static int input;
     static boolean exit = false;
     static Pattern phonePattern = Pattern.compile("^[1-9]\\d{1}-\\d{2}-\\d{3}-\\d{4}");
