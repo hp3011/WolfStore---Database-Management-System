@@ -271,7 +271,7 @@ public class App {
         }
 
 
-        query = String.format("INSERT INTO ClubMember (%s, \"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", customerId, name, address, phone, email);
+        query = String.format("INSERT INTO ClubMember VALUES (%s, \"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", customerId, name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
