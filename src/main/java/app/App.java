@@ -144,13 +144,12 @@ public class App {
 
         Connection c = null;
 
-        Scanner in = new Scanner(System.in);
+        in = new Scanner(System.in);
         System.out.print("Enter database user id: ");
         userid = in.nextLine();
 
         System.out.print("Enter database password: ");
         password = in.nextLine();
-        in.close();
 
         try {
             Class.forName("org.mariadb.jdbc.Driver");
