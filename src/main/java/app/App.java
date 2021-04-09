@@ -39,6 +39,11 @@ public class App {
 
             switch (menu) {
 
+                // quit
+                case 0:
+                    exit = true;
+                    break;
+
                 // main menu
                 case 1:
                     // Check for valid menu option
@@ -87,12 +92,14 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
+                            break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
+                            break;
 
                         // To do: Build out remaining options
                         // case 2:
@@ -106,12 +113,14 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
+                            break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
+                            break;
 
                         // To do: Build out remaining options
                         //case 2:
@@ -126,12 +135,14 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
+                            break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
+                            break;
 
                         // To do: Build out remaining options
                         //case 2:
