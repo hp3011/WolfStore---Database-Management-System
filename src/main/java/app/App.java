@@ -279,7 +279,5 @@ public class App {
             System.out.println(e);
             System.out.println(query);
         }
-
-        in.close();
     }
 }
