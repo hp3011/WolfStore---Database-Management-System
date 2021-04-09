@@ -32,7 +32,8 @@ public class App {
 
         while (exit == false) {
             
-            input = in.nextInt();
+            try {input = in.nextInt();} catch (Exception e) {System.out.println(e);}
+
 
             switch (menu) {
 
