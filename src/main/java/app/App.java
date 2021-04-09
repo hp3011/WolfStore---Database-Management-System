@@ -65,13 +65,16 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
+                            break;
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
+                            break;
                         case 2:
                             signUpMember(conn);
+                            break;
                         // To do: Build out remaining options
 
                     }
@@ -206,6 +209,7 @@ public class App {
             case 2:
             System.out.println("Welcome registration staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\t2 - Signup a new club member");
             break;
 
             // billing staff options
