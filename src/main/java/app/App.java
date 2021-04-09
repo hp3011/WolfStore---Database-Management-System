@@ -1,6 +1,7 @@
 package main.java.app;
 import java.sql.*;  
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 // when in remote server run from CSC540_WolfWR/src
 // javac main/java/app/*.java then java main/java/app/App
@@ -12,6 +13,7 @@ public class App {
     static int menu = 0;
     static int input;
     static boolean exit = false;
+    static Pattern phonePattern = Pattern.compile("^[1-9]\\d{1}-\\d{2}-\\d{3}-\\d{4}");
     
     public static void main(String[] args) {
         
@@ -225,9 +227,9 @@ public class App {
         String address;
         String phone;
         String email;
-        String selectQuery;
-        String insertQuery;
+        String query;
         int customerId;
+        
 
         Scanner in = new Scanner(System.in);
 
@@ -243,7 +245,7 @@ public class App {
         do {
             System.out.println("\tPhone number (format #-###-###-####):");
             phone = in.nextLine();
-        } while (!in.hasNext("^[1-9]\d{1}-\d{2}-\d{3}-\d{4}"));
+        } while (!in.hasNext(phonePattern));
 
         System.out.println("\tEmail address:");
         email = in.nextLine();
@@ -264,7 +266,7 @@ public class App {
 
         try (Statement stmt = con.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
-            
+
         } catch (SQLException e) {
             System.out.println(e);
         }
