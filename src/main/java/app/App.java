@@ -1,6 +1,7 @@
 package main.java.app;
+import java.math.BigDecimal;
 import java.sql.*;  
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Pattern;
 
 // when in remote server run from CSC540_WolfWR/src
@@ -16,6 +17,191 @@ public class App {
     static Pattern phonePattern = Pattern.compile("\\d{1}-\\d{3}-\\d{3}-\\d{4}");
     private static Scanner in;
 
+    private static PreparedStatement prepAddDiscount;
+    private static PreparedStatement prepUpdateDiscount;
+    private static PreparedStatement prepDeleteDiscount;
+
+    private static PreparedStatement prepAddMerchandise;
+    private static PreparedStatement prepUpdateMerchandise;
+    private static PreparedStatement prepDeleteMerchandise;
+
+    //Add SQL query Statement here.
+    public static void generatePreparedStatement(){
+        try {
+            String sql;
+
+            //Rewards Table
+            sql = "INSERT INTO `Rewards` (`PromoID`, `Discount`, `ValidThrough`, `MembershipLevel`)"
+                    + "VALUES(?,?,?,?);";
+            prepAddDiscount = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `Rewards` WHERE PromoID = ?;";
+            prepDeleteDiscount = conn.prepareStatement(sql);
+
+            sql = "UPDATE `Rewards` SET `Discount` = ?, `ValidThrough` = ?, `MembershipLevel` = ?"
+                    + "WHERE PromoID = ?;";
+            prepUpdateDiscount = conn.prepareStatement(sql);
+
+            //Merchandise Table
+            sql = "INSERT INTO `Merchandise` (`ProductID`, `ProductName`, `SupplierID`, `Quantity`, `BuyPrice`, `MarketPrice`,`ManufactureDate`,`ExpirationDate`)"
+                    + "VALUES(?,?,?,?,?,?,?,?);";
+            prepAddMerchandise = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `Merchandise` WHERE ProductID = ?;";
+            prepDeleteDiscount = conn.prepareStatement(sql);
+
+            sql = "UPDATE `Merchandise` SET `ProductName`= ?, `SupplierID`= ?, `Quantity`= ?, `BuyPrice`= ?, `MarketPrice`= ?,`ManufactureDate`= ?,`ExpirationDate`= ?"
+                    + "WHERE ProductID = ?;";
+            prepUpdateMerchandise = conn.prepareStatement(sql);
+
+
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+
+    public static void addDiscount(String promoID, String discount, String validThrough, String membershipLevel) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddDiscount.setString(1,promoID);
+                prepAddDiscount.setBigDecimal(2,new BigDecimal(discount));
+                prepAddDiscount.setDate(3,java.sql.Date.valueOf(validThrough));
+                prepAddDiscount.setString(4,membershipLevel);
+
+                prepAddDiscount.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void deleteDiscount(String promoID) {
+		try {
+			conn.setAutoCommit(false);
+			try {
+				prepDeleteDiscount.setString(1, promoID);
+				prepDeleteDiscount.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+    public static void updateRewards(String promoID) {
+        Scanner sc = new Scanner(System.in);
+        String sql = "SELECT * from `Rewards` where PromoID="+promoID;
+        PreparedStatement read = conn.prepareStatement(sql);
+        String membershiplevel;
+        String validThrough;
+        BigDecimal discount;
+
+		ResultSet rs = read.executeQuery();
+        try{
+            membershiplevel = rs.getString("MembershipLevel");
+            validThrough = rs.getDate("ValidThrough").toString();
+            discount = rs.getBigDecimal("Discount");
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
+        int option = 0;
+        while(option != 100) {
+            System.out.println("1 - Update Discount");
+			System.out.println("2 - Update Valid Through");
+			System.out.println("3 - Update Membership Level");
+            System.out.println("100 - Confirm");
+            option = sc.nextInt();
+            switch(option){
+                case 1: System.out.println("Enter the Discount");
+                        discount = new BigDecimal(sc.next());
+                        break;
+                case 2: System.out.println("Enter the Valid Through(yyyy-mm-dd)");
+                        validThrough = sc.next();
+                        break;
+                case 3: System.out.println("Enter the Membership Level");
+                        membershiplevel = sc.next();
+                        break;
+                default:
+                        break; 
+            }
+        }
+        try {
+			conn.setAutoCommit(false);
+			try {
+				prepUpdateDiscount.setBigDecimal(1, discount);
+                prepUpdateDiscount.setDate(2, java.sql.Date.valueOf(validThrough));
+                prepUpdateDiscount.setString(3, membershiplevel);
+                prepUpdateDiscount.setString(4, promoID);
+				prepUpdateDiscount.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+    }
+    
+    public static void addMerchandise(String productID, String productName, String supplierID, String quantity, String buyPrice, String marketPrice, String manufactureDate, String expirationDate) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddMerchandise.setString(1,productID);
+                prepAddMerchandise.setString(2,productName);
+                prepAddMerchandise.setString(3,supplierID);
+                prepAddMerchandise.setInt(4,Integer.valueOf(quantity));
+                prepAddMerchandise.setBigDecimal(5, new BigDecimal(buyPrice));
+                prepAddMerchandise.setBigDecimal(6, new BigDecimal(marketPrice));
+                prepAddMerchandise.setDate(7,java.sql.Date.valueOf(manufactureDate));
+                prepAddMerchandise.setDate(8,java.sql.Date.valueOf(expirationDate));
+
+                prepAddMerchandise.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void deleteMerchandise(String productID) {
+		try {
+			conn.setAutoCommit(false);
+			try {
+				prepUpdateMerchandise.setString(1, productID);
+				prepUpdateMerchandise.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
     public static void main(String[] args) {
         
         // Setup db connection w username and password
@@ -23,6 +209,7 @@ public class App {
         conn = getConnection();
         // TO DO if connection can't be made then try again or exit
 
+        generatePreparedStatement();
         // Create db and tables- loop through CREATE TABLE statements and execute each
         System.out.println("Loading data...");
         setupDb();
