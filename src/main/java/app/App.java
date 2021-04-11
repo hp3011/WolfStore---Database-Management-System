@@ -25,6 +25,13 @@ public class App {
     private static PreparedStatement prepUpdateMerchandise;
     private static PreparedStatement prepDeleteMerchandise;
 
+    private static PreparedStatement prepAddTransaction;
+    private static PreparedStatement prepUpdateTransaction;
+    private static PreparedStatement prepDeleteTransaction;
+
+    private static PreparedStatement prepAddStaff;
+    private static PreparedStatement prepUpdateStaff;
+    private static PreparedStatement prepDeleteStaff;
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -54,7 +61,32 @@ public class App {
                     + "WHERE ProductID = ?;";
             prepUpdateMerchandise = conn.prepareStatement(sql);
 
+            //Staff Table
+            sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
+                    + "VALUES(?,?,?,?,?,?,?,?,?);"
+            prepAddStaff = conn.prepareStatement(sql);
 
+            sql = "DELETE FROM `StaffMember` WHERE StaffID = ?;";
+            prepDeleteStaff = conn.prepareStatement(sql);
+
+            sql = "UPDATE `StaffMember` SET `StoreID` = ?, `Name` = ?, `Age` = ?, `Address`= ?, `JobTitle` = ? , `PhoneNumber` = ?, `Email` = ?, `JoiningDate` = ? "
+                    + "WHERE StaffID = ?;";
+            prepUpdateStaff = conn.prepareStatement(sql);
+
+            //Transaction
+
+            sql="INSERT INTO `Transaction` (`TransactionID`, `StoreID`, `CustomerID`, `CashierID`, `PurchaseDate`, `TotalPrice` )"
+                    + "VALUES(?,?,?,?,?,?);"
+            prepAddTransaction = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `Transaction` WHERE TransactionID = ?;";
+            prepDeleteTransaction = conn.prepareStatement(sql);
+
+            sql = "UPDATE `StaffTransaction` SET `StoreID` = ?, `CustomerID` = ?, `CashierID` = ?, `PurchaseDate` = ?, `TotalPrice` =? "
+                    + "WHERE TransactionID = ?;";
+            prepUpdateTransaction = conn.prepareStatement(sql);
+
+            
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -202,6 +234,152 @@ public class App {
 			e.printStackTrace();
 		}
 	}
+    public static void addSaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddStaff.setInt(1,StaffID);
+                prepAddStaff.setString(2,StoreID);
+                prepAddStaff.setString(3,Name);
+                prepAddStaff.setString(4, Integer.parseInt(Age));
+                prepAddStaff.setString(5,Address);
+                prepAddStaff.setString(6,JobTitle);
+                prepAddStaff.setString(7,PhoneNumber);
+                prepAddStaff.setSring(8, Email);
+                prepAddStaff.setDate(9,java.sql.Date.valueOf(JoiningDate));
+
+                prepAddStaff.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void deleteStaff(String StaffID) {
+		try {
+			conn.setAutoCommit(false);
+			try {
+				prepDeleteStaff.setString(1, StaffID);
+				prepDeleteStaff.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+    public static void updateStaff(String StaffID) {
+        Scanner sc = new Scanner(System.in);
+        String sql = "SELECT * from `StaffMember` where StaffID="+StaffID;
+        PreparedStatement read = conn.prepareStatement(sql); 
+		ResultSet rs = read.executeQuery();
+
+        String StoreID ;
+        String Name ;
+        Integer Age;
+        String Address ;
+        String JobTitle ;   
+        String PhoneNumber ;
+        String Email ;  
+        String JoiningDate ;
+
+        
+
+        try{
+            StoreID = rs.getString("StoreID");
+            Name = rs.getString("Name");
+            Age = rs.getInt("Age");
+            Address = rs.getString("Address");
+            JobTitle = rs.getString("JobTitle");   
+            PhoneNumber = rs.getString("PhoneNumber");
+            Email = rs.getString("Email");  
+            JoiningDate = rs.getDate("JoiningDate").toString();
+
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
+        int option = 0;
+        while(option != 100) {
+            System.out.println("1 - Update StoreID");
+			System.out.println("2 - Update Name");
+			System.out.println("3 - Update Age");
+            System.out.println("4 - Update Address");
+			System.out.println("5 - Update Job Title");
+            System.out.println("6 - Update Phone number");
+			System.out.println("7 - Update Email ID ");
+			System.out.println("8 - Update Joining Date");
+
+
+
+            System.out.println("100 - Confirm");
+            option = sc.nextInt();
+            switch(option){
+                case 1: System.out.println("Enter the StoreID");
+                        StoreID = new sc.next();
+                        break;
+                case 2: System.out.println("Enter the Name");
+                        Name = sc.next();
+                        break;
+                case 3: System.out.println("Enter the Age");
+                        Age = Integer(sc.next());
+                        break;
+                case 4: System.out.println("Enter the Address");
+                        Address = sc.next();
+                        break;
+                case 5: System.out.println("Enter the Job Tit");
+                        JobTitle = sc.next();
+                        break;
+                case 6: System.out.println("Enter the Phone number");
+                        PhoneNumber = sc.next();
+                        break;
+                case 7: System.out.println("Enter the Email");
+                        Email = sc.next();
+                        break;
+                case 8: System.out.println("Enter the Joing Date (yyyy-mm-dd)");
+                        JoiningDate = sc.next();
+                        break;
+                default:
+                        break; 
+            }
+        }
+        try {
+			conn.setAutoCommit(false);
+			try {
+                
+                prepUpdateStaff.setString(1,StoreID);
+                prepUpdateStaff.setString(2,Name);
+                prepUpdateStaff.setString(3, Integer.parseInt(Age));
+                prepUpdateStaff.setString(4,Address);
+                prepUpdateStaff.setString(5,JobTitle);
+                prepUpdateStaff.setString(6,PhoneNumber);
+                prepUpdateStaff.setSring(7, Email);
+                prepUpdateStaff.setDate(8,java.sql.Date.valueOf(JoiningDate));
+                prepUpdateStaff.setInt(9,StaffID);
+				prepUpdateStaff.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+    }
+    
     public static void main(String[] args) {
         
         // Setup db connection w username and password
