@@ -143,7 +143,7 @@ public class App {
 			e.printStackTrace();
 		}
 	}
-
+/*
     public static void updateRewards(String promoID) {
         Scanner sc = new Scanner(System.in);
         String sql = "SELECT * from `Rewards` where PromoID="+promoID;
@@ -200,7 +200,7 @@ public class App {
 			e.printStackTrace();
 		}
 
-    }
+    } */
     
     public static void addMerchandise(String productID, String productName, String supplierID, String quantity, String buyPrice, String marketPrice, String manufactureDate, String expirationDate) {
         try {
@@ -679,14 +679,14 @@ public class App {
     }
 
     public static void updateMember() {
-        int customerId;
+        int customerId = 0;
         int activeStatusOption = -1;
-        String activeStatus;
-        String name;
-        String address;
-        String phone;
-        String email;
-        int updatedAttribute;
+        String activeStatus = "";
+        String name = "";
+        String address = "";
+        String phone = "";
+        String email = "";
+        int updatedAttribute = -1;
 
         System.out.println("Enter the name of the user to be updated");
         Scanner in = new Scanner(System.in);
