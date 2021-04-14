@@ -103,7 +103,6 @@ public class App {
 		}
     }
 
-
     public static void addDiscount(String promoID, String discount, String validThrough, String membershipLevel) {
         try {
             conn.setAutoCommit(false);
@@ -755,6 +754,7 @@ public class App {
                 prepUpdateCustomer.setString(3, address);
                 prepUpdateCustomer.setString(4, phone);
                 prepUpdateCustomer.setString(5, email);
+                prepUpdateCustomer.setInt(6, customerId);
 
                 prepUpdateCustomer.executeUpdate();
                 conn.commit();
