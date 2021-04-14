@@ -21,6 +21,9 @@ public class App {
     private static PreparedStatement prepUpdateDiscount;
     private static PreparedStatement prepDeleteDiscount;
 
+    private static PreparedStatement prepUpdateCustomer;
+    private static PreparedStatement prepGetCustomer;
+
     private static PreparedStatement prepAddMerchandise;
     private static PreparedStatement prepUpdateMerchandise;
     private static PreparedStatement prepDeleteMerchandise;
@@ -63,7 +66,7 @@ public class App {
 
             //Staff Table
             sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
-                    + "VALUES(?,?,?,?,?,?,?,?,?);"
+                    + "VALUES(?,?,?,?,?,?,?,?,?);";
             prepAddStaff = conn.prepareStatement(sql);
 
             sql = "DELETE FROM `StaffMember` WHERE StaffID = ?;";
@@ -76,7 +79,7 @@ public class App {
             //Transaction
 
             sql="INSERT INTO `Transaction` (`TransactionID`, `StoreID`, `CustomerID`, `CashierID`, `PurchaseDate`, `TotalPrice` )"
-                    + "VALUES(?,?,?,?,?,?);"
+                    + "VALUES(?,?,?,?,?,?);";
             prepAddTransaction = conn.prepareStatement(sql);
 
             sql = "DELETE FROM `Transaction` WHERE TransactionID = ?;";
@@ -85,6 +88,14 @@ public class App {
             sql = "UPDATE `StaffTransaction` SET `StoreID` = ?, `CustomerID` = ?, `CashierID` = ?, `PurchaseDate` = ?, `TotalPrice` =? "
                     + "WHERE TransactionID = ?;";
             prepUpdateTransaction = conn.prepareStatement(sql);
+
+            //Club Member
+            sql = "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? "
+                    + "WHERE CustomerID = ?;";
+            prepUpdateCustomer = conn.prepareStatement(sql);
+
+            sql = "SELECT CustomerID AS customerid, ActiveStatus as activestatus, Name as name, Address as address, Phone as phone, Email as email FROM ClubMember WHERE Name LIKE ?;";
+            prepGetCustomer = conn.prepareStatement(sql);
 
             
         }catch (SQLException e) {
@@ -234,7 +245,8 @@ public class App {
 			e.printStackTrace();
 		}
 	}
-    public static void addSaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+    
+    public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
         try {
             conn.setAutoCommit(false);
             try{
@@ -245,7 +257,7 @@ public class App {
                 prepAddStaff.setString(5,Address);
                 prepAddStaff.setString(6,JobTitle);
                 prepAddStaff.setString(7,PhoneNumber);
-                prepAddStaff.setSring(8, Email);
+                prepAddStaff.setString(8, Email);
                 prepAddStaff.setDate(9,java.sql.Date.valueOf(JoiningDate));
 
                 prepAddStaff.executeUpdate();
@@ -337,16 +349,16 @@ public class App {
                 case 4: System.out.println("Enter the Address");
                         Address = sc.next();
                         break;
-                case 5: System.out.println("Enter the Job Tit");
+                case 5: System.out.println("Enter the job tite");
                         JobTitle = sc.next();
                         break;
-                case 6: System.out.println("Enter the Phone number");
+                case 6: System.out.println("Enter the phone number");
                         PhoneNumber = sc.next();
                         break;
-                case 7: System.out.println("Enter the Email");
+                case 7: System.out.println("Enter the email address");
                         Email = sc.next();
                         break;
-                case 8: System.out.println("Enter the Joing Date (yyyy-mm-dd)");
+                case 8: System.out.println("Enter the joining date (yyyy-mm-dd)");
                         JoiningDate = sc.next();
                         break;
                 default:
@@ -363,7 +375,7 @@ public class App {
                 prepUpdateStaff.setString(4,Address);
                 prepUpdateStaff.setString(5,JobTitle);
                 prepUpdateStaff.setString(6,PhoneNumber);
-                prepUpdateStaff.setSring(7, Email);
+                prepUpdateStaff.setString(7, Email);
                 prepUpdateStaff.setDate(8,java.sql.Date.valueOf(JoiningDate));
                 prepUpdateStaff.setInt(9,StaffID);
 				prepUpdateStaff.executeUpdate();
@@ -445,6 +457,8 @@ public class App {
                         case 2:
                             signUpMember(conn);
                             break;
+                        case 3:
+                            updateMember();
                         // To do: Build out remaining options
 
                     }
@@ -586,6 +600,7 @@ public class App {
             System.out.println("Welcome registration staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Signup a new club member");
+            System.out.println("\t3 - Update an existing member's information");
             break;
 
             // billing staff options
@@ -659,5 +674,98 @@ public class App {
             System.out.println(e);
             System.out.println(query);
         }
+
+        in.close();
+    }
+
+    public static void updateMember() {
+        int customerId;
+        int activeStatusOption = -1;
+        String activeStatus;
+        String name;
+        String address;
+        String phone;
+        String email;
+        int updatedAttribute;
+
+        System.out.println("Enter the name of the user to be updated");
+        Scanner in = new Scanner(System.in);
+        name = in.nextLine();
+
+        // Get the customerid for user to be updated
+        try (Statement stmt = conn.createStatement()){
+            prepGetCustomer.setString(1, name);
+            ResultSet rs = prepGetCustomer.executeQuery();
+            while (rs.next()) {
+                customerId = rs.getInt("customerid");
+                activeStatus = rs.getString("activestatus");
+                name = rs.getString("name");
+                address = rs.getString("address");
+                phone = rs.getString("phone");
+                email = rs.getString("email");
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+        System.out.println("Choose which data to update:");
+        System.out.println("1 - Active status\n2 - Name\n3 - Address\n4 - Phone number\n5 - Email address");
+        updatedAttribute = in.nextInt();
+
+        switch(updatedAttribute) {
+            case 1:
+                while (activeStatusOption != 0 && activeStatusOption != 1) {
+                    System.out.println("Enter 1 to set this user to active and 0 for inactive");
+                    activeStatusOption = in.nextInt();
+                }
+                if (activeStatusOption == 1) {
+                    activeStatus = "Active";
+                }
+                else {
+                    activeStatus = "Inactive";
+                }
+                break;
+            case 2:
+                System.out.println("Enter users updated name");
+                name = in.nextLine();
+                break;
+            case 3:
+                System.out.println("Enter users updated address");
+                address = in.nextLine();
+                break;
+            case 4:
+                System.out.println("Enter users updated phone number");
+                phone = in.nextLine();
+                break;
+            case 5:
+                System.out.println("Enter users updated email address");
+                address = in.nextLine();
+                break;
+        }
+
+
+        // "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? WHERE CustomerID = ?;";
+
+
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepUpdateCustomer.setString(1, activeStatus);
+                prepUpdateCustomer.setString(2, name);
+                prepUpdateCustomer.setString(3, address);
+                prepUpdateCustomer.setString(4, phone);
+                prepUpdateCustomer.setString(5, email);
+
+                prepUpdateCustomer.executeUpdate();
+                conn.commit();
+            } catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
     }
 }
