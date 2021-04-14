@@ -726,18 +726,22 @@ public class App {
                 break;
             case 2:
                 System.out.println("Enter users updated name");
+                in.nextLine();
                 name = in.nextLine();
                 break;
             case 3:
                 System.out.println("Enter users updated address");
+                in.nextLine();
                 address = in.nextLine();
                 break;
             case 4:
                 System.out.println("Enter users updated phone number");
+                in.nextLine();
                 phone = in.nextLine();
                 break;
             case 5:
                 System.out.println("Enter users updated email address");
+                in.nextLine();
                 address = in.nextLine();
                 break;
         }
