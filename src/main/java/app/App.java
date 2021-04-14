@@ -246,7 +246,7 @@ public class App {
 		}
 	}
     
-    public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+    /*public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
         try {
             conn.setAutoCommit(false);
             try{
@@ -271,7 +271,7 @@ public class App {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
-    }
+    }*/
 
     public static void deleteStaff(String StaffID) {
 		try {
@@ -291,7 +291,7 @@ public class App {
 		}
 	}
 
-    public static void updateStaff(String StaffID) {
+   /* public static void updateStaff(String StaffID) {
         Scanner sc = new Scanner(System.in);
         String sql = "SELECT * from `StaffMember` where StaffID="+StaffID;
         PreparedStatement read = conn.prepareStatement(sql); 
@@ -390,7 +390,7 @@ public class App {
 			e.printStackTrace();
 		}
 
-    }
+    }*/
     
     public static void main(String[] args) {
         
