@@ -285,11 +285,11 @@ CREATE TABLE StoreStock
     FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
 )
 
-INSERT INTO Store (ManagerID,StoreAddress,PhoneNumber) VALUES (100,"372 Vulputate Ave","1-697-890-1785"),
-(101,"Ap #130-2852 Eu Rd","1-127-970-2557"),
-(102,"4085 Venenatis Avenue","1-539-577-4357"),
-(103,"543-7199 Eleifend, Ave","1-830-830-0312"),
-(104,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
+INSERT INTO Store (ManagerID,StoreAddress,PhoneNumber) VALUES (1,"372 Vulputate Ave","1-697-890-1785"),
+(2,"Ap #130-2852 Eu Rd","1-127-970-2557"),
+(3,"4085 Venenatis Avenue","1-539-577-4357"),
+(4,"543-7199 Eleifend, Ave","1-830-830-0312"),
+(5,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
 
 INSERT INTO StaffMember (StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (1,"Rae",37,"971-510 Sagittis Avenue","BillingExecutive","1-497-623-4521", "augue.id.ante@orci.ca", "2015/05/30"),
 (2,"Hedley",19,"465-8737 Sagittis St.","BillingExecutive","1-661-557-0964", "sagittis.Nullam.vitae@velsapien.net","2016/09/06"),
