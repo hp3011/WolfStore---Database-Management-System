@@ -653,6 +653,10 @@ public class App {
                             enterStoreInfo();
                         break;
 
+                        // Delete a store
+                        case 3:
+                            deleteStore();
+                        break;
                     }
                 break;
 
@@ -755,6 +759,7 @@ public class App {
             System.out.println("Welcome admin. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Add a new store");
+            System.out.println("\t3 - Delete a store");
             break;
         }
     }
