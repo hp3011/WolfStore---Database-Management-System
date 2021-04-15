@@ -743,7 +743,7 @@ public class App {
             System.out.println(e);
         }*/
 
-        query = String.format("INSERT INTO ClubMember VALUES (\"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", name, address, phone, email);
+        query = String.format("INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (\"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
