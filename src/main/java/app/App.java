@@ -733,7 +733,7 @@ public class App {
         email = in.nextLine();
 
         // Get the next available CustomerID
-        try (Statement stmt = con.createStatement()){
+        /*try (Statement stmt = con.createStatement()){
             ResultSet rs = stmt.executeQuery("SELECT max(CustomerID) as maxid FROM ClubMember");
             while (rs.next()) {
                 int maxid = rs.getInt("maxid");
@@ -741,10 +741,9 @@ public class App {
             }
         } catch (SQLException e) {
             System.out.println(e);
-        }
+        }*/
 
-
-        query = String.format("INSERT INTO ClubMember VALUES (%s, \"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", customerId, name, address, phone, email);
+        query = String.format("INSERT INTO ClubMember VALUES (\"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
