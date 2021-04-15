@@ -115,7 +115,7 @@ public class App {
             sql = "SELECT StaffID as staffid FROM StaffMember WHERE Name like ?;";
             prepGetManager = conn.prepareStatement(sql);
 
-            sql = "Select Store.StoreID as storeid, StaffMember.Name as manager, Store.StoreAddress as address, Store.PhoneNumber as phone"
+            sql = "Select Store.StoreID as storeid, StaffMember.Name as manager, Store.StoreAddress as address, Store.PhoneNumber as phone "
                 + "FROM Store INNER JOIN StaffMember ON Store.ManagerID = StaffMember.StaffID;";
             prepGetStores = conn.prepareStatement(sql);
 
