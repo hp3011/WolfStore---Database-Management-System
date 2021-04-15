@@ -434,7 +434,7 @@ public class App {
                     System.out.println("That's not a manager in the system. Please try again");
                 } else {
                     do {
-                        managerId = rs.getInt("managerid");
+                        managerId = rs.getInt("staffid");
                         managerFound = true;
                     } while (rs.next());
                 }
@@ -697,6 +697,7 @@ public class App {
             case 5:
             System.out.println("Welcome admin. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\t2 - Add a new store");
             break;
         }
     }
