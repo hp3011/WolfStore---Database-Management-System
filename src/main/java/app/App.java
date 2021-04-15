@@ -471,6 +471,9 @@ public class App {
         // Print all the active stores
         // User enters store id of the store they want to delete
         // Execute SQL to delete the store
+
+        // Deletes tuple from Store and sets corresponding StaffMember.StoreID to null
+
         int storeId = -1;
         boolean validStoreId = false;
 
