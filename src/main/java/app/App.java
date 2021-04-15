@@ -514,6 +514,7 @@ public class App {
 
             ResultSet rs = prepGetStores.executeQuery();
             // Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
+            System.out.println("StoreID | Manager | Address | Phone numbers");
             while (rs.next()) {
                 System.out.print(rs.getString("storeid") + " | ");
                 System.out.print(rs.getString("manager") + " | ");
@@ -559,6 +560,7 @@ public class App {
                 System.out.println("Choose which attribute to update:");
                 System.out.println("1 - Store address\n2 - Phone number");
                 updatedAttribute = in.nextInt();
+                in.nextLine();
 
                 if (updatedAttribute == 1) {
                     System.out.println("Enter new address:");
