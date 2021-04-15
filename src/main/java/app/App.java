@@ -116,7 +116,7 @@ public class App {
             prepGetManager = conn.prepareStatement(sql);
 
             sql = "Select Store.StoreID as storeid, StaffMember.Name as manager, Store.StoreAddress as address, Store.PhoneNumber as phone"
-                + "FROM Store JOIN StaffMember ON Store.ManagerID = StaffMember.StaffID;";
+                + "FROM Store INNER JOIN StaffMember ON Store.ManagerID = StaffMember.StaffID;";
             prepGetStores = conn.prepareStatement(sql);
 
             sql = "Select * FROM Store WHERE StoreId = ?;";
