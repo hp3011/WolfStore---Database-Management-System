@@ -586,7 +586,10 @@ public class App {
                     System.out.println("Not a valid option, try again");
                 }
             }
-        } catch (Exception e) {System.out.println(e);}
+        } catch (Exception e) {
+            System.out.println(prepUpdateStore);
+            System.out.println(e);
+        }
 
 
         // Execute update
