@@ -41,6 +41,7 @@ public class App {
     private static PreparedStatement prepGetStores;
     private static PreparedStatement prepGetStore;
     private static PreparedStatement prepDeleteStore;
+    private static PreparedStatement prepUpdateStore;
 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -121,6 +122,9 @@ public class App {
 
             sql = "Select * FROM Store WHERE StoreId = ?;";
             prepGetStore = conn.prepareStatement(sql);
+
+            sql = "UPDATE Store SET ? = ? WHERE StoreID = ?;";
+            prepUpdateStore = conn.prepareStatement(sql);
             
         } catch (SQLException e) {
 			e.printStackTrace();
@@ -478,20 +482,10 @@ public class App {
         boolean validStoreId = false;
 
         System.out.println("From the below list of stores, enter the store id for the store to delete:");
-
+        getStores();
         Scanner in = new Scanner(System.in);
 
         try {
-            // Print active stores
-            ResultSet rs = prepGetStores.executeQuery();
-
-            // Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
-            while (rs.next()) {
-                System.out.print(rs.getString("storeid") + " | ");
-                System.out.print(rs.getString("manager") + " | ");
-                System.out.print(rs.getString("address") + " | ");
-                System.out.print(rs.getString("phone") + "\n");
-            }
        
             // Make sure user enters a valid store id
             while (!validStoreId) {
@@ -513,6 +507,87 @@ public class App {
 
         } catch (SQLException e) {System.out.println(e);}
         
+    }
+    
+    public static void getStores(){
+        try {
+
+            ResultSet rs = prepGetStores.executeQuery();
+            // Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
+            while (rs.next()) {
+                System.out.print(rs.getString("storeid") + " | ");
+                System.out.print(rs.getString("manager") + " | ");
+                System.out.print(rs.getString("address") + " | ");
+                System.out.print(rs.getString("phone") + "\n");
+            }
+        } catch (SQLException e) {System.out.println(e);}
+
+    }
+
+    public static void updateStore() {
+        int updatedAttribute = -1;
+        int storeId = -1;
+        boolean validStoreId = false;
+        boolean validInput = false;
+
+        // Ask for storeid for store to be updated
+        // Display all stores
+        System.out.println("Enter a store id from the stores below to update");
+        getStores();
+        in = new Scanner(System.in);
+
+        try {
+       
+            // Make sure user enters a valid store id
+            while (!validStoreId) {
+                storeId = in.nextInt();
+                prepGetStore.setInt(1, storeId);
+                ResultSet rs = prepGetStore.executeQuery();
+    
+                if (rs.next() == false) {
+                    System.out.println("That's not a valid store id. Please try again");
+                } else {
+                    storeId = rs.getInt("storeid");
+                    validStoreId = true;
+                }
+            }
+        } catch (SQLException e) {System.out.println(e);}
+
+        try {
+            while (!validInput) {
+                // Ask which attribute to update
+                System.out.println("Choose which attribute to update:");
+                System.out.println("1 - Store address\n2 - Phone number");
+                updatedAttribute = in.nextInt();
+
+                if (updatedAttribute == 1) {
+                    System.out.println("Enter new address:");
+                    String address = in.nextLine();
+                    prepUpdateStore.setString(1, "StoreAddress");
+                    prepUpdateStore.setString(2, address);
+                    prepUpdateStore.setInt(3, storeId);
+                    prepUpdateStore.executeUpdate();
+                    validInput = true;
+                    System.out.println("Address updated successfully");
+                } else if (updatedAttribute ==2){
+
+                    System.out.println("Enter new phone number");
+                    String phone = in.nextLine();
+                    prepUpdateStore.setString(1, "PhoneNumber");
+                    prepUpdateStore.setString(2, phone);
+                    prepUpdateStore.setInt(3, storeId);
+                    prepUpdateStore.executeUpdate();
+                    validInput = true;
+                    System.out.println("Phone number updated successfully");
+                }
+                else {
+                    System.out.println("Not a valid option, try again");
+                }
+            }
+        } catch (Exception e) {System.out.println(e)}
+
+
+        // Execute update
     }
     public static void main(String[] args) {
         
@@ -660,6 +735,10 @@ public class App {
                         case 3:
                             deleteStore();
                         break;
+
+                        case 4:
+                            updateStore();
+                        break;
                     }
                 break;
 
@@ -763,6 +842,7 @@ public class App {
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Add a new store");
             System.out.println("\t3 - Delete a store");
+            System.out.println("\t4 - Update a store's information");
             break;
         }
     }
