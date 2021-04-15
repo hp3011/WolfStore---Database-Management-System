@@ -448,6 +448,7 @@ public class App {
             prepAddStore.setString(3, phone);
 
             prepAddStore.executeUpdate();
+            System.out.println("Store added successfully");
         } catch (SQLException e) {
             System.out.println(e);
         }
