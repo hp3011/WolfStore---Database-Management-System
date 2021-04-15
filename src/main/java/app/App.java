@@ -486,7 +486,7 @@ public class App {
                 // main menu
                 case 1:
                     // Check for valid menu option
-                    if (input > 0 && input <5){
+                    if (input > 0 && input <6){
                         // Display menu options
                         showOptions(input);
                         // Set menu to user's selected option
