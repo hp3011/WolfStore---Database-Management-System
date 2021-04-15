@@ -38,6 +38,9 @@ public class App {
     private static PreparedStatement prepGetManager;
 
     private static PreparedStatement prepAddStore;
+    private static PreparedStatement prepGetStores;
+    private static PreparedStatement prepGetStore;
+    private static PreparedStatement prepDeleteStore;
 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -105,11 +108,21 @@ public class App {
             sql = "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`)"
                     + "VALUES(?,?,?);";
             prepAddStore = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `Store` WHERE StoreID = ?;";
+            prepDeleteStore = conn.prepareStatement(sql);
             
             sql = "SELECT StaffID as staffid FROM StaffMember WHERE Name like ?;";
             prepGetManager = conn.prepareStatement(sql);
+
+            sql = "Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
+                + "FROM Store s JOIN StaffMember m on s.ManagerID = m.StaffID;";
+            prepGetStores = conn.prepareStatement(sql);
+
+            sql = "Select * FROM Store WHERE StoreId = ?;";
+            prepGetStore = conn.prepareStatement(sql);
             
-        }catch (SQLException e) {
+        } catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
@@ -153,8 +166,8 @@ public class App {
 			e.printStackTrace();
 		}
 	}
-/*
-    public static void updateRewards(String promoID) {
+
+    /*public static void updateRewards(String promoID) {
         Scanner sc = new Scanner(System.in);
         String sql = "SELECT * from `Rewards` where PromoID="+promoID;
         PreparedStatement read = conn.prepareStatement(sql);
@@ -453,6 +466,51 @@ public class App {
             System.out.println(e);
         }
     }
+    
+    public static void deleteStore() {
+        // Print all the active stores
+        // User enters store id of the store they want to delete
+        // Execute SQL to delete the store
+        int storeId = -1;
+        boolean validStoreId = false;
+
+        System.out.println("From the below list of stores, enter the store id for the store to delete:");
+
+        Scanner in = new Scanner(System.in);
+
+        try {
+            // Print active stores
+            ResultSet rs = prepGetStores.executeQuery();
+
+            // Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
+            while (rs.next()) {
+                System.out.print(rs.getString("storeid") + " | ");
+                System.out.print(rs.getString("manager") + " | ");
+                System.out.print(rs.getString("address") + " | ");
+                System.out.print(rs.getString("phone"));
+            }
+       
+            // Make sure user enters a valid store id
+            while (!validStoreId) {
+                storeId = in.nextInt();
+                prepGetStore.setInt(1, storeId);
+                ResultSet rs = prepGetStore.executeQuery();
+    
+                if (rs.next() == false) {
+                    System.out.println("That's not a manager in the system. Please try again");
+                } else {
+                    storeId = rs.getInt("storeid");
+                    validStoreId = true;
+                }
+            }
+
+            prepDeleteStore.setInt(1, storeId);
+            prepDeleteStore.executeUpdate();
+            System.out.println("Store deleted successfully");
+
+        } catch (SQLException e) {System.out.println(e);}
+        
+    }
     public static void main(String[] args) {
         
         // Setup db connection w username and password
@@ -710,7 +768,6 @@ public class App {
         String query;
         int customerId=0;
         
-
         Scanner in = new Scanner(System.in);
 
         System.out.println("Beginning new member signup. Enter the following user information:");
