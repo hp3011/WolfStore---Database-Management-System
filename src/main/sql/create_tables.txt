@@ -431,7 +431,7 @@ INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES ("
 ("OFF20", 0.20, "2021/04/07","Platinum")
 
 INSERT INTO RewardsEligibleFor (CustomerID, PromoID) VALUES 
-(1,"OFF05"), (1,"OFF05"), (2,"OFF05"), (3,"OFF05"), (4,"OFF10"), (5,"OFF10"), (6,"OFF10"), (7,"OFF20"), (8,"OFF20"), (9,"OFF20")
+(10,"OFF05"), (1,"OFF05"), (2,"OFF05"), (3,"OFF05"), (4,"OFF10"), (5,"OFF10"), (6,"OFF10"), (7,"OFF20"), (8,"OFF20"), (9,"OFF20")
 
 INSERT INTO Admin (StaffID) VALUES (14)
 
