@@ -115,8 +115,8 @@ public class App {
             sql = "SELECT StaffID as staffid FROM StaffMember WHERE Name like ?;";
             prepGetManager = conn.prepareStatement(sql);
 
-            sql = "Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
-                + "FROM Store s JOIN StaffMember m on s.ManagerID = m.StaffID;";
+            sql = "Select Store.StoreID as storeid, StaffMember.Name as manager, Store.StoreAddress as address, Store.PhoneNumber as phone"
+                + "FROM Store JOIN StaffMember ON Store.ManagerID = StaffMember.StaffID;";
             prepGetStores = conn.prepareStatement(sql);
 
             sql = "Select * FROM Store WHERE StoreId = ?;";
