@@ -433,10 +433,8 @@ public class App {
                 if (rs.next() == false) {
                     System.out.println("That's not a manager in the system. Please try again");
                 } else {
-                    do {
-                        managerId = rs.getInt("staffid");
-                        managerFound = true;
-                    } while (rs.next());
+                    managerId = rs.getInt("staffid");
+                    managerFound = true;
                 }
             } catch (SQLException e) {
                 System.out.println(e);
