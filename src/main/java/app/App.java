@@ -487,7 +487,7 @@ public class App {
                 System.out.print(rs.getString("storeid") + " | ");
                 System.out.print(rs.getString("manager") + " | ");
                 System.out.print(rs.getString("address") + " | ");
-                System.out.print(rs.getString("phone"));
+                System.out.print(rs.getString("phone\n"));
             }
        
             // Make sure user enters a valid store id
