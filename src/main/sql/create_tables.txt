@@ -165,7 +165,7 @@ CREATE TABLE WarehouseOperator
 CREATE TABLE Transaction
   (
 	TransactionID  INT  NOT NULL AUTO_INCREMENT,
-	StoreID  INT NOT NULL,
+	StoreID  INT,
     CustomerID	 INT  NOT NULL,
     CashierID  INT  NOT NULL,
     PurchaseDate  DATE NOT NULL,
