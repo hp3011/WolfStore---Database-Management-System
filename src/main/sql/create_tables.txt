@@ -164,7 +164,7 @@ CREATE TABLE WarehouseOperator
 
 CREATE TABLE Transaction
   (
-	TransactionID  INT  NOT NULL,
+	TransactionID  INT  NOT NULL AUTO_INCREMENT,
 	StoreID  INT NOT NULL,
     CustomerID	 INT  NOT NULL,
     CashierID  INT  NOT NULL,
@@ -249,7 +249,7 @@ CREATE TABLE PurchasedItems
 
 CREATE TABLE Report
 (
-    ReportID INT NOT NULL,
+  ReportID INT NOT NULL,
 	FromDate  DATE  NOT NULL,
 	ToDate  DATE NOT NULL,
 	ReportType VARCHAR(128),
@@ -291,21 +291,21 @@ INSERT INTO Store (ManagerID,StoreAddress,PhoneNumber) VALUES (100,"372 Vulputat
 (103,"543-7199 Eleifend, Ave","1-830-830-0312"),
 (104,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
 
-INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (100,1,"Rae",37,"971-510 Sagittis Avenue","BillingExecutive","1-497-623-4521", "augue.id.ante@orci.ca", "2015/05/30"),
-(101,2,"Hedley",19,"465-8737 Sagittis St.","BillingExecutive","1-661-557-0964", "sagittis.Nullam.vitae@velsapien.net","2016/09/06"),
-(102,1,"Octavia",51,"493-6491 Sagittis Av.","WarehouseOperator","1-630-915-0875", "semper@euultrices.net","2016/02/13"),
-(103,2,"Janna",22,"Ap #647-7873 Lorem Rd.","WarehouseOperator", "1-264-391-2166", "velit.Aliquam@nonbibendumsed.net","2018/12/06"),
-(104,1,"Rafael",46,"P.O. Box 693, 7624 Ac Av.","Cashier","1-732-563-8494", "lorem@blanditNam.net","2015/09/27"),
-(105,2,"Kyle",64,"7050 Libero. Road","Cashier","1-332-324-7851", "egestas.urna@neccursusa.com","2016/10/26"),
-(106,3,"Harlan",46,"9504 Magna. Av.","Cashier","1-244-752-8724", "Phasellus@estvitaesodales.com","2015/06/14"),
-(107,4,"Erasmus",28,"P.O. Box 545, 7975 Auctor, St.","Cashier","1-294-975-9411", "est.Nunc.ullamcorper@aliquamarcuAliquam.com","2016/07/09"),
-(108,5,"Bethany",26,"Ap #116-5858 Quis, Rd.","Cashier","1-376-522-3510", "nec@facilisis.net","2016/11/03"),
-(109,1,"Hadassah",35,"7023 Nec Ave","RegistrationStaff","1-230-370-6960", "eu@non.edu","2017/05/31"),
-(110,2,"Sloane",28,"491-4549 Sed, Ave","RegistrationStaff","1-143-738-5747", "fermentum.risus.at@nonummyultriciesornare.co.uk","2015/09/22"),
-(111,3,"Keegan",63,"P.O. Box 907, 7686 Tempus Rd.","RegistrationStaff", "1-300-203-9556", "scelerisque@egestasrhoncus.ca","2015/11/11"),
-(112,4,"Kennan",70,"P.O. Box 670, 6720 Consectetuer Ave","RegistrationStaff", "1-783-294-4530", "at@vitaeposuereat.ca","2016/05/21"),
-(113,5,"Velma",43,"530-4936 Augue Street","RegistrationStaff","1-965-665-0203", "Morbi@nulla.ca","2015/08/14"),
-(114,1,"Abbot",25,"5958 Non, St.","Admin","1-129-509-1332", "risus@nec.org", "2015/05/19")
+INSERT INTO StaffMember (StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (1,"Rae",37,"971-510 Sagittis Avenue","BillingExecutive","1-497-623-4521", "augue.id.ante@orci.ca", "2015/05/30"),
+(2,"Hedley",19,"465-8737 Sagittis St.","BillingExecutive","1-661-557-0964", "sagittis.Nullam.vitae@velsapien.net","2016/09/06"),
+(1,"Octavia",51,"493-6491 Sagittis Av.","WarehouseOperator","1-630-915-0875", "semper@euultrices.net","2016/02/13"),
+(2,"Janna",22,"Ap #647-7873 Lorem Rd.","WarehouseOperator", "1-264-391-2166", "velit.Aliquam@nonbibendumsed.net","2018/12/06"),
+(1,"Rafael",46,"P.O. Box 693, 7624 Ac Av.","Cashier","1-732-563-8494", "lorem@blanditNam.net","2015/09/27"),
+(2,"Kyle",64,"7050 Libero. Road","Cashier","1-332-324-7851", "egestas.urna@neccursusa.com","2016/10/26"),
+(3,"Harlan",46,"9504 Magna. Av.","Cashier","1-244-752-8724", "Phasellus@estvitaesodales.com","2015/06/14"),
+(4,"Erasmus",28,"P.O. Box 545, 7975 Auctor, St.","Cashier","1-294-975-9411", "est.Nunc.ullamcorper@aliquamarcuAliquam.com","2016/07/09"),
+(5,"Bethany",26,"Ap #116-5858 Quis, Rd.","Cashier","1-376-522-3510", "nec@facilisis.net","2016/11/03"),
+(1,"Hadassah",35,"7023 Nec Ave","RegistrationStaff","1-230-370-6960", "eu@non.edu","2017/05/31"),
+(2,"Sloane",28,"491-4549 Sed, Ave","RegistrationStaff","1-143-738-5747", "fermentum.risus.at@nonummyultriciesornare.co.uk","2015/09/22"),
+(3,"Keegan",63,"P.O. Box 907, 7686 Tempus Rd.","RegistrationStaff", "1-300-203-9556", "scelerisque@egestasrhoncus.ca","2015/11/11"),
+(4,"Kennan",70,"P.O. Box 670, 6720 Consectetuer Ave","RegistrationStaff", "1-783-294-4530", "at@vitaeposuereat.ca","2016/05/21"),
+(5,"Velma",43,"530-4936 Augue Street","RegistrationStaff","1-965-665-0203", "Morbi@nulla.ca","2015/08/14"),
+(1,"Abbot",25,"5958 Non, St.","Admin","1-129-509-1332", "risus@nec.org", "2015/05/19")
 
 INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES ("Active","Cameron Alvarado","Standard","5624 Mi Rd. , Charlotte", "1-877-521-8507", "nunc@acturpisegestas.edu"),
 ("Active","Rachel Mathews","Standard","891 Lobortis Ave, Durham","1-343-898-4765", "et.magna.Praesent@massalobortisultrices.ca"),
@@ -318,23 +318,23 @@ INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) V
 ("Active","Frances Wiley","Platinum","295-4154 Fringilla Rd., Cary","1-409-702-5355", "facilisis@risusDonec.com"),
 ("Active","Grace Sparks","Platinum","251-3974 Sit Ave, Raleigh","1-804-629-4981", "mauris@liberonec.co.uk")
 
-INSERT INTO Cashier (StaffID) VALUES (104),(105),(106),(107),(108)
+INSERT INTO Cashier (StaffID) VALUES (4),(5),(6),(7),(8)
 
-INSERT INTO Transaction (TransactionID,StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (1,2,9,105,"2021/01/18",29.75), 
-(2,2,1,105,"2021/01/29",446.5),
-(3,1,8,104,"2021/02/16",207),
-(4,3,2,106,"2021/02/09",679.25),
-(5,4,8,107,"2021/01/24",378.25),
-(6,5,4,108,"2021/02/03",414),
-(7,1,7,104,"2021/02/23",24),
-(8,2,4,105,"2021/01/20",360),
-(9,4,8,107,"2021/02/28",208),
-(10,1,3,104,"2021/03/28",437),
-(11,4,5,107,"2021/01/18",72),
-(12,1,6,104,"2021/02/17",76.5),
-(13,5,1,108,"2021/02/10",52.25),
-(14,4,1,107,"2021/02/13",47.5),
-(15,4,2,107,"2021/02/18",437)
+INSERT INTO Transaction (StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (2,9,105,"2021/01/18",29.75), 
+(2,1,105,"2021/01/29",446.5),
+(1,8,104,"2021/02/16",207),
+(3,2,106,"2021/02/09",679.25),
+(4,8,107,"2021/01/24",378.25),
+(5,4,108,"2021/02/03",414),
+(1,7,104,"2021/02/23",24),
+(2,4,105,"2021/01/20",360),
+(4,8,107,"2021/02/28",208),
+(1,3,104,"2021/03/28",437),
+(4,5,107,"2021/01/18",72),
+(1,6,104,"2021/02/17",76.5),
+(5,1,108,"2021/02/10",52.25),
+(4,1,107,"2021/02/13",47.5),
+(4,2,107,"2021/02/18",437)
 
 INSERT INTO Shipment (ShipmentID,Type,SentBy,ReceivedBy,SentDate,ReceivedDate) VALUES 
 ("SHP100","Customer","Caesar Poole",3,"2021/01/25","2021/02/02"),
@@ -364,10 +364,10 @@ INSERT INTO Merchandise (ProductID,ProductName,SupplierID,Quantity,BuyPrice,Mark
 ("ITEM_03","nike shoes ","SUP100",92,200,235,"2021/06/03","2025/02/28"), ("ITEM_04","jeans","SUP100",174,207,230,"2020/11/08","2023/09/30"), ("ITEM_05","jacket","SUP100",86,188,230,"2020/06/14","2024/06/12"), ("ITEM_06","medicine","SUP104",139,20,25,"2020/10/27","2022/07/11"), 
 ("ITEM_07","utensil set","SUP103",77,107,200,"2021/09/15","2021/10/16"), ("ITEM_08","lamp","SUP103",85,40,85,"2020/05/08","2022/11/09"), ("ITEM_09","cookies","SUP101",191,25,55,"2022/03/03","2024/09/19"), ("ITEM_10","makeup set","SUP102",171,300,460,"2021/07/23","2022/05/04")
 
-INSERT INTO Signup (StaffID,CustomerID,SignupDate) VALUES (113,10,"2015/08/18"),(110,1,"2016/01/07"),(113,2,"2015/11/28"),
-(113,3,"2016/03/04"),(113,4,"2016/03/04"),(109,5,"2015/08/28"),
-(113,6,"2015/07/30"),(109,7,"2015/05/30"),(113,8,"2016/01/17"),
-(112,9,"2015/07/03")
+INSERT INTO Signup (StaffID,CustomerID,SignupDate) VALUES (13,10,"2015/08/18"),(13,1,"2016/01/07"),(13,2,"2015/11/28"),
+(13,3,"2016/03/04"),(13,4,"2016/03/04"),(9,5,"2015/08/28"),
+(13,6,"2015/07/30"),(9,7,"2015/05/30"),(13,8,"2016/01/17"),
+(12,9,"2015/07/03")
 
 INSERT INTO CustomerPaysBillTo (CustomerID,TransactionID) VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(1,10),(2,11),(3,12),(4,13),(2,14),(5,15)
 
@@ -380,7 +380,7 @@ INSERT INTO SupplierShipment (ShipmentID) VALUES ("SHP110"),("SHP111"),("SHP112"
 
 INSERT INTO StoreShipment (ShipmentID) VALUES ("SHP106"),("SHP107"),("SHP108"),("SHP109")
 
-INSERT INTO BillingExecutive (StaffID) VALUES (100),(101)
+INSERT INTO BillingExecutive (StaffID) VALUES (1),(2)
 
 INSERT INTO ShipmentBill (BillID, ShipmentID , Amount, BillingDate , BillingExecutiveID ) VALUES 
 (100, "SHP100", 35,  "2021/02/03", 100 ),
@@ -433,8 +433,8 @@ INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES ("
 INSERT INTO RewardsEligibleFor (CustomerID, PromoID) VALUES 
 (1,"OFF05"), (1,"OFF05"), (2,"OFF05"), (3,"OFF05"), (4,"OFF10"), (5,"OFF10"), (6,"OFF10"), (7,"OFF20"), (8,"OFF20"), (9,"OFF20")
 
-INSERT INTO Admin (StaffID) VALUES (114)
+INSERT INTO Admin (StaffID) VALUES (14)
 
-INSERT INTO RegistrationStaff (StaffID) VALUES (109),(110),(111),(112),(113)
+INSERT INTO RegistrationStaff (StaffID) VALUES (9),(10),(11),(12),(13)
 
-INSERT INTO WarehouseOperator (StaffID) VALUES (102),(103)
+INSERT INTO WarehouseOperator (StaffID) VALUES (2),(3)

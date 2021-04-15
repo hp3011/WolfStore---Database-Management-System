@@ -732,17 +732,6 @@ public class App {
         System.out.println("Email address:");
         email = in.nextLine();
 
-        // Get the next available CustomerID
-        /*try (Statement stmt = con.createStatement()){
-            ResultSet rs = stmt.executeQuery("SELECT max(CustomerID) as maxid FROM ClubMember");
-            while (rs.next()) {
-                int maxid = rs.getInt("maxid");
-                customerId = maxid+1;
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-        }*/
-
         query = String.format("INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (\"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
@@ -753,7 +742,6 @@ public class App {
             System.out.println(query);
         }
 
-        //in.close();
     }
 
     public static void updateMember() {
