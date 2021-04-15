@@ -491,7 +491,7 @@ public class App {
             while (!validStoreId) {
                 storeId = in.nextInt();
                 prepGetStore.setInt(1, storeId);
-                rs = prepGetStore.executeQuery();
+                ResultSet rs = prepGetStore.executeQuery();
     
                 if (rs.next() == false) {
                     System.out.println("That's not a manager in the system. Please try again");
