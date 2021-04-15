@@ -42,6 +42,8 @@ public class App {
     private static PreparedStatement prepGetStore;
     private static PreparedStatement prepDeleteStore;
     private static PreparedStatement prepUpdateStore;
+    private static PreparedStatement prepUpdateStorePhone;
+
 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -126,6 +128,9 @@ public class App {
             sql = "UPDATE Store SET ? = ? WHERE StoreID = ?;";
             prepUpdateStore = conn.prepareStatement(sql);
             
+            sql = "UPDATE Store SET ? = ? WHERE StoreID = ?;";
+            prepUpdateStorePhone = conn.prepareStatement(sql);
+
         } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -575,10 +580,10 @@ public class App {
 
                     System.out.println("Enter new phone number");
                     String phone = in.nextLine();
-                    prepUpdateStore.setString(1, "PhoneNumber");
-                    prepUpdateStore.setString(2, phone);
-                    prepUpdateStore.setInt(3, storeId);
-                    prepUpdateStore.executeUpdate();
+                    //prepUpdateStorePhone.setString(1, "PhoneNumber");
+                    prepUpdateStorePhone.setString(1, phone);
+                    prepUpdateStorePhone.setInt(2, storeId);
+                    prepUpdateStorePhone.executeUpdate();
                     validInput = true;
                     System.out.println("Phone number updated successfully");
                 }
