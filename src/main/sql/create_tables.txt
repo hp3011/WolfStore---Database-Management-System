@@ -77,13 +77,13 @@ CREATE TABLE Shipment
 
 CREATE TABLE Store
   (
-	StoreID CHAR(5) NOT NULL,
-	ManagerID  INT  NOT NULL,
+	  StoreID INT NOT NULL AUTO_INCREMENT,
+	  ManagerID  INT  NOT NULL,
     StoreAddress  VARCHAR(128) NOT NULL,
     PhoneNumber   VARCHAR(128) NOT NULL,
-	PRIMARY KEY(StoreID),
-	UNIQUE(PhoneNumber),
-	UNIQUE (StoreAddress)
+	  PRIMARY KEY(StoreID),
+	  UNIQUE(PhoneNumber),
+	  UNIQUE (StoreAddress)
 	  )
 
 CREATE TABLE StaffMember
@@ -165,7 +165,7 @@ CREATE TABLE WarehouseOperator
 CREATE TABLE Transaction
   (
 	TransactionID  INT  NOT NULL,
-	StoreID  CHAR(5) NOT NULL,
+	StoreID  INT NOT NULL,
     CustomerID	 INT  NOT NULL,
     CashierID  INT  NOT NULL,
     PurchaseDate  DATE NOT NULL,
@@ -277,7 +277,7 @@ CREATE TABLE RewardsEligibleFor
 
 CREATE TABLE StoreStock 
 (
-	StoreID  CHAR(5) NOT NULL,
+	  StoreID  INT NOT NULL ,
     ProductID  CHAR(7) NOT NULL,
     Stock INT NOT NULL,
     PRIMARY KEY (StoreID),
@@ -285,11 +285,11 @@ CREATE TABLE StoreStock
     FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
 )
 
-INSERT INTO Store (StoreID,ManagerID,StoreAddress,PhoneNumber) VALUES ("ST001",100,"372 Vulputate Ave","1-697-890-1785"),
-("ST002",101,"Ap #130-2852 Eu Rd","1-127-970-2557"),
-("ST003",102,"4085 Venenatis Avenue","1-539-577-4357"),
-("ST004",103,"543-7199 Eleifend, Ave","1-830-830-0312"),
-("ST005",104,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
+INSERT INTO Store (ManagerID,StoreAddress,PhoneNumber) VALUES (100,"372 Vulputate Ave","1-697-890-1785"),
+(101,"Ap #130-2852 Eu Rd","1-127-970-2557"),
+(102,"4085 Venenatis Avenue","1-539-577-4357"),
+(103,"543-7199 Eleifend, Ave","1-830-830-0312"),
+(104,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
 
 INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (100,"ST001","Rae",37,"971-510 Sagittis Avenue","BillingExecutive","1-497-623-4521", "augue.id.ante@orci.ca", "2015/05/30"),
 (101,"ST002","Hedley",19,"465-8737 Sagittis St.","BillingExecutive","1-661-557-0964", "sagittis.Nullam.vitae@velsapien.net","2016/09/06"),

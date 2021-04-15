@@ -35,6 +35,10 @@ public class App {
     private static PreparedStatement prepAddStaff;
     private static PreparedStatement prepUpdateStaff;
     private static PreparedStatement prepDeleteStaff;
+    private static PreparedStatement prepGetManager;
+
+    private static PreparedStatement prepAddStore;
+
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -97,6 +101,13 @@ public class App {
             sql = "SELECT CustomerID AS customerid, ActiveStatus as activestatus, Name as name, Address as address, Phone as phone, Email as email FROM ClubMember WHERE Name LIKE ?;";
             prepGetCustomer = conn.prepareStatement(sql);
 
+            //Store
+            sql = "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`)"
+                    + "VALUES(?,?,?);";
+            prepAddStore = conn.prepareStatement(sql);
+            
+            sql = "SELECT StaffID as staffid FROM StaffMember WHERE Name like ?;";
+            prepGetManager = conn.prepareStatement(sql);
             
         }catch (SQLException e) {
 			e.printStackTrace();
@@ -391,6 +402,58 @@ public class App {
 
     }*/
     
+    public static void enterStoreInfo() {
+        // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
+        int managerId = -1;
+        String managerName = "";
+        String address = "";
+        String phone = "";
+        boolean managerFound = false;
+
+        System.out.println("Beginning new store registration. Enter the following information:");
+        
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("Address:");
+        address = in.nextLine();
+
+        System.out.println("Phone number:");
+        phone = in.nextLine();
+
+        // Based on manager's name, get their staff id
+        // Name needs to be an existing staff member's name
+        while (!managerFound) {
+            System.out.println("Manager name:");
+            managerName = in.nextLine();
+
+            try (Statement stmt = conn.createStatement()){
+                prepGetManager.setString(1, managerName);
+                ResultSet rs = prepGetManager.executeQuery();
+                
+                if (rs.next() == false) {
+                    System.out.println("That's not a manager in the system. Please try again");
+                } else {
+                    do {
+                        managerId = rs.getInt("managerid");
+                        managerFound = true;
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                System.out.println(e);
+            }
+        }
+        // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
+        // Enter the new store info
+        try {
+            prepAddStore.setInt(1, managerId);
+            prepAddStore.setString(2, address);
+            prepAddStore.setString(3, phone);
+
+            prepAddStore.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
     public static void main(String[] args) {
         
         // Setup db connection w username and password
@@ -399,7 +462,7 @@ public class App {
         // TO DO if connection can't be made then try again or exit
 
         generatePreparedStatement();
-        // Create db and tables- loop through CREATE TABLE statements and execute each
+        // Create db and tables- loop through commands and execute each
         System.out.println("Loading data...");
         setupDb();
 
@@ -418,7 +481,7 @@ public class App {
                 // quit
                 case 0:
                     exit = true;
-                    break;
+                break;
 
                 // main menu
                 case 1:
@@ -436,7 +499,7 @@ public class App {
                     else {
                         System.out.println("Not a valid option, try again");
                     }
-                    break;
+                break;
 
                 // registration staff menu
                 // Owner: Jake
@@ -446,21 +509,25 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
+
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
+
                         case 2:
                             signUpMember(conn);
-                            break;
+                        break;
+
                         case 3:
                             updateMember();
+                        break;
                         // To do: Build out remaining options
-
                     }
+                break;
 
                 // billing staff menu
                 // Owner: Mithil
@@ -470,18 +537,19 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
 
                         // To do: Build out remaining options
                         // case 2:
                     }
+                break;
 
                 // warehouse operator menu
                 // Owner: Hrishikesh
@@ -491,18 +559,19 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
 
                         // To do: Build out remaining options
                         //case 2:
                     }
+                break;
 
                 // admin menu
                 // Owner: Parimal
@@ -513,24 +582,34 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
 
-                        // To do: Build out remaining options
-                        //case 2:
+                        // Create a new store
+                        case 2:
+                            enterStoreInfo();
+                        break;
+
                     }
+                break;
 
                 default:
-                    break;
+                break;
             }
         }
-        in.close();
+        try {
+            in.close();
+            conn.close();
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public static Connection getConnection(){
@@ -669,12 +748,13 @@ public class App {
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
+            System.out.println("Member added successfully");
         } catch (SQLException e) {
             System.out.println(e);
             System.out.println(query);
         }
 
-        in.close();
+        //in.close();
     }
 
     public static void updateMember() {
@@ -696,6 +776,8 @@ public class App {
             prepGetCustomer.setString(1, name);
             ResultSet rs = prepGetCustomer.executeQuery();
             while (rs.next()) {
+                // Store all the current values
+                // Might be overriden based on user input
                 customerId = rs.getInt("customerid");
                 activeStatus = rs.getString("activestatus");
                 name = rs.getString("name");
@@ -746,9 +828,7 @@ public class App {
                 break;
         }
 
-
         // "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? WHERE CustomerID = ?;";
-
 
         try {
             conn.setAutoCommit(false);
@@ -762,6 +842,7 @@ public class App {
 
                 prepUpdateCustomer.executeUpdate();
                 conn.commit();
+                System.out.println("Member information updated successfully");
             } catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
