@@ -32,6 +32,10 @@ public class App {
     private static PreparedStatement prepUpdateTransaction;
     private static PreparedStatement prepDeleteTransaction;
 
+    private static PreparedStatement prepAddPurchasedItems;
+    private static PreparedStatement prepUpdatePurchasedItems;
+    private static PreparedStatement prepDeletePurchasedItems;
+
     private static PreparedStatement prepAddStaff;
     private static PreparedStatement prepUpdateStaff;
     private static PreparedStatement prepDeleteStaff;
@@ -42,6 +46,9 @@ public class App {
     private static PreparedStatement prepGetStore;
     private static PreparedStatement prepDeleteStore;
     private static PreparedStatement prepUpdateStore;
+
+    private static PreparedStatement prepGetPrice;
+
 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -97,6 +104,23 @@ public class App {
             sql = "UPDATE `StaffTransaction` SET `StoreID` = ?, `CustomerID` = ?, `CashierID` = ?, `PurchaseDate` = ?, `TotalPrice` =? "
                     + "WHERE TransactionID = ?;";
             prepUpdateTransaction = conn.prepareStatement(sql);
+
+            sql = "SELECT MarketPrice FROM `Merchandise` WHERE `ProductID` = ?;";
+			prepGetPrice = conn.prepareStatement(sql);
+
+            //Purchased Items
+
+            sql="INSERT INTO `PurchasedItems` (`TransactionID`, `ProductID`, `Quantity` )"
+                    + "VALUES(?,?,?);";
+            prepAddPurchasedItems = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `PurchasedItems` WHERE TransactionID = ? and ProductID= ? ;";
+            prepDeletePurchasedItems = conn.prepareStatement(sql);
+
+            sql = "UPDATE `PurchasedItems` SET `Quantity` = ? "
+                    + "WHERE TransactionID = ? and  ProductID= ? ;";
+            prepUpdatePurchasedItems = conn.prepareStatement(sql);
+
 
             //Club Member
             sql = "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? "
@@ -300,6 +324,119 @@ public class App {
 			e.printStackTrace();
 		}
     }
+
+    public static void addTransaction(String TransactionID, String StoreID, String CustomerID, String CashierID, String PurchaseDate, BigDecimal TotalPrice) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddTransaction.setInt(1,Integer.parseInt(TransactionID));
+                prepAddTransaction.setInt(2,Integer.parseInt(StoreID));
+                prepAddTransaction.setInt(3,Integer.parseInt(CustomerID));
+                prepAddTransaction.setInt(4, Integer.parseInt(CashierID));
+                prepAddTransaction.setDate(5,java.sql.Date.valueOf(PurchaseDate));
+                prepAddTransaction.setBigDecimal(6,TotalPrice);
+
+                prepAddTransaction.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+    public static void addPurchasedItems(String TransactionID, String ProductID, String Quantity) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+
+                prepAddTransaction.setInt(1,Integer.parseInt(TransactionID));
+                prepAddTransaction.setInt(2,Integer.parseInt(ProductID));
+                prepAddTransaction.setInt(3,Integer.parseInt(Quantity));
+
+                prepAddTransaction.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static BigDecimal getPrice(String ProductID) {
+    	BigDecimal price = null;
+        try {
+            
+
+                prepGetPrice.setInt(1,Integer.parseInt(ProductID));
+                ResultSet rs = prepGetPrice.executeQuery();
+                if (rs.next()) {
+                        price = rs.getBigDecimal("MarketPrice");
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return price;
+    }
+	public static void userTransactionAdd() {
+		// Declare local variables
+	    String transactionid;
+        String storeid ;
+        String customerid ;
+        String cashierid;
+        String purchasedate ;
+        String productlist; 
+        String productid;
+        String quantity;
+        BigDecimal price; 
+        BigDecimal totalprice= null; 
+	    Scanner in = new Scanner(System.in);
+
+
+		try {
+			// Get staff id for the new staff
+			System.out.println("\nEnter the transaction ID :");
+			transactionid = in.nextLine();
+			// Get StoreID
+			System.out.println("\nEnter the store ID :\n");
+			storeid = in.nextLine();
+            		// Get name
+			System.out.println("\nEnter the customer ID :\n");
+			customerid = in.nextLine();
+			// Get age
+			System.out.println("\nEnter the cashier ID :\n");
+			cashierid = in.nextLine();
+			// Get address
+			System.out.println("\nEnter the purchase date :\n");
+			purchasedate = in.nextLine();
+			// Get job title
+			System.out.println("\nEnter the purchased product ID list with quantity [i.e 2:3,3:3] :\n");
+			productlist = in.nextLine();
+            String[] res = productlist.split(",");
+            for(String myStr: res) {
+                    String[] array = myStr.split(":");
+                    productid = array[0];
+                    quantity = array[1];
+                    price= getPrice(productid);
+                    totalprice = totalprice.add(price.multiply(new BigDecimal(quantity)));
+                    addPurchasedItems(transactionid, productid, quantity);
+            }
+            
+
+			// call function that interacts with the Database
+			addTransaction(transactionid,storeid,customerid, cashierid, purchasedate, totalprice);
+			System.out.println("A new Transaction is added successfully!");
+		} catch (Throwable err) {
+			err.printStackTrace();
+		}
+	}
 	public static void userStaffAdd() {
 		// Declare local variables
 	String staffID;
@@ -799,7 +936,7 @@ public class App {
                         case 5:
                         	userStaffAdd();
                         break;
-			case 6:
+			            case 6:
                                 updateStaff();
                         break;
 			case 7:
