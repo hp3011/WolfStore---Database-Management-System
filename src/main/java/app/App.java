@@ -353,11 +353,11 @@ public class App {
             conn.setAutoCommit(false);
             try{
 
-                prepAddTransaction.setInt(1,Integer.parseInt(TransactionID));
-                prepAddTransaction.setInt(2,Integer.parseInt(ProductID));
-                prepAddTransaction.setInt(3,Integer.parseInt(Quantity));
+                prepAddPurchasedItems.setInt(1,Integer.parseInt(TransactionID));
+                prepAddPurchasedItems.setString(2,ProductID);
+                prepAddPurchasedItems.setInt(3,Integer.parseInt(Quantity));
 
-                prepAddTransaction.executeUpdate();
+                prepAddPurchasedItems.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
@@ -375,7 +375,7 @@ public class App {
         try {
             
 
-                prepGetPrice.setInt(1,Integer.parseInt(ProductID));
+                prepGetPrice.setString(1,ProductID);
                 ResultSet rs = prepGetPrice.executeQuery();
                 if (rs.next()) {
                         price = rs.getBigDecimal("MarketPrice");
@@ -396,11 +396,12 @@ public class App {
         String productid;
         String quantity;
         BigDecimal price; 
-        BigDecimal totalprice= null; 
-	    Scanner in = new Scanner(System.in);
+        BigDecimal totalprice = BigDecimal.ZERO; 
+	Scanner in = new Scanner(System.in);
 
 
-		try {
+		try { conn.setAutoCommit(false);
+			try{
 			// Get staff id for the new staff
 			System.out.println("\nEnter the transaction ID :");
 			transactionid = in.nextLine();
@@ -424,15 +425,31 @@ public class App {
                     String[] array = myStr.split(":");
                     productid = array[0];
                     quantity = array[1];
+		    System.out.println(array[0]+"-----"+array[1]);
                     price= getPrice(productid);
-                    totalprice = totalprice.add(price.multiply(new BigDecimal(quantity)));
-                    addPurchasedItems(transactionid, productid, quantity);
+		    System.out.println(price+"-Price");
+		    BigDecimal price_temp = price.multiply(new BigDecimal(quantity));	
+                    totalprice = totalprice.add(price_temp);
             }
             
 
 			// call function that interacts with the Database
 			addTransaction(transactionid,storeid,customerid, cashierid, purchasedate, totalprice);
+			
+			for(String myStr: res) {
+                    		String[] array = myStr.split(":");
+                    		productid = array[0];
+                    		quantity = array[1];
+				addPurchasedItems(transactionid, productid, quantity);
+			}
+			conn.commit();
 			System.out.println("A new Transaction is added successfully!");
+		}catch (Throwable err) {
+				err.printStackTrace();
+				conn.rollback();
+			} finally {
+				conn.setAutoCommit(true);
+			}
 		} catch (Throwable err) {
 			err.printStackTrace();
 		}
@@ -859,6 +876,9 @@ public class App {
                         case 3:
                             updateMember();
                         break;
+			case 4:
+			    userTransactionAdd();
+			break;
                         // To do: Build out remaining options
                     }
                 break;
@@ -1028,6 +1048,7 @@ public class App {
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Signup a new club member");
             System.out.println("\t3 - Update an existing member's information");
+	    System.out.println("\t4 - Add new transaction information");
             break;
 
             // billing staff options
