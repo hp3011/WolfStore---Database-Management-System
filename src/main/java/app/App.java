@@ -20,6 +20,7 @@ public class App {
     private static PreparedStatement prepAddDiscount;
     private static PreparedStatement prepUpdateDiscount;
     private static PreparedStatement prepDeleteDiscount;
+    private static PreparedStatement prepGetRewards;
 
     private static PreparedStatement prepUpdateCustomer;
     private static PreparedStatement prepGetCustomer;
@@ -76,6 +77,9 @@ public class App {
             sql = "UPDATE `Rewards` SET `Discount` = ?, `ValidThrough` = ?, `MembershipLevel` = ?"
                     + "WHERE PromoID = ?;";
             prepUpdateDiscount = conn.prepareStatement(sql);
+
+            sql = "SELECT * from `Rewards` WHERE PromoID = ?";
+            prepGetRewards = conn.prepareStatement(sql);
 
             //Merchandise Table
             sql = "INSERT INTO `Merchandise` (`ProductID`, `ProductName`, `SupplierID`, `Quantity`, `BuyPrice`, `MarketPrice`,`ManufactureDate`,`ExpirationDate`)"
@@ -196,7 +200,7 @@ public class App {
 		}
     }
 
-
+    /*
     public static void updateShipmentinfo(String ShipmentId)
     {
         Scanner sc = new Scanner(System.in);
@@ -278,7 +282,9 @@ public class App {
 			e.printStackTrace();
 		}
     }
+    */
 
+    /*
     public static void deleteShipmentInfo(String shipmentId)
     {
         Scanner sc = new Scanner(System.in);
@@ -332,7 +338,7 @@ public class App {
             e.printStackTrace();
         }
     }
-
+    */
 
     
     public static void enterShipmentinfo(String shipmentID, String shipmentType, String sentBy, String receivedBy, String sentDate, String receivedDate) {
@@ -373,13 +379,11 @@ public class App {
 				conn.setAutoCommit(true);
 			}
         }catch (SQLException e) {
-           
-        } catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
 
-
+    /*
     public static void deleteSupplierInfo(String supplierId)
     {
         Scanner sc = new Scanner(System.in);
@@ -474,7 +478,7 @@ public class App {
 			e.printStackTrace();
 		}
     }
-
+    
     public static void updateSupplierinfo(String supplierId)
     {
         Scanner sc = new Scanner(System.in);
@@ -557,7 +561,7 @@ public class App {
 			e.printStackTrace();
 		}
     }
-
+    */
 
 
     public static void enterSupplierinfo(String supplierID, String supplierName, String phoneNumber, String email, String location) {
@@ -584,9 +588,26 @@ public class App {
     }
 
 
+    public static void addDiscount() {
+        String promoID;
+        String discount;
+        String validThrough;
+        String membershipLevel;
 
+        Scanner in = new Scanner(System.in);
 
-    public static void addDiscount(String promoID, String discount, String validThrough, String membershipLevel) {
+        System.out.println("\nEnter PromoID:");
+        promoID = in.nextLine();
+
+        System.out.println("\nEnter Discount:");
+        discount = in.nextLine();
+
+        System.out.println("\nEnter validThrough(yyyy-mm-dd):");
+        validThrough = in.nextLine();
+
+        System.out.println("\nEnter membershipLevel (Standard/Gold/Platinum):");
+        membershipLevel = in.nextLine();
+
         try {
             conn.setAutoCommit(false);
             try{
@@ -608,7 +629,12 @@ public class App {
 		}
     }
 
-    public static void deleteDiscount(String promoID) {
+    public static void deleteDiscount() {
+        String promoID;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter PromoID to delete:");
+        promoID = in.nextLine();
 		try {
 			conn.setAutoCommit(false);
 			try {
@@ -626,38 +652,51 @@ public class App {
 		}
 	}
 
-    /*public static void updateRewards(String promoID) {
-        Scanner sc = new Scanner(System.in);
-        String sql = "SELECT * from `Rewards` where PromoID="+promoID;
-        PreparedStatement read = conn.prepareStatement(sql);
-        String membershiplevel;
-        String validThrough;
-        BigDecimal discount;
+    public static void updateDiscount() {
+        String promoID = "";
+        String membershiplevel = "";
+        String validThrough = "";
+        BigDecimal discount = new BigDecimal(0);
+        boolean validPromoID = false;
 
-		ResultSet rs = read.executeQuery();
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter PromoID:");
         try{
-            membershiplevel = rs.getString("MembershipLevel");
-            validThrough = rs.getDate("ValidThrough").toString();
-            discount = rs.getBigDecimal("Discount");
-        } catch (SQLException e) {
-			e.printStackTrace();
-		}
+            while(!validPromoID){
+                promoID = in.nextLine();
+
+                prepGetRewards.setString(1, promoID);
+                ResultSet rs = prepGetRewards.executeQuery();
+
+                if (rs.next() == false) {
+                    System.out.println("Invalid PromoID");
+                } else {
+                    membershiplevel = rs.getString("MembershipLevel");
+                    validThrough = rs.getDate("ValidThrough").toString();
+                    discount = rs.getBigDecimal("Discount");
+                    validPromoID = true;
+                }
+            }
+        } catch (SQLException e) {System.out.println(e);}
+        
+            
+
         int option = 0;
         while(option != 100) {
             System.out.println("1 - Update Discount");
 			System.out.println("2 - Update Valid Through");
 			System.out.println("3 - Update Membership Level");
             System.out.println("100 - Confirm");
-            option = sc.nextInt();
+            option = in.nextInt();
             switch(option){
                 case 1: System.out.println("Enter the Discount");
-                        discount = new BigDecimal(sc.next());
+                        discount = new BigDecimal(in.next());
                         break;
                 case 2: System.out.println("Enter the Valid Through(yyyy-mm-dd)");
-                        validThrough = sc.next();
+                        validThrough = in.next();
                         break;
                 case 3: System.out.println("Enter the Membership Level");
-                        membershiplevel = sc.next();
+                        membershiplevel = in.next();
                         break;
                 default:
                         break; 
@@ -682,7 +721,7 @@ public class App {
 			e.printStackTrace();
 		}
 
-    } */
+    } 
     
     public static void addMerchandise(String productID, String productName, String supplierID, String quantity, String buyPrice, String marketPrice, String manufactureDate, String expirationDate) {
         try {
@@ -1199,6 +1238,16 @@ public class App {
                         case 4:
                             updateStore();
                         break;
+
+                        case 5:
+                            addDiscount();
+                            break;
+                        case 6:
+                            deleteDiscount();
+                            break;
+                        case 7:
+                            updateDiscount();
+                            break;
                     }
                 break;
 
@@ -1303,6 +1352,9 @@ public class App {
             System.out.println("\t2 - Add a new store");
             System.out.println("\t3 - Delete a store");
             System.out.println("\t4 - Update a store's information");
+            System.out.println("\t5 - Add Discount");
+            System.out.println("\t6 - Delete Discount");
+            System.out.println("\t7 - Update Discount");
             break;
         }
     }
