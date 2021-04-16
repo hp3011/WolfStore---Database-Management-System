@@ -50,6 +50,16 @@ public class App {
     private static PreparedStatement prepDeleteSupplierShipment;
     private static PreparedStatement prepAddStoreShipment;
     private static PreparedStatement prepDeleteStoreShipment;
+    private static PreparedStatement prepGetManager;
+
+    private static PreparedStatement prepAddStore;
+    private static PreparedStatement prepGetStores;
+    private static PreparedStatement prepGetStore;
+    private static PreparedStatement prepDeleteStore;
+    private static PreparedStatement prepUpdateStore;
+    private static PreparedStatement prepUpdateStorePhone;
+
+
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -155,7 +165,30 @@ public class App {
             sql = "DELETE FROM 'StoreShipment' WHERE ShipmentID = ?;";
             prepDeleteStoreShipment = conn.prepareStatement(sql);
 
-           
+            //Store
+            sql = "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`)"
+                    + "VALUES(?,?,?);";
+            prepAddStore = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `Store` WHERE StoreID = ?;";
+            prepDeleteStore = conn.prepareStatement(sql);
+            
+            sql = "SELECT StaffID as staffid FROM StaffMember WHERE Name like ?;";
+            prepGetManager = conn.prepareStatement(sql);
+
+            sql = "Select Store.StoreID as storeid, StaffMember.Name as manager, Store.StoreAddress as address, Store.PhoneNumber as phone "
+                + "FROM Store INNER JOIN StaffMember ON Store.ManagerID = StaffMember.StaffID;";
+            prepGetStores = conn.prepareStatement(sql);
+
+            sql = "Select * FROM Store WHERE StoreId = ?;";
+            prepGetStore = conn.prepareStatement(sql);
+
+            sql = "UPDATE Store SET ? = ? WHERE StoreID = ?;";
+            prepUpdateStore = conn.prepareStatement(sql);
+            
+            sql = "UPDATE Store SET PhoneNumber = ? WHERE StoreID = ?;";
+            prepUpdateStorePhone = conn.prepareStatement(sql);
+
            
             
         }catch (SQLException e) {
@@ -340,6 +373,8 @@ public class App {
 				conn.setAutoCommit(true);
 			}
         }catch (SQLException e) {
+           
+        } catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
@@ -591,7 +626,7 @@ public class App {
 		}
 	}
 
-    public static void updateRewards(String promoID) {
+    /*public static void updateRewards(String promoID) {
         Scanner sc = new Scanner(System.in);
         String sql = "SELECT * from `Rewards` where PromoID="+promoID;
         PreparedStatement read = conn.prepareStatement(sql);
@@ -647,7 +682,7 @@ public class App {
 			e.printStackTrace();
 		}
 
-    }
+    } */
     
     public static void addMerchandise(String productID, String productName, String supplierID, String quantity, String buyPrice, String marketPrice, String manufactureDate, String expirationDate) {
         try {
@@ -693,7 +728,7 @@ public class App {
 		}
 	}
     
-    public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+    /*public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
         try {
             conn.setAutoCommit(false);
             try{
@@ -718,7 +753,7 @@ public class App {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
-    }
+    }*/
 
     public static void deleteStaff(String StaffID) {
 		try {
@@ -738,7 +773,7 @@ public class App {
 		}
 	}
 
-    public static void updateStaff(String StaffID) {
+   /* public static void updateStaff(String StaffID) {
         Scanner sc = new Scanner(System.in);
         String sql = "SELECT * from `StaffMember` where StaffID="+StaffID;
         PreparedStatement read = conn.prepareStatement(sql); 
@@ -837,8 +872,183 @@ public class App {
 			e.printStackTrace();
 		}
 
+    }*/
+    
+    public static void enterStoreInfo() {
+        // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
+        int managerId = -1;
+        String managerName = "";
+        String address = "";
+        String phone = "";
+        boolean managerFound = false;
+
+        System.out.println("Beginning new store registration. Enter the following information:");
+        
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("Address:");
+        address = in.nextLine();
+
+        System.out.println("Phone number:");
+        phone = in.nextLine();
+
+        // Based on manager's name, get their staff id
+        // Name needs to be an existing staff member's name
+        while (!managerFound) {
+            System.out.println("Manager name:");
+            managerName = in.nextLine();
+
+            try (Statement stmt = conn.createStatement()){
+                prepGetManager.setString(1, managerName);
+                ResultSet rs = prepGetManager.executeQuery();
+                
+                if (rs.next() == false) {
+                    System.out.println("That's not a manager in the system. Please try again");
+                } else {
+                    managerId = rs.getInt("staffid");
+                    managerFound = true;
+                }
+            } catch (SQLException e) {
+                System.out.println(e);
+            }
+        }
+        // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
+        // Enter the new store info
+        try {
+            prepAddStore.setInt(1, managerId);
+            prepAddStore.setString(2, address);
+            prepAddStore.setString(3, phone);
+
+            prepAddStore.executeUpdate();
+            System.out.println("Store added successfully");
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
     }
     
+    public static void deleteStore() {
+        // Print all the active stores
+        // User enters store id of the store they want to delete
+        // Execute SQL to delete the store
+
+        // Deletes tuple from Store and sets corresponding StaffMember.StoreID to null
+
+        int storeId = -1;
+        boolean validStoreId = false;
+
+        System.out.println("From the below list of stores, enter the store id for the store to delete:");
+        getStores();
+        Scanner in = new Scanner(System.in);
+
+        try {
+       
+            // Make sure user enters a valid store id
+            while (!validStoreId) {
+                storeId = in.nextInt();
+                prepGetStore.setInt(1, storeId);
+                ResultSet rs = prepGetStore.executeQuery();
+    
+                if (rs.next() == false) {
+                    System.out.println("That's not a manager in the system. Please try again");
+                } else {
+                    storeId = rs.getInt("storeid");
+                    validStoreId = true;
+                }
+            }
+
+            prepDeleteStore.setInt(1, storeId);
+            prepDeleteStore.executeUpdate();
+            System.out.println("Store deleted successfully");
+
+        } catch (SQLException e) {System.out.println(e);}
+        
+    }
+    
+    public static void getStores(){
+        try {
+
+            ResultSet rs = prepGetStores.executeQuery();
+            // Select s.StoreID as storeid, m.Name as manager, s.StoreAddress as address, s.PhoneNumber as phone"
+            System.out.println("StoreID | Manager | Address | Phone numbers");
+            while (rs.next()) {
+                System.out.print(rs.getString("storeid") + " | ");
+                System.out.print(rs.getString("manager") + " | ");
+                System.out.print(rs.getString("address") + " | ");
+                System.out.print(rs.getString("phone") + "\n");
+            }
+        } catch (SQLException e) {System.out.println(e);}
+
+    }
+
+    public static void updateStore() {
+        int updatedAttribute = -1;
+        int storeId = -1;
+        boolean validStoreId = false;
+        boolean validInput = false;
+
+        // Ask for storeid for store to be updated
+        // Display all stores
+        System.out.println("Enter a store id from the stores below to update");
+        getStores();
+        in = new Scanner(System.in);
+
+        try {
+       
+            // Make sure user enters a valid store id
+            while (!validStoreId) {
+                storeId = in.nextInt();
+                prepGetStore.setInt(1, storeId);
+                ResultSet rs = prepGetStore.executeQuery();
+    
+                if (rs.next() == false) {
+                    System.out.println("That's not a valid store id. Please try again");
+                } else {
+                    storeId = rs.getInt("storeid");
+                    validStoreId = true;
+                }
+            }
+        } catch (SQLException e) {System.out.println(e);}
+
+        try {
+            while (!validInput) {
+                // Ask which attribute to update
+                System.out.println("Choose which attribute to update:");
+                System.out.println("1 - Store address\n2 - Phone number");
+                updatedAttribute = in.nextInt();
+                in.nextLine();
+
+                if (updatedAttribute == 1) {
+                    System.out.println("Enter new address:");
+                    String address = in.nextLine();
+                    prepUpdateStore.setString(1, "StoreAddress");
+                    prepUpdateStore.setString(2, address);
+                    prepUpdateStore.setInt(3, storeId);
+                    prepUpdateStore.executeUpdate();
+                    validInput = true;
+                    System.out.println("Address updated successfully");
+                } else if (updatedAttribute ==2){
+
+                    System.out.println("Enter new phone number");
+                    String phone = in.nextLine();
+                    //prepUpdateStorePhone.setString(1, "PhoneNumber");
+                    prepUpdateStorePhone.setString(1, phone);
+                    prepUpdateStorePhone.setInt(2, storeId);
+                    prepUpdateStorePhone.executeUpdate();
+                    validInput = true;
+                    System.out.println("Phone number updated successfully");
+                }
+                else {
+                    System.out.println("Not a valid option, try again");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(prepUpdateStore);
+            System.out.println(e);
+        }
+
+
+        // Execute update
+    }
     public static void main(String[] args) {
         
         // Setup db connection w username and password
@@ -847,7 +1057,7 @@ public class App {
         // TO DO if connection can't be made then try again or exit
 
         generatePreparedStatement();
-        // Create db and tables- loop through CREATE TABLE statements and execute each
+        // Create db and tables- loop through commands and execute each
         System.out.println("Loading data...");
         setupDb();
 
@@ -866,12 +1076,12 @@ public class App {
                 // quit
                 case 0:
                     exit = true;
-                    break;
+                break;
 
                 // main menu
                 case 1:
                     // Check for valid menu option
-                    if (input > 0 && input <5){
+                    if (input > 0 && input <6){
                         // Display menu options
                         showOptions(input);
                         // Set menu to user's selected option
@@ -884,7 +1094,7 @@ public class App {
                     else {
                         System.out.println("Not a valid option, try again");
                     }
-                    break;
+                break;
 
                 // registration staff menu
                 // Owner: Jake
@@ -894,21 +1104,25 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
+
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
+
                         case 2:
                             signUpMember(conn);
-                            break;
+                        break;
+
                         case 3:
                             updateMember();
+                        break;
                         // To do: Build out remaining options
-
                     }
+                break;
 
                 // billing staff menu
                 // Owner: Mithil
@@ -918,18 +1132,19 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
 
                         // To do: Build out remaining options
                         // case 2:
                     }
+                break;
 
                 // warehouse operator menu
                 // Owner: Hrishikesh
@@ -939,18 +1154,19 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
 
                         // To do: Build out remaining options
                         //case 2:
                     }
+                break;
 
                 // admin menu
                 // Owner: Parimal
@@ -961,24 +1177,42 @@ public class App {
                         case 0:
                             exit = true;
                             System.out.println("Exiting...");
-                            break;
+                        break;
 
                         // Return to main menu
                         case 1:
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                            break;
+                        break;
 
-                        // To do: Build out remaining options
-                        //case 2:
+                        // Create a new store
+                        case 2:
+                            enterStoreInfo();
+                        break;
+
+                        // Delete a store
+                        case 3:
+                            deleteStore();
+                        break;
+
+                        case 4:
+                            updateStore();
+                        break;
                     }
+                break;
 
                 default:
-                    break;
+                break;
             }
         }
-        in.close();
+        try {
+            in.close();
+            conn.close();
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public static Connection getConnection(){
@@ -1066,6 +1300,9 @@ public class App {
             case 5:
             System.out.println("Welcome admin. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\t2 - Add a new store");
+            System.out.println("\t3 - Delete a store");
+            System.out.println("\t4 - Update a store's information");
             break;
         }
     }
@@ -1079,7 +1316,6 @@ public class App {
         String query;
         int customerId=0;
         
-
         Scanner in = new Scanner(System.in);
 
         System.out.println("Beginning new member signup. Enter the following user information:");
@@ -1101,39 +1337,27 @@ public class App {
         System.out.println("Email address:");
         email = in.nextLine();
 
-        // Get the next available CustomerID
-        try (Statement stmt = con.createStatement()){
-            ResultSet rs = stmt.executeQuery("SELECT max(CustomerID) as maxid FROM ClubMember");
-            while (rs.next()) {
-                int maxid = rs.getInt("maxid");
-                customerId = maxid+1;
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-
-
-        query = String.format("INSERT INTO ClubMember VALUES (%s, \"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", customerId, name, address, phone, email);
+        query = String.format("INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (\"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", name, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
+            System.out.println("Member added successfully");
         } catch (SQLException e) {
             System.out.println(e);
             System.out.println(query);
         }
 
-        in.close();
     }
 
     public static void updateMember() {
-        int customerId;
+        int customerId = 0;
         int activeStatusOption = -1;
-        String activeStatus;
-        String name;
-        String address;
-        String phone;
-        String email;
-        int updatedAttribute;
+        String activeStatus = "";
+        String name = "";
+        String address = "";
+        String phone = "";
+        String email = "";
+        int updatedAttribute = -1;
 
         System.out.println("Enter the name of the user to be updated");
         Scanner in = new Scanner(System.in);
@@ -1144,6 +1368,8 @@ public class App {
             prepGetCustomer.setString(1, name);
             ResultSet rs = prepGetCustomer.executeQuery();
             while (rs.next()) {
+                // Store all the current values
+                // Might be overriden based on user input
                 customerId = rs.getInt("customerid");
                 activeStatus = rs.getString("activestatus");
                 name = rs.getString("name");
@@ -1174,25 +1400,27 @@ public class App {
                 break;
             case 2:
                 System.out.println("Enter users updated name");
+                in.nextLine();
                 name = in.nextLine();
                 break;
             case 3:
                 System.out.println("Enter users updated address");
+                in.nextLine();
                 address = in.nextLine();
                 break;
             case 4:
                 System.out.println("Enter users updated phone number");
+                in.nextLine();
                 phone = in.nextLine();
                 break;
             case 5:
                 System.out.println("Enter users updated email address");
+                in.nextLine();
                 address = in.nextLine();
                 break;
         }
 
-
         // "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? WHERE CustomerID = ?;";
-
 
         try {
             conn.setAutoCommit(false);
@@ -1202,9 +1430,11 @@ public class App {
                 prepUpdateCustomer.setString(3, address);
                 prepUpdateCustomer.setString(4, phone);
                 prepUpdateCustomer.setString(5, email);
+                prepUpdateCustomer.setInt(6, customerId);
 
                 prepUpdateCustomer.executeUpdate();
                 conn.commit();
+                System.out.println("Member information updated successfully");
             } catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
