@@ -273,10 +273,10 @@ public class App {
         try {
             conn.setAutoCommit(false);
             try{
-                prepAddStaff.setInt(1,StaffID);
+                prepAddStaff.setInt(1,Integer.parseInt(StaffID));
                 prepAddStaff.setString(2,StoreID);
                 prepAddStaff.setString(3,Name);
-                prepAddStaff.setString(4, Integer.parseInt(Age));
+                prepAddStaff.setInt(4, Integer.parseInt(Age));
                 prepAddStaff.setString(5,Address);
                 prepAddStaff.setString(6,JobTitle);
                 prepAddStaff.setString(7,PhoneNumber);
@@ -310,33 +310,33 @@ public class App {
 		try {
 			// Get staff id for the new staff
 			System.out.println("\nEnter the staff ID of the new staff:\n");
-			staffID = scanner.nextLine();
+			staffID = in.nextLine();
 			// Get StoreID
 			System.out.println("\nEnter the store ID of the new staff:\n");
-			storeID = scanner.nextLine();
+			storeID = in.nextLine();
             // Get name
 			System.out.println("\nEnter the name of the new staff:\n");
-			name = scanner.nextLine();
+			name = in.nextLine();
 			// Get age
 			System.out.println("\nEnter the age of the new staff:\n");
-			age = scanner.nextLine();
+			age = in.nextLine();
 			// Get address
 			System.out.println("\nEnter the address of the new staff:\n");
-			address = scanner.nextLine();
+			address = in.nextLine();
 			// Get job title
 			System.out.println("\nEnter the job title of the new staff:\n");
-			jobtitle = scanner.nextLine();
+			jobtitle = in.nextLine();
 
 			// Get phone
 			System.out.println("\nEnter the phone of the new staff:\n");
-			phonenumber = scanner.nextLine();
+			phonenumber = in.nextLine();
             // Get email
 			System.out.println("\nEnter the email of the new staff:\n");
-			email = scanner.nextLine();
+			email = in.nextLine();
 
             // Get joining date
 			System.out.println("\nEnter the joining date of the new staff:\n");
-			joiningdate = scanner.nextLine();
+			joiningdate = in.nextLine();
 
 			// call function that interacts with the Database
 			addStaff(staffID,storeID,name,age,address,jobtitle,phonenumber,email,joiningdate);
@@ -345,6 +345,7 @@ public class App {
 			err.printStackTrace();
 		}
 	}
+
     public static void deleteStaff(String StaffID) {
 		try {
 			conn.setAutoCommit(false);
@@ -363,9 +364,9 @@ public class App {
 		}
 	}
 
-   /* public static void updateStaff(String StaffID) {
-        Scanner sc = new Scanner(System.in);
-        String sql = "SELECT * from `StaffMember` where StaffID="+StaffID;
+   public static void updateStaff(String StaffID) {
+        String sql = "SELECT * from `StaffMember` where StaffID="+StaffID+";";
+        try{
         PreparedStatement read = conn.prepareStatement(sql); 
 		ResultSet rs = read.executeQuery();
 
@@ -380,7 +381,7 @@ public class App {
 
         
 
-        try{
+      
             StoreID = rs.getString("StoreID");
             Name = rs.getString("Name");
             Age = rs.getInt("Age");
@@ -390,9 +391,7 @@ public class App {
             Email = rs.getString("Email");  
             JoiningDate = rs.getDate("JoiningDate").toString();
 
-        } catch (SQLException e) {
-			e.printStackTrace();
-		}
+     
         int option = 0;
         while(option != 100) {
             System.out.println("1 - Update StoreID");
@@ -407,31 +406,31 @@ public class App {
 
 
             System.out.println("100 - Confirm");
-            option = sc.nextInt();
+            option = in.nextInt();
             switch(option){
                 case 1: System.out.println("Enter the StoreID");
-                        StoreID = new sc.next();
+                        StoreID = in.next();
                         break;
                 case 2: System.out.println("Enter the Name");
-                        Name = sc.next();
+                        Name = in.next();
                         break;
                 case 3: System.out.println("Enter the Age");
-                        Age = Integer(sc.next());
+                        Age = Integer.parseInt(in.next());
                         break;
                 case 4: System.out.println("Enter the Address");
-                        Address = sc.next();
+                        Address = in.next();
                         break;
                 case 5: System.out.println("Enter the job tite");
-                        JobTitle = sc.next();
+                        JobTitle = in.next();
                         break;
                 case 6: System.out.println("Enter the phone number");
-                        PhoneNumber = sc.next();
+                        PhoneNumber = in.next();
                         break;
                 case 7: System.out.println("Enter the email address");
-                        Email = sc.next();
+                        Email = in.next();
                         break;
                 case 8: System.out.println("Enter the joining date (yyyy-mm-dd)");
-                        JoiningDate = sc.next();
+                        JoiningDate = in.next();
                         break;
                 default:
                         break; 
@@ -443,13 +442,13 @@ public class App {
                 
                 prepUpdateStaff.setString(1,StoreID);
                 prepUpdateStaff.setString(2,Name);
-                prepUpdateStaff.setString(3, Integer.parseInt(Age));
+                prepUpdateStaff.setInt(3, Age);
                 prepUpdateStaff.setString(4,Address);
                 prepUpdateStaff.setString(5,JobTitle);
                 prepUpdateStaff.setString(6,PhoneNumber);
                 prepUpdateStaff.setString(7, Email);
                 prepUpdateStaff.setDate(8,java.sql.Date.valueOf(JoiningDate));
-                prepUpdateStaff.setInt(9,StaffID);
+                prepUpdateStaff.setInt(9,Integer.parseInt(StaffID));
 				prepUpdateStaff.executeUpdate();
 				conn.commit();
 			} catch (SQLException e) {
@@ -461,8 +460,11 @@ public class App {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+       }catch (SQLException e) {
+			e.printStackTrace();
+		}
 
-    }*/
+    }
     
     public static void enterStoreInfo() {
         // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
@@ -708,6 +710,8 @@ public class App {
                         // Delete a store
                         case 3:
                             deleteStore();
+                        case 4:
+                        	userStaffAdd();
                         break;
                     }
                 break;
@@ -812,6 +816,8 @@ public class App {
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Add a new store");
             System.out.println("\t3 - Delete a store");
+            System.out.println("\t4 - Add a Staff Member");
+
             break;
         }
     }
