@@ -28,6 +28,7 @@ public class App {
     private static PreparedStatement prepAddMerchandise;
     private static PreparedStatement prepUpdateMerchandise;
     private static PreparedStatement prepDeleteMerchandise;
+    private static PreparedStatement prepGetMerchandise;
 
     private static PreparedStatement prepAddTransaction;
     private static PreparedStatement prepUpdateTransaction;
@@ -87,11 +88,14 @@ public class App {
             prepAddMerchandise = conn.prepareStatement(sql);
 
             sql = "DELETE FROM `Merchandise` WHERE ProductID = ?;";
-            prepDeleteDiscount = conn.prepareStatement(sql);
+            prepDeleteMerchandise = conn.prepareStatement(sql);
 
             sql = "UPDATE `Merchandise` SET `ProductName`= ?, `SupplierID`= ?, `Quantity`= ?, `BuyPrice`= ?, `MarketPrice`= ?,`ManufactureDate`= ?,`ExpirationDate`= ?"
                     + "WHERE ProductID = ?;";
             prepUpdateMerchandise = conn.prepareStatement(sql);
+
+            sql = "SELECT * from `Merchandise` WHERE ProductID = ?";
+            prepGetMerchandise = conn.prepareStatement(sql);
 
             //Staff Table
             sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
@@ -723,7 +727,46 @@ public class App {
 
     } 
     
-    public static void addMerchandise(String productID, String productName, String supplierID, String quantity, String buyPrice, String marketPrice, String manufactureDate, String expirationDate) {
+    public static void addMerchandise() {
+        String productID;
+        String productName;
+        String supplierID;
+        String quantity;
+        String buyPrice;
+        String marketPrice;
+        String manufactureDate;
+        String expirationDate;
+        String isOnSale;
+
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("\nEnter productID:");
+        productID = in.nextLine();
+
+        System.out.println("\nEnter productName:");
+        productName = in.nextLine();
+
+        System.out.println("\nEnter supplierID:");
+        supplierID = in.nextLine();
+
+        System.out.println("\nEnter quantity:");
+        quantity = in.nextLine();
+
+        System.out.println("\nEnter buyPrice:");
+        buyPrice = in.nextLine();
+
+        System.out.println("\nEnter marketPrice:");
+        marketPrice = in.nextLine();
+
+        System.out.println("\nEnter manufactureDate(yyyy-mm-dd):");
+        manufactureDate = in.nextLine();
+
+        System.out.println("\nEnter expirationDate(yyyy-mm-dd):");
+        expirationDate = in.nextLine();
+
+        System.out.println("\nEnter isOnSale(Yes/No):");
+        isOnSale = in.nextLine();
+
         try {
             conn.setAutoCommit(false);
             try{
@@ -749,12 +792,19 @@ public class App {
 		}
     }
 
-    public static void deleteMerchandise(String productID) {
+    public static void deleteMerchandise() {
+        String productID;
+
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("\nEnter productID:");
+        productID = in.nextLine();
+
 		try {
 			conn.setAutoCommit(false);
 			try {
-				prepUpdateMerchandise.setString(1, productID);
-				prepUpdateMerchandise.executeUpdate();
+				prepDeleteMerchandise.setString(1, productID);
+				prepDeleteMerchandise.executeUpdate();
 				conn.commit();
 			} catch (SQLException e) {
 				conn.rollback();
@@ -767,6 +817,112 @@ public class App {
 		}
 	}
     
+    public static void updateMerchandise() {
+        String productID = "";
+        String productName = "";
+        String supplierID = "";
+        int quantity = 0;
+        String buyPrice = "";
+        String marketPrice = "";
+        String manufactureDate = "";
+        String expirationDate = "";
+        String isOnSale = "";
+        boolean validProductID = false;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter productID:");
+        try{
+            while(!validProductID){
+                productID = in.nextLine();
+
+                prepGetMerchandise.setString(1, productID);
+                ResultSet rs = prepGetMerchandise.executeQuery();
+
+                if (rs.next() == false) {
+                    System.out.println("Invalid PromoID");
+                } else {
+                    productName = rs.getString("ProductName");
+                    supplierID = rs.getString("SupplierID");
+                    quantity = rs.getInt("Quantity");
+                    buyPrice = rs.getBigDecimal("BuyPrice").toString();
+                    marketPrice = rs.getBigDecimal("MarketPrice").toString();
+                    manufactureDate = rs.getDate("ManufactureDate").toString();
+                    expirationDate = rs.getDate("ExpirationDate").toString();
+                    //isOnSale = rs.getString("IsOnSale");
+                    validProductID = true;
+                }
+            }
+        } catch (SQLException e) {System.out.println(e);}
+        
+            
+
+        int option = 0;
+        while(option != 100) {
+            System.out.println("1 - Update ProductName");
+			System.out.println("2 - Update SupplierID");
+			System.out.println("3 - Update Quantity");
+            System.out.println("4 - Update BuyPrice");
+			System.out.println("5 - Update MarketPrice");
+			System.out.println("6 - Update ManufactureDate");
+			System.out.println("7 - Update ExpirationDate");
+			System.out.println("8 - Update IsOnSale");
+            System.out.println("100 - Confirm");
+            option = in.nextInt();
+            switch(option){
+                case 1: System.out.println("Enter the ProductName");
+                        productName = in.next();
+                        break;
+                case 2: System.out.println("Enter the SupplierID");
+                        supplierID = in.next();
+                        break;
+                case 3: System.out.println("Enter the Quantity");
+                        quantity = in.nextInt();
+                        break;
+                case 4: System.out.println("Enter the BuyPrice");
+                        buyPrice = in.next();
+                        break;
+                case 5: System.out.println("Enter the MarketPrice");
+                        marketPrice = in.next();
+                        break;
+                case 6: System.out.println("Enter the ManufactureDate(yyyy-mm-dd)");
+                        manufactureDate = in.next();
+                        break;
+                case 7: System.out.println("Enter the ExpirationDate(yyyy-mm-dd)");
+                        expirationDate = in.next();
+                        break;
+                case 8: System.out.println("Enter the IsOnSale");
+                        //isOnSale = in.next();
+                        break;
+                default:
+                        break; 
+            }
+        }
+        try {
+			conn.setAutoCommit(false);
+			try {
+				prepUpdateMerchandise.setString(1, productName);
+                prepUpdateMerchandise.setString(2, supplierID);
+                prepUpdateMerchandise.setInt(3, quantity);
+                prepUpdateMerchandise.setBigDecimal(4, new BigDecimal(buyPrice));
+                prepUpdateMerchandise.setBigDecimal(5, new BigDecimal(marketPrice));
+                prepUpdateMerchandise.setDate(6, java.sql.Date.valueOf(manufactureDate));
+                prepUpdateMerchandise.setDate(7, java.sql.Date.valueOf(expirationDate));
+                //prepUpdateMerchandise.setString(8, isOnSale);
+                prepUpdateMerchandise.setString(8, productID);
+
+				prepUpdateMerchandise.executeUpdate();
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+    }
     /*public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
         try {
             conn.setAutoCommit(false);
@@ -1248,6 +1404,15 @@ public class App {
                         case 7:
                             updateDiscount();
                             break;
+                        case 8:
+                            addMerchandise();
+                            break;
+                        case 9:
+                            deleteMerchandise();
+                            break;
+                        case 10:
+                            updateMerchandise();
+                            break;
                     }
                 break;
 
@@ -1355,6 +1520,9 @@ public class App {
             System.out.println("\t5 - Add Discount");
             System.out.println("\t6 - Delete Discount");
             System.out.println("\t7 - Update Discount");
+            System.out.println("\t8 - Add Merchandise");
+            System.out.println("\t9 - Delete Merchandise");
+            System.out.println("\t10 - Update Merchandise");
             break;
         }
     }
