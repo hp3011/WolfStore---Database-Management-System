@@ -269,7 +269,7 @@ public class App {
 		}
 	}
     
-    /*public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+    public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
         try {
             conn.setAutoCommit(false);
             try{
@@ -294,8 +294,57 @@ public class App {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
-    }*/
+    }
+	public static void userStaffAdd() {
+		// Declare local variables
+		String staffID;
+        String storeID ;
+        String name ;
+        String age;
+        String address ;
+        String jobtitle ;   
+        String phonenumber ;
+        String email ;  
+        String joiningdate ;
 
+		try {
+			// Get staff id for the new staff
+			System.out.println("\nEnter the staff ID of the new staff:\n");
+			staffID = scanner.nextLine();
+			// Get StoreID
+			System.out.println("\nEnter the store ID of the new staff:\n");
+			storeID = scanner.nextLine();
+            // Get name
+			System.out.println("\nEnter the name of the new staff:\n");
+			name = scanner.nextLine();
+			// Get age
+			System.out.println("\nEnter the age of the new staff:\n");
+			age = scanner.nextLine();
+			// Get address
+			System.out.println("\nEnter the address of the new staff:\n");
+			address = scanner.nextLine();
+			// Get job title
+			System.out.println("\nEnter the job title of the new staff:\n");
+			jobtitle = scanner.nextLine();
+
+			// Get phone
+			System.out.println("\nEnter the phone of the new staff:\n");
+			phonenumber = scanner.nextLine();
+            // Get email
+			System.out.println("\nEnter the email of the new staff:\n");
+			email = scanner.nextLine();
+
+            // Get joining date
+			System.out.println("\nEnter the joining date of the new staff:\n");
+			joiningdate = scanner.nextLine();
+
+			// call function that interacts with the Database
+			addStaff(staffID,storeID,name,age,address,jobtitle,phonenumber,email,joiningdate);
+			System.out.println("A new staff is added successfully!");
+		} catch (Throwable err) {
+			err.printStackTrace();
+		}
+	}
     public static void deleteStaff(String StaffID) {
 		try {
 			conn.setAutoCommit(false);
