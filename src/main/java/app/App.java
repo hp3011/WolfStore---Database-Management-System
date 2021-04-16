@@ -128,7 +128,7 @@ public class App {
             sql = "UPDATE Store SET ? = ? WHERE StoreID = ?;";
             prepUpdateStore = conn.prepareStatement(sql);
             
-            sql = "UPDATE Store SET ? = ? WHERE StoreID = ?;";
+            sql = "UPDATE Store SET PhoneNumber = ? WHERE StoreID = ?;";
             prepUpdateStorePhone = conn.prepareStatement(sql);
 
         } catch (SQLException e) {
