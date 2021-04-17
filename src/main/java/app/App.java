@@ -415,14 +415,21 @@ public class App {
 
 	public static boolean isActiveClub(String CustomerID) {
 	
-	String isactive = null;
+		String isactive = null;
+		try {
 		prepGetCustomer.setInt(1,Integer.parseInt(CustomerID));
-                ResultSet rs = prepGetPrice.executeQuery();
+                ResultSet rs =prepGetCustomer.executeQuery();
                 if (rs.next()) {
                         isactive= rs.getString("ActiveStatus");
                         }
+		if(isactive=="Active"){
+			return true;
+		}
 
-	
+		}catch (SQLException e) {
+                        e.printStackTrace();
+                }
+		return false;	
 
 	}
 	public static void userTransactionAdd() {
