@@ -21,11 +21,11 @@ public class App {
     private static PreparedStatement prepUpdateDiscount;
     private static PreparedStatement prepDeleteDiscount;
     private static PreparedStatement prepGetRewards;
-    private static PreparedStatement prepGetCustomerMembershipLevel;
     private static PreparedStatement prepGetPromoID;
     private static PreparedStatement prepAddRewardsEligible;
     private static PreparedStatement prepGetCustomerPromoID;
     private static PreparedStatement prepUpdateRewardsEligible;
+    private static PreparedStatement prepGetCustomerID;
 
     private static PreparedStatement prepUpdateCustomer;
     private static PreparedStatement prepGetCustomer;
@@ -87,9 +87,6 @@ public class App {
             sql = "SELECT * from `Rewards` WHERE PromoID = ?;";
             prepGetRewards = conn.prepareStatement(sql);
 
-            sql = "SELECT MembershipLevel from `ClubMember` WHERE CustomerID = ?;";
-            prepGetCustomerMembershipLevel = conn.prepareStatement(sql);
-
             sql = "SELECT PromoID from `Rewards` WHERE MembershipLevel = ?;";
             prepGetPromoID = conn.prepareStatement(sql);
 
@@ -101,6 +98,9 @@ public class App {
 
             sql = "UPDATE `RewardsEligibleFor` SET PromoID = ? WHERE CustomerID = ?;";
             prepUpdateRewardsEligible = conn.prepareStatement(sql);
+
+            sql = "SELECT * from `ClubMember` WHERE CustomerID = (SELECT max(CustomerID) from `ClubMember`);";
+            prepGetCustomerID = conn.prepareStatement(sql);
 
             //Merchandise Table
             sql = "INSERT INTO `Merchandise` (`ProductID`, `ProductName`, `SupplierID`, `Quantity`, `BuyPrice`, `MarketPrice`,`ManufactureDate`,`ExpirationDate`)"
@@ -143,11 +143,11 @@ public class App {
             prepUpdateTransaction = conn.prepareStatement(sql);
 
             //Club Member
-            sql = "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? "
+            sql = "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ?, `MembershipLevel` = ? "
                     + "WHERE CustomerID = ?;";
             prepUpdateCustomer = conn.prepareStatement(sql);
 
-            sql = "SELECT CustomerID AS customerid, ActiveStatus as activestatus, Name as name, Address as address, Phone as phone, Email as email FROM ClubMember WHERE Name LIKE ?;";
+            sql = "SELECT * FROM ClubMember WHERE CustomerID = ?;";
             prepGetCustomer = conn.prepareStatement(sql);
 
             // Supplier Table
@@ -1697,7 +1697,16 @@ public class App {
             System.out.println(query);
         }
 
-        addRewardsEligible(customerId, membershipLevel);
+        //Adding Entry in Rewards_Eligible_for
+        try{
+            ResultSet rs = prepGetCustomerID.executeQuery();
+            if(rs.next()){
+                customerId = rs.getInt("CustomerID");
+                System.out.println("CustomerID = " + customerId);
+                membershipLevel = rs.getString("MembershipLevel");
+                addRewardsEligible(customerId, membershipLevel);
+            }
+        }catch (SQLException e) {System.out.println(e);} 
 
     }
 
@@ -1709,32 +1718,34 @@ public class App {
         String address = "";
         String phone = "";
         String email = "";
+        String membershipLevel = "";
         int updatedAttribute = -1;
 
-        System.out.println("Enter the name of the user to be updated");
+        System.out.println("Enter the customerID of the user to be updated");
         Scanner in = new Scanner(System.in);
-        name = in.nextLine();
+        customerId = in.nextInt();
 
         // Get the customerid for user to be updated
         try (Statement stmt = conn.createStatement()){
-            prepGetCustomer.setString(1, name);
+            prepGetCustomer.setInt(1, customerId);
             ResultSet rs = prepGetCustomer.executeQuery();
             while (rs.next()) {
                 // Store all the current values
                 // Might be overriden based on user input
-                customerId = rs.getInt("customerid");
-                activeStatus = rs.getString("activestatus");
-                name = rs.getString("name");
-                address = rs.getString("address");
-                phone = rs.getString("phone");
-                email = rs.getString("email");
+                name = rs.getString("Name");
+                activeStatus = rs.getString("ActiveStatus");
+                name = rs.getString("Name");
+                address = rs.getString("Address");
+                phone = rs.getString("Phone");
+                email = rs.getString("Email");
+                membershipLevel = rs.getString("MembershipLevel");
             }
         } catch (SQLException e) {
             System.out.println(e);
         }
 
         System.out.println("Choose which data to update:");
-        System.out.println("1 - Active status\n2 - Name\n3 - Address\n4 - Phone number\n5 - Email address");
+        System.out.println("1 - Active status\n2 - Name\n3 - Address\n4 - Phone number\n5 - Email address \n6 - MembershipLevel");
         updatedAttribute = in.nextInt();
 
         switch(updatedAttribute) {
@@ -1770,10 +1781,14 @@ public class App {
                 in.nextLine();
                 address = in.nextLine();
                 break;
+            case 6:
+                System.out.println("Enter users updated Membership");
+                in.nextLine();
+                membershipLevel = in.nextLine();
+            break;
         }
 
         // "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ? WHERE CustomerID = ?;";
-
         try {
             conn.setAutoCommit(false);
             try{
@@ -1782,7 +1797,9 @@ public class App {
                 prepUpdateCustomer.setString(3, address);
                 prepUpdateCustomer.setString(4, phone);
                 prepUpdateCustomer.setString(5, email);
-                prepUpdateCustomer.setInt(6, customerId);
+                prepUpdateCustomer.setString(6, membershipLevel);
+
+                prepUpdateCustomer.setInt(7, customerId);
 
                 prepUpdateCustomer.executeUpdate();
                 conn.commit();
@@ -1796,5 +1813,9 @@ public class App {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+        if(activeStatus.equals("Active")){
+            updateRewardsEligible(customerId, membershipLevel);
+        }
     }
 }
