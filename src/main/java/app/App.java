@@ -119,7 +119,7 @@ public class App {
                     + "VALUES(?,?,?);";
             prepAddPurchasedItems = conn.prepareStatement(sql);
 
-            sql = "DELETE FROM `PurchasedItems` WHERE TransactionID = ? and ProductID= ? ;";
+            sql = "DELETE FROM `PurchasedItems` WHERE TransactionID = ? ;";
             prepDeletePurchasedItems = conn.prepareStatement(sql);
 
             sql = "UPDATE `PurchasedItems` SET `Quantity` = ? "
@@ -132,9 +132,8 @@ public class App {
                     + "WHERE CustomerID = ?;";
             prepUpdateCustomer = conn.prepareStatement(sql);
 
-            sql = "SELECT CustomerID AS customerid, ActiveStatus as activestatus, Name as name, Address as address, Phone as phone, Email as email FROM ClubMember WHERE Name LIKE ?;";
+	    sql = "SELECT * FROM ClubMember WHERE CustomerID = ?;";
             prepGetCustomer = conn.prepareStatement(sql);
-
             //Store
             sql = "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`)"
                     + "VALUES(?,?,?);";
@@ -353,6 +352,31 @@ public class App {
 			e.printStackTrace();
 		}
     }
+    public static void deleteTransaction() {
+        String TransactionID;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter Transaction ID to delete:");
+        TransactionID = in.nextLine();
+		try {
+			conn.setAutoCommit(false);
+			try {
+				prepDeleteTransaction.setString(1, TransactionID);
+				prepDeleteTransaction.executeUpdate();
+				conn.commit();
+				deleteCustomerPaysBill(TransactionID);
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+ 
+
     public static void addPurchasedItems(String TransactionID, String ProductID, String Quantity) {
         try {
             conn.setAutoCommit(false);
@@ -375,10 +399,44 @@ public class App {
 		}
     }
 
+
+   public static void deletePurchasedItems() {
+        String TransactionID;
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter Transaction ID to delete:");
+        TransactionID = in.nextLine();
+        //System.out.println("\n1- delete all enteries for Transaction");
+        //System.out.println("\n2- delete Specific enteries for Transaction");
+        //int option = in.nextInt();
+        //	if(option==1){
+                try {
+                        conn.setAutoCommit(false);
+                        try {
+                                prepDeletePurchasedItems.setString(1, TransactionID);
+                                prepDeletePurchasedItems.executeUpdate();
+                                conn.commit();
+                        } catch (SQLException e) {
+                                conn.rollback();
+                                e.printStackTrace();
+                        } finally {
+                                conn.setAutoCommit(true);
+                        }
+                } catch (SQLException e) {
+                        e.printStackTrace();
+                }
+		
+        //	}
+                
+	}
+
+
+
+
+
     public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
     	BigDecimal price = null;
 	int isonsale = 0;
-	String PromoID = "OFF05";
+	String PromoID = getRewardsEligible(CustomerID);
 	BigDecimal discount = null;
 	String validthrough = null;
         try {
@@ -390,6 +448,7 @@ public class App {
                         price = rs.getBigDecimal("MarketPrice");
 			isonsale= rs.getInt("IsOnSale");
 			}
+		if(PromoID!=""){
 		prepGetDiscount.setString(1,PromoID);
 		ResultSet rs_2 = prepGetDiscount.executeQuery();
 		if(rs_2.next()){
@@ -407,6 +466,7 @@ public class App {
 		}catch (ParseException e) {
                         e.printStackTrace();
                 }
+		}
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -432,6 +492,7 @@ public class App {
 		return false;	
 
 	}
+	
 	public static void userTransactionAdd() {
 		// Declare local variables
 	    String transactionid;
@@ -467,15 +528,15 @@ public class App {
 			// Get job title
 			System.out.println("\nEnter the purchased product ID list with quantity [i.e 2:3,3:3] :\n");
 			productlist = in.nextLine();
-            String[] res = productlist.split(",");
-            for(String myStr: res) {
-                    String[] array = myStr.split(":");
-                    productid = array[0];
-                    quantity = array[1];
-                    price= getPrice(productid,customerid,purchasedate);
-		    BigDecimal price_temp = price.multiply(new BigDecimal(quantity));	
-                    totalprice = totalprice.add(price_temp);
-            }
+            		String[] res = productlist.split(",");
+            		for(String myStr: res) {
+                    		String[] array = myStr.split(":");
+                    		productid = array[0];
+                    		quantity = array[1];
+                    		price= getPrice(productid,customerid,purchasedate);
+		    		BigDecimal price_temp = price.multiply(new BigDecimal(quantity));	
+                    		totalprice = totalprice.add(price_temp);
+           		 }
             
 
 			// call function that interacts with the Database
@@ -487,6 +548,7 @@ public class App {
                     		quantity = array[1];
 				addPurchasedItems(transactionid, productid, quantity);
 			}
+			addCustomerPaysBill(customerid,transactionid);
 			conn.commit();
 			System.out.println("A new Transaction is added successfully!");
 		}catch (Throwable err) {
