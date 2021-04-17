@@ -136,7 +136,7 @@ public class App {
             sql = "INSERT INTO `CustomerPaysBillTo` (`CustomerID`, `TransactionID`) VALUES(?,?);";
             prepAddCustomerPaysBill = conn.prepareStatement(sql);
 
-            sql = "DELETE FROM `CustomerPaysBillTo` WHERE CustomerID = ? AND TransactionID = ?;";
+            sql = "DELETE FROM `CustomerPaysBillTo` WHERE TransactionID = ?;";
             prepDeleteCustomerPaysBill = conn.prepareStatement(sql);
 
             sql = "SELECT * from `PurchasedItems` WHERE TransactionID = ?;";
@@ -912,12 +912,11 @@ public class App {
 		}
     }
 
-    public static void deleteCustomerPaysBill(int customerID, int transactionID){
+    public static void deleteCustomerPaysBill(int transactionID){
         try {
             conn.setAutoCommit(false);
             try{
-                prepDeleteCustomerPaysBill.setInt(1,customerID);
-                prepDeleteCustomerPaysBill.setInt(2,transactionID);
+                prepDeleteCustomerPaysBill.setInt(1,transactionID);
 
                 prepDeleteCustomerPaysBill.executeUpdate();
                 conn.commit();
@@ -1225,7 +1224,7 @@ public class App {
 				prepDeleteTransaction.setString(1, TransactionID);
 				prepDeleteTransaction.executeUpdate();
 				conn.commit();
-				deleteCustomerPaysBill(TransactionID);
+				deleteCustomerPaysBill(Integer.parseInt(TransactionID));
 			} catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1297,7 +1296,7 @@ public class App {
     public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
     	BigDecimal price = null;
 	int isonsale = 0;
-	String PromoID = getRewardsEligible(CustomerID);
+	String PromoID = getRewardsEligible(Integer.parseInt(CustomerID));
 	BigDecimal discount = null;
 	String validthrough = null;
         try {
@@ -1409,7 +1408,7 @@ public class App {
                     		quantity = array[1];
 				addPurchasedItems(transactionid, productid, quantity);
 			}
-			addCustomerPaysBill(customerid,transactionid);
+			addCustomerPaysBill(Integer.parseInt(customerid),Integer.parseInt(transactionid));
 			conn.commit();
 			System.out.println("A new Transaction is added successfully!");
 		}catch (Throwable err) {
@@ -1956,12 +1955,12 @@ public class App {
                             userGetProductList();
                             break;
                         case 13:
-                        	  userStaffAdd();
+                       	    userStaffAdd();
                             break;
-			                  case 14:
+			case 14:
                              updateStaff();
                              break;
-			                  case 15:
+			case 15:
                              deleteStaff();
                              break;
                     }
