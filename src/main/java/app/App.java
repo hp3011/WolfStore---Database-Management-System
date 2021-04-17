@@ -103,15 +103,15 @@ public class App {
             prepGetCustomerID = conn.prepareStatement(sql);
 
             //Merchandise Table
-            sql = "INSERT INTO `Merchandise` (`ProductID`, `ProductName`, `SupplierID`, `Quantity`, `BuyPrice`, `MarketPrice`,`ManufactureDate`,`ExpirationDate`)"
-                    + "VALUES(?,?,?,?,?,?,?,?);";
+            sql = "INSERT INTO `Merchandise` (`ProductID`, `ProductName`, `SupplierID`, `Quantity`, `BuyPrice`, `MarketPrice`,`ManufactureDate`,`ExpirationDate`, `IsOnSale`)"
+                    + "VALUES(?,?,?,?,?,?,?,?,?);";
             prepAddMerchandise = conn.prepareStatement(sql);
 
             sql = "DELETE FROM `Merchandise` WHERE ProductID = ?;";
             prepDeleteMerchandise = conn.prepareStatement(sql);
 
-            sql = "UPDATE `Merchandise` SET `ProductName`= ?, `SupplierID`= ?, `Quantity`= ?, `BuyPrice`= ?, `MarketPrice`= ?,`ManufactureDate`= ?,`ExpirationDate`= ?"
-                    + "WHERE ProductID = ?;";
+            sql = "UPDATE `Merchandise` SET `ProductName`= ?, `SupplierID`= ?, `Quantity`= ?, `BuyPrice`= ?, `MarketPrice`= ?,`ManufactureDate`= ?,`ExpirationDate`= ?, `IsOnSale`=?"
+                    + " WHERE ProductID = ?;";
             prepUpdateMerchandise = conn.prepareStatement(sql);
 
             sql = "SELECT * from `Merchandise` WHERE ProductID = ?;";
@@ -852,12 +852,12 @@ public class App {
         String productID;
         String productName;
         String supplierID;
-        String quantity;
+        int quantity;
         String buyPrice;
         String marketPrice;
         String manufactureDate;
         String expirationDate;
-        String isOnSale;
+        int isOnSale;
 
         Scanner in = new Scanner(System.in);
 
@@ -869,9 +869,6 @@ public class App {
 
         System.out.println("\nEnter supplierID:");
         supplierID = in.nextLine();
-
-        System.out.println("\nEnter quantity:");
-        quantity = in.nextLine();
 
         System.out.println("\nEnter buyPrice:");
         buyPrice = in.nextLine();
@@ -885,8 +882,11 @@ public class App {
         System.out.println("\nEnter expirationDate(yyyy-mm-dd):");
         expirationDate = in.nextLine();
 
-        System.out.println("\nEnter isOnSale(Yes/No):");
-        isOnSale = in.nextLine();
+        System.out.println("\nEnter quantity:");
+        quantity = in.nextInt();
+
+        System.out.println("\nEnter isOnSale: (for yes enter 1 and for no enter 0)");
+        isOnSale = in.nextInt();
 
         try {
             conn.setAutoCommit(false);
@@ -894,11 +894,12 @@ public class App {
                 prepAddMerchandise.setString(1,productID);
                 prepAddMerchandise.setString(2,productName);
                 prepAddMerchandise.setString(3,supplierID);
-                prepAddMerchandise.setInt(4,Integer.valueOf(quantity));
+                prepAddMerchandise.setInt(4,quantity);
                 prepAddMerchandise.setBigDecimal(5, new BigDecimal(buyPrice));
                 prepAddMerchandise.setBigDecimal(6, new BigDecimal(marketPrice));
                 prepAddMerchandise.setDate(7,java.sql.Date.valueOf(manufactureDate));
                 prepAddMerchandise.setDate(8,java.sql.Date.valueOf(expirationDate));
+                prepAddMerchandise.setInt(9,isOnSale);
 
                 prepAddMerchandise.executeUpdate();
                 conn.commit();
@@ -947,7 +948,7 @@ public class App {
         String marketPrice = "";
         String manufactureDate = "";
         String expirationDate = "";
-        String isOnSale = "";
+        int isOnSale = 0;
         boolean validProductID = false;
 
         Scanner in = new Scanner(System.in);
@@ -969,7 +970,7 @@ public class App {
                     marketPrice = rs.getBigDecimal("MarketPrice").toString();
                     manufactureDate = rs.getDate("ManufactureDate").toString();
                     expirationDate = rs.getDate("ExpirationDate").toString();
-                    //isOnSale = rs.getString("IsOnSale");
+                    isOnSale = rs.getInt("IsOnSale");
                     validProductID = true;
                 }
             }
@@ -1012,7 +1013,7 @@ public class App {
                         expirationDate = in.next();
                         break;
                 case 8: System.out.println("Enter the IsOnSale");
-                        //isOnSale = in.next();
+                        isOnSale = in.nextInt();
                         break;
                 default:
                         break; 
@@ -1028,8 +1029,8 @@ public class App {
                 prepUpdateMerchandise.setBigDecimal(5, new BigDecimal(marketPrice));
                 prepUpdateMerchandise.setDate(6, java.sql.Date.valueOf(manufactureDate));
                 prepUpdateMerchandise.setDate(7, java.sql.Date.valueOf(expirationDate));
-                //prepUpdateMerchandise.setString(8, isOnSale);
-                prepUpdateMerchandise.setString(8, productID);
+                prepUpdateMerchandise.setInt(8, isOnSale);
+                prepUpdateMerchandise.setString(9, productID);
 
 				prepUpdateMerchandise.executeUpdate();
 				conn.commit();
@@ -1691,22 +1692,23 @@ public class App {
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
+            //Adding Entry in Rewards_Eligible_for
+            try{
+                ResultSet rs = prepGetCustomerID.executeQuery();
+                if(rs.next()){
+                    customerId = rs.getInt("CustomerID");
+                    System.out.println("CustomerID = " + customerId);
+                    membershipLevel = rs.getString("MembershipLevel");
+                    addRewardsEligible(customerId, membershipLevel);
+                }
+            }catch (SQLException e) {System.out.println(e);} 
             System.out.println("Member added successfully");
         } catch (SQLException e) {
             System.out.println(e);
             System.out.println(query);
         }
 
-        //Adding Entry in Rewards_Eligible_for
-        try{
-            ResultSet rs = prepGetCustomerID.executeQuery();
-            if(rs.next()){
-                customerId = rs.getInt("CustomerID");
-                System.out.println("CustomerID = " + customerId);
-                membershipLevel = rs.getString("MembershipLevel");
-                addRewardsEligible(customerId, membershipLevel);
-            }
-        }catch (SQLException e) {System.out.println(e);} 
+        
 
     }
 
@@ -1803,6 +1805,9 @@ public class App {
 
                 prepUpdateCustomer.executeUpdate();
                 conn.commit();
+                if(activeStatus.equals("Active")){
+                    updateRewardsEligible(customerId, membershipLevel);
+                }
                 System.out.println("Member information updated successfully");
             } catch (SQLException e) {
 				conn.rollback();
@@ -1814,8 +1819,6 @@ public class App {
 			e.printStackTrace();
 		}
 
-        if(activeStatus.equals("Active")){
-            updateRewardsEligible(customerId, membershipLevel);
-        }
+        
     }
 }
