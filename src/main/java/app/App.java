@@ -33,6 +33,7 @@ public class App {
     private static PreparedStatement prepAddCustomerPaysBill;
     private static PreparedStatement prepDeleteCustomerPaysBill;
 
+    private static PreparedStatement prepGetProductList;
 
     private static PreparedStatement prepAddMerchandise;
     private static PreparedStatement prepUpdateMerchandise;
@@ -128,6 +129,8 @@ public class App {
             sql = "DELETE FROM `CustomerPaysBillTo` WHERE CustomerID = ? AND TransactionID = ?;";
             prepDeleteCustomerPaysBill = conn.prepareStatement(sql);
 
+            sql = "SELECT * from `PurchasedItems` WHERE TransactionID = ?;";
+            prepGetProductList = conn.prepareStatement(sql);
             //Staff Table
             sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
                     + "VALUES(?,?,?,?,?,?,?,?,?);";
@@ -899,6 +902,39 @@ public class App {
 		}
     }
 
+    public static ResultSet getProductList(int transactionID){
+        ResultSet rs = null;
+        int quantity;
+        String procductID;
+        try{
+            prepGetProductList.setInt(1,transactionID);
+            rs = prepGetProductList.executeQuery();
+            return rs;
+        }catch (SQLException e) {System.out.println(e);}
+        return rs;
+    }
+
+    public static void userGetProductList(){
+        int transactionID;
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("\nEnter transactionID:");
+        transactionID = in.nextInt();
+        ResultSet resultSet = getProductList(transactionID);
+        try{
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+            while (resultSet.next()) {
+                for (int i = 2; i <= columnsNumber; i++) {
+                    if (i > 2) System.out.print(",  ");
+                    String columnValue = resultSet.getString(i);
+                    System.out.print(rsmd.getColumnName(i)+" = "+columnValue);
+                }
+                System.out.println("");
+            }
+        }catch (SQLException e) {System.out.println(e);}
+    }
+
     public static void addMerchandise() {
         String productID;
         String productName;
@@ -1589,6 +1625,9 @@ public class App {
                         case 11:
                             checkRewardsEligible();
                             break;
+                        case 12:
+                            userGetProductList();
+                            break;
                     }
                 break;
 
@@ -1700,7 +1739,7 @@ public class App {
             System.out.println("\t9 - Delete Merchandise");
             System.out.println("\t10 - Update Merchandise");
             System.out.println("\t11 - Check if Customer is Eligible for Rewards");
-
+            System.out.println("\t12 - Get list of product for transaction ID");
             break;
         }
     }
