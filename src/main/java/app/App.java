@@ -21,6 +21,11 @@ public class App {
     private static PreparedStatement prepUpdateDiscount;
     private static PreparedStatement prepDeleteDiscount;
     private static PreparedStatement prepGetRewards;
+    private static PreparedStatement prepGetCustomerMembershipLevel;
+    private static PreparedStatement prepGetPromoID;
+    private static PreparedStatement prepAddRewardsEligible;
+    private static PreparedStatement prepGetCustomerPromoID;
+    private static PreparedStatement prepUpdateRewardsEligible;
 
     private static PreparedStatement prepUpdateCustomer;
     private static PreparedStatement prepGetCustomer;
@@ -79,8 +84,23 @@ public class App {
                     + "WHERE PromoID = ?;";
             prepUpdateDiscount = conn.prepareStatement(sql);
 
-            sql = "SELECT * from `Rewards` WHERE PromoID = ?";
+            sql = "SELECT * from `Rewards` WHERE PromoID = ?;";
             prepGetRewards = conn.prepareStatement(sql);
+
+            sql = "SELECT MembershipLevel from `ClubMember` WHERE CustomerID = ?;";
+            prepGetCustomerMembershipLevel = conn.prepareStatement(sql);
+
+            sql = "SELECT PromoID from `Rewards` WHERE MembershipLevel = ?;";
+            prepGetPromoID = conn.prepareStatement(sql);
+
+            sql = "INSERT INTO `RewardsEligibleFor` (`CustomerID`, `PromoID`) VALUES(?,?);";
+            prepAddRewardsEligible = conn.prepareStatement(sql);
+
+            sql = "SELECT PromoID from `RewardsEligibleFor` WHERE CustomerID = ?;";
+            prepGetCustomerPromoID = conn.prepareStatement(sql);
+
+            sql = "UPDATE `RewardsEligibleFor` SET PromoID = ? WHERE CustomerID = ?;";
+            prepUpdateRewardsEligible = conn.prepareStatement(sql);
 
             //Merchandise Table
             sql = "INSERT INTO `Merchandise` (`ProductID`, `ProductName`, `SupplierID`, `Quantity`, `BuyPrice`, `MarketPrice`,`ManufactureDate`,`ExpirationDate`)"
@@ -94,7 +114,7 @@ public class App {
                     + "WHERE ProductID = ?;";
             prepUpdateMerchandise = conn.prepareStatement(sql);
 
-            sql = "SELECT * from `Merchandise` WHERE ProductID = ?";
+            sql = "SELECT * from `Merchandise` WHERE ProductID = ?;";
             prepGetMerchandise = conn.prepareStatement(sql);
 
             //Staff Table
@@ -726,6 +746,107 @@ public class App {
 		}
 
     } 
+    
+    public static String getRewardsEligible(int customerID){
+        String customerPromoID = "";
+
+        try{
+            prepGetCustomerPromoID.setInt(1, customerID);
+            ResultSet rs = prepGetCustomerPromoID.executeQuery();
+            if(rs.next()){
+                customerPromoID = rs.getString("PromoID");
+            }else{
+                System.out.println("Error - CustomerId is not Eligible for Rewards");
+            }
+            
+        }catch (SQLException e) {System.out.println(e);}
+        return customerPromoID;
+    }
+
+    public static void checkRewardsEligible() {
+        int customerID;
+        String promoID;
+        String inputPromoID;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter PromoID:");
+        inputPromoID = in.nextLine();
+
+        System.out.println("\nEnter CustomerID:");
+        customerID = in.nextInt();
+
+        promoID = getRewardsEligible(customerID);
+
+        if (promoID.equals(inputPromoID)){
+            System.out.println("Customer is Eligible for PromoID");
+        } else{
+            System.out.println("CustomerID not eligible for the given PromoID");
+        }
+    }
+    
+    public static void addRewardsEligible(int customerID, String customerMembershiplevel){
+        String promoID = "";
+        try{
+            prepGetPromoID.setString(1,customerMembershiplevel);
+            ResultSet rs = prepGetPromoID.executeQuery();
+            if (rs.next() == false) {
+                System.out.println("Invalid CustomerID");
+            } else {
+                promoID = rs.getString("PromoID");
+            }
+        }catch (SQLException e) {System.out.println(e);}
+
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddRewardsEligible.setInt(1,customerID);
+                prepAddRewardsEligible.setString(2,promoID);
+
+                prepAddRewardsEligible.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+        
+    }
+    
+    public static void updateRewardsEligible(int customerID, String membershipLevel){
+        String promoID = "";
+        try{
+            prepGetPromoID.setString(1,membershipLevel);
+            ResultSet rs = prepGetPromoID.executeQuery();
+            if (rs.next() == false) {
+                System.out.println("Invalid CustomerID");
+            } else {
+                promoID = rs.getString("PromoID");
+            }
+        }catch (SQLException e) {System.out.println(e);}
+
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepUpdateRewardsEligible.setString(1,promoID);
+                prepUpdateRewardsEligible.setInt(2,customerID);
+
+                prepUpdateRewardsEligible.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+    }
     
     public static void addMerchandise() {
         String productID;
@@ -1413,6 +1534,9 @@ public class App {
                         case 10:
                             updateMerchandise();
                             break;
+                        case 11:
+                            checkRewardsEligible();
+                            break;
                     }
                 break;
 
@@ -1523,6 +1647,8 @@ public class App {
             System.out.println("\t8 - Add Merchandise");
             System.out.println("\t9 - Delete Merchandise");
             System.out.println("\t10 - Update Merchandise");
+            System.out.println("\t11 - Check if Customer is Eligible for Rewards");
+
             break;
         }
     }
@@ -1534,6 +1660,7 @@ public class App {
         String phone;
         String email;
         String query;
+        String membershipLevel;
         int customerId=0;
         
         Scanner in = new Scanner(System.in);
@@ -1557,7 +1684,10 @@ public class App {
         System.out.println("Email address:");
         email = in.nextLine();
 
-        query = String.format("INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (\"Active\", \"%s\", \"Standard\", \"%s\", \"%s\", \"%s\")", name, address, phone, email);
+        System.out.println("MembershipLevel(Standard/Gold/Platinum):");
+        membershipLevel = in.nextLine();
+
+        query = String.format("INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES (\"Active\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\")", name, membershipLevel, address, phone, email);
 
         try (Statement stmt = con.createStatement()){
             stmt.executeQuery(query);
@@ -1566,6 +1696,8 @@ public class App {
             System.out.println(e);
             System.out.println(query);
         }
+
+        addRewardsEligible(customerId, membershipLevel);
 
     }
 
