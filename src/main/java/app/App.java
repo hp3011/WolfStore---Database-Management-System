@@ -1962,7 +1962,7 @@ public class App {
                              break;
 			case 15:
                              deleteStaff();
-                             break;
+			     break;
                     }
                 break;
 
