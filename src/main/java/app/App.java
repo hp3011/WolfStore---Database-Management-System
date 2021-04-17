@@ -30,6 +30,10 @@ public class App {
     private static PreparedStatement prepUpdateCustomer;
     private static PreparedStatement prepGetCustomer;
 
+    private static PreparedStatement prepAddCustomerPaysBill;
+    private static PreparedStatement prepDeleteCustomerPaysBill;
+
+
     private static PreparedStatement prepAddMerchandise;
     private static PreparedStatement prepUpdateMerchandise;
     private static PreparedStatement prepDeleteMerchandise;
@@ -116,6 +120,13 @@ public class App {
 
             sql = "SELECT * from `Merchandise` WHERE ProductID = ?;";
             prepGetMerchandise = conn.prepareStatement(sql);
+
+            //CustomerPaysBillTo
+            sql = "INSERT INTO `CustomerPaysBillTo` (`CustomerID`, `TransactionID`) VALUES(?,?);";
+            prepAddCustomerPaysBill = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `CustomerPaysBillTo` WHERE CustomerID = ?, TransactionID = ?;";
+            prepDeleteCustomerPaysBill = conn.prepareStatement(sql);
 
             //Staff Table
             sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
@@ -848,6 +859,46 @@ public class App {
 
     }
     
+    public static void addCustomerPaysBill(int customerID, int transactionID){
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddCustomerPaysBill.setInt(1,customerID);
+                prepAddCustomerPaysBill.setInt(2,transactionID);
+
+                prepAddCustomerPaysBill.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void deleteCustomerPaysBill(int customerID, int transactionID){
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepDeleteCustomerPaysBill.setInt(1,customerID);
+                prepDeleteCustomerPaysBill.setInt(2,transactionID);
+
+                prepDeleteCustomerPaysBill.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
     public static void addMerchandise() {
         String productID;
         String productName;
