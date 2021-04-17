@@ -125,7 +125,7 @@ public class App {
             sql = "INSERT INTO `CustomerPaysBillTo` (`CustomerID`, `TransactionID`) VALUES(?,?);";
             prepAddCustomerPaysBill = conn.prepareStatement(sql);
 
-            sql = "DELETE FROM `CustomerPaysBillTo` WHERE CustomerID = ?, TransactionID = ?;";
+            sql = "DELETE FROM `CustomerPaysBillTo` WHERE CustomerID = ? AND TransactionID = ?;";
             prepDeleteCustomerPaysBill = conn.prepareStatement(sql);
 
             //Staff Table
