@@ -3,6 +3,9 @@ import java.math.BigDecimal;
 import java.sql.*;  
 import java.util.*;
 import java.util.regex.Pattern;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.ParseException;
 
 // when in remote server run from CSC540_WolfWR/src
 // javac main/java/app/*.java then java main/java/app/App
@@ -44,6 +47,10 @@ public class App {
     private static PreparedStatement prepUpdateTransaction;
     private static PreparedStatement prepDeleteTransaction;
 
+    private static PreparedStatement prepAddPurchasedItems;
+    private static PreparedStatement prepUpdatePurchasedItems;
+    private static PreparedStatement prepDeletePurchasedItems;
+
     private static PreparedStatement prepAddStaff;
     private static PreparedStatement prepUpdateStaff;
     private static PreparedStatement prepDeleteStaff;
@@ -63,7 +70,7 @@ public class App {
     private static PreparedStatement prepAddStoreShipment;
     private static PreparedStatement prepDeleteStoreShipment;
     private static PreparedStatement prepGetManager;
-
+    private static PreparedStatement prepGetStaff;	 
     private static PreparedStatement prepAddStore;
     private static PreparedStatement prepGetStores;
     private static PreparedStatement prepGetStore;
@@ -72,6 +79,9 @@ public class App {
     private static PreparedStatement prepUpdateStorePhone;
 
 
+    private static PreparedStatement prepGetPrice;
+    private static PreparedStatement prepGetDiscount;
+ 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -142,7 +152,8 @@ public class App {
             sql = "UPDATE `StaffMember` SET `StoreID` = ?, `Name` = ?, `Age` = ?, `Address`= ?, `JobTitle` = ? , `PhoneNumber` = ?, `Email` = ?, `JoiningDate` = ? "
                     + "WHERE StaffID = ?;";
             prepUpdateStaff = conn.prepareStatement(sql);
-
+	    sql = "SELECT * from `StaffMember`"+" where StaffID = ?;";
+	    prepGetStaff = conn.prepareStatement(sql);	
             //Transaction
 
             sql="INSERT INTO `Transaction` (`TransactionID`, `StoreID`, `CustomerID`, `CashierID`, `PurchaseDate`, `TotalPrice` )"
@@ -155,6 +166,25 @@ public class App {
             sql = "UPDATE `StaffTransaction` SET `StoreID` = ?, `CustomerID` = ?, `CashierID` = ?, `PurchaseDate` = ?, `TotalPrice` =? "
                     + "WHERE TransactionID = ?;";
             prepUpdateTransaction = conn.prepareStatement(sql);
+
+            sql = "SELECT MarketPrice,IsOnSale FROM `Merchandise` WHERE `ProductID` = ?;";
+	    prepGetPrice = conn.prepareStatement(sql);
+
+	    sql = "SELECT Discount, ValidThrough FROM `Rewards` WHERE `PromoID` = ?;";
+            prepGetDiscount = conn.prepareStatement(sql);
+            //Purchased Items
+
+            sql="INSERT INTO `PurchasedItems` (`TransactionID`, `ProductID`, `Quantity` )"
+                    + "VALUES(?,?,?);";
+            prepAddPurchasedItems = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM `PurchasedItems` WHERE TransactionID = ? ;";
+            prepDeletePurchasedItems = conn.prepareStatement(sql);
+
+            sql = "UPDATE `PurchasedItems` SET `Quantity` = ? "
+                    + "WHERE TransactionID = ? and  ProductID= ? ;";
+            prepUpdatePurchasedItems = conn.prepareStatement(sql);
+
 
             //Club Member
             sql = "UPDATE `ClubMember` SET `ActiveStatus` = ?, `Name` = ?, `Address` = ?, `Phone` = ?, `Email` = ?, `MembershipLevel` = ? "
@@ -1132,14 +1162,15 @@ public class App {
 		}
 
     }
-    /*public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+    public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
+
         try {
             conn.setAutoCommit(false);
             try{
-                prepAddStaff.setInt(1,StaffID);
-                prepAddStaff.setString(2,StoreID);
+                prepAddStaff.setInt(1,Integer.parseInt(StaffID));
+                prepAddStaff.setInt(2,Integer.parseInt(StoreID));
                 prepAddStaff.setString(3,Name);
-                prepAddStaff.setString(4, Integer.parseInt(Age));
+                prepAddStaff.setInt(4, Integer.parseInt(Age));
                 prepAddStaff.setString(5,Address);
                 prepAddStaff.setString(6,JobTitle);
                 prepAddStaff.setString(7,PhoneNumber);
@@ -1157,9 +1188,297 @@ public class App {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
-    }*/
+    }
 
-    public static void deleteStaff(String StaffID) {
+    public static void addTransaction(String TransactionID, String StoreID, String CustomerID, String CashierID, String PurchaseDate, BigDecimal TotalPrice) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddTransaction.setInt(1,Integer.parseInt(TransactionID));
+                prepAddTransaction.setInt(2,Integer.parseInt(StoreID));
+                prepAddTransaction.setInt(3,Integer.parseInt(CustomerID));
+                prepAddTransaction.setInt(4, Integer.parseInt(CashierID));
+                prepAddTransaction.setDate(5,java.sql.Date.valueOf(PurchaseDate));
+                prepAddTransaction.setBigDecimal(6,TotalPrice);
+
+                prepAddTransaction.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+    public static void deleteTransaction() {
+        String TransactionID;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter Transaction ID to delete:");
+        TransactionID = in.nextLine();
+		try {
+			conn.setAutoCommit(false);
+			try {
+				prepDeleteTransaction.setString(1, TransactionID);
+				prepDeleteTransaction.executeUpdate();
+				conn.commit();
+				deleteCustomerPaysBill(TransactionID);
+			} catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+ 
+
+    public static void addPurchasedItems(String TransactionID, String ProductID, String Quantity) {
+        try {
+            conn.setAutoCommit(false);
+            try{
+
+                prepAddPurchasedItems.setInt(1,Integer.parseInt(TransactionID));
+                prepAddPurchasedItems.setString(2,ProductID);
+                prepAddPurchasedItems.setInt(3,Integer.parseInt(Quantity));
+
+                prepAddPurchasedItems.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+
+   public static void deletePurchasedItems() {
+        String TransactionID;
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter Transaction ID to delete:");
+        TransactionID = in.nextLine();
+        //System.out.println("\n1- delete all enteries for Transaction");
+        //System.out.println("\n2- delete Specific enteries for Transaction");
+        //int option = in.nextInt();
+        //	if(option==1){
+                try {
+                        conn.setAutoCommit(false);
+                        try {
+                                prepDeletePurchasedItems.setString(1, TransactionID);
+                                prepDeletePurchasedItems.executeUpdate();
+                                conn.commit();
+                        } catch (SQLException e) {
+                                conn.rollback();
+                                e.printStackTrace();
+                        } finally {
+                                conn.setAutoCommit(true);
+                        }
+                } catch (SQLException e) {
+                        e.printStackTrace();
+                }
+		
+        //	}
+                
+	}
+
+
+
+
+
+    public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
+    	BigDecimal price = null;
+	int isonsale = 0;
+	String PromoID = getRewardsEligible(CustomerID);
+	BigDecimal discount = null;
+	String validthrough = null;
+        try {
+            
+
+                prepGetPrice.setString(1,ProductID);
+                ResultSet rs = prepGetPrice.executeQuery();
+                if (rs.next()) {
+                        price = rs.getBigDecimal("MarketPrice");
+			isonsale= rs.getInt("IsOnSale");
+			}
+		if(PromoID!=""){
+		prepGetDiscount.setString(1,PromoID);
+		ResultSet rs_2 = prepGetDiscount.executeQuery();
+		if(rs_2.next()){
+			discount = rs_2.getBigDecimal("Discount");
+			validthrough = rs_2.getDate("ValidThrough").toString();
+		
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try{
+			Date d1 = sdf.parse(validthrough);
+			Date d2 = sdf.parse(PurchaseDate);
+		
+		if(isonsale==1 && d1.compareTo(d2)>0){
+			price = price.subtract(price.multiply(discount));}
+		}catch (ParseException e) {
+                        e.printStackTrace();
+                }
+		}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return price;
+    	}
+
+	public static boolean isActiveClub(String CustomerID) {
+	
+		String isactive = null;
+		try {
+		prepGetCustomer.setInt(1,Integer.parseInt(CustomerID));
+                ResultSet rs =prepGetCustomer.executeQuery();
+                if (rs.next()) {
+                        isactive= rs.getString("ActiveStatus");
+                        }
+		if(isactive=="Active"){
+			return true;
+		}
+
+		}catch (SQLException e) {
+                        e.printStackTrace();
+                }
+		return false;	
+
+	}
+	
+	public static void userTransactionAdd() {
+		// Declare local variables
+	    String transactionid;
+        String storeid ;
+        String customerid ;
+        String cashierid;
+        String purchasedate ;
+        String productlist; 
+        String productid;
+        String quantity;
+        BigDecimal price; 
+        BigDecimal totalprice = BigDecimal.ZERO; 
+	Scanner in = new Scanner(System.in);
+
+
+		try { conn.setAutoCommit(false);
+			try{
+			// Get staff id for the new staff
+			System.out.println("\nEnter the transaction ID :");
+			transactionid = in.nextLine();
+			// Get StoreID
+			System.out.println("\nEnter the store ID :\n");
+			storeid = in.nextLine();
+            		// Get name
+			System.out.println("\nEnter the customer ID :\n");
+			customerid = in.nextLine();
+			// Get age
+			System.out.println("\nEnter the cashier ID :\n");
+			cashierid = in.nextLine();
+			// Get address
+			System.out.println("\nEnter the purchase date :\n");
+			purchasedate = in.nextLine();
+			// Get job title
+			System.out.println("\nEnter the purchased product ID list with quantity [i.e 2:3,3:3] :\n");
+			productlist = in.nextLine();
+            		String[] res = productlist.split(",");
+            		for(String myStr: res) {
+                    		String[] array = myStr.split(":");
+                    		productid = array[0];
+                    		quantity = array[1];
+                    		price= getPrice(productid,customerid,purchasedate);
+		    		BigDecimal price_temp = price.multiply(new BigDecimal(quantity));	
+                    		totalprice = totalprice.add(price_temp);
+           		 }
+            
+
+			// call function that interacts with the Database
+			addTransaction(transactionid,storeid,customerid, cashierid, purchasedate, totalprice);
+			
+			for(String myStr: res) {
+                    		String[] array = myStr.split(":");
+                    		productid = array[0];
+                    		quantity = array[1];
+				addPurchasedItems(transactionid, productid, quantity);
+			}
+			addCustomerPaysBill(customerid,transactionid);
+			conn.commit();
+			System.out.println("A new Transaction is added successfully!");
+		}catch (Throwable err) {
+				err.printStackTrace();
+				conn.rollback();
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		} catch (Throwable err) {
+			err.printStackTrace();
+		}
+	}
+	public static void userStaffAdd() {
+		// Declare local variables
+	String staffID;
+        String storeID ;
+        String name ;
+        String age;
+        String address ;
+        String jobtitle ;   
+        String phonenumber ;
+        String email ;  
+        String joiningdate ;
+	Scanner in = new Scanner(System.in);
+
+
+		try {
+			// Get staff id for the new staff
+			System.out.println("\nEnter the staff ID of the new staff:");
+			staffID = in.nextLine();
+			// Get StoreID
+			System.out.println("\nEnter the store ID of the new staff:\n");
+			storeID = in.nextLine();
+            		// Get name
+			System.out.println("\nEnter the name of the new staff:\n");
+			name = in.nextLine();
+			// Get age
+			System.out.println("\nEnter the age of the new staff:\n");
+			age = in.nextLine();
+			// Get address
+			System.out.println("\nEnter the address of the new staff:\n");
+			address = in.nextLine();
+			// Get job title
+			System.out.println("\nEnter the job title of the new staff:\n");
+			jobtitle = in.nextLine();
+
+			// Get phone
+			System.out.println("\nEnter the phone of the new staff:\n");
+			phonenumber = in.nextLine();
+            		// Get email
+			System.out.println("\nEnter the email of the new staff:\n");
+			email = in.nextLine();
+
+            		// Get joining date
+			System.out.println("\nEnter the joining date of the new staff:\n");
+			joiningdate = in.nextLine();
+
+			// call function that interacts with the Database
+			addStaff(staffID,storeID,name,age,address,jobtitle,phonenumber,email,joiningdate);
+			System.out.println("A new staff is added successfully!");
+		} catch (Throwable err) {
+			err.printStackTrace();
+		}
+	}
+
+    public static void deleteStaff() {
+		Scanner in = new Scanner(System.in);		
+		System.out.println("\nEnter the staff id of the staff you want to delete:\n");
+		String StaffID = in.nextLine();
 		try {
 			conn.setAutoCommit(false);
 			try {
@@ -1177,25 +1496,27 @@ public class App {
 		}
 	}
 
-   /* public static void updateStaff(String StaffID) {
-        Scanner sc = new Scanner(System.in);
-        String sql = "SELECT * from `StaffMember` where StaffID="+StaffID;
-        PreparedStatement read = conn.prepareStatement(sql); 
-		ResultSet rs = read.executeQuery();
-
-        String StoreID ;
-        String Name ;
-        Integer Age;
-        String Address ;
-        String JobTitle ;   
-        String PhoneNumber ;
-        String Email ;  
-        String JoiningDate ;
+   public static void updateStaff() {
+	
+	Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the staff id of the staff you want to update:\n");
+        try{
+	String StaffID = in.nextLine();
 
         
+	prepGetStaff.setInt(1, Integer.parseInt(StaffID));
+	ResultSet rs = prepGetStaff.executeQuery();
 
-        try{
-            StoreID = rs.getString("StoreID");
+	Integer StoreID =0;
+        String Name =null;
+        Integer Age = 0;
+        String Address =null;
+        String JobTitle =null;
+        String PhoneNumber =null;
+        String Email =null;
+        String JoiningDate = null ;
+	while(rs.next()){
+            StoreID = rs.getInt("StoreID");
             Name = rs.getString("Name");
             Age = rs.getInt("Age");
             Address = rs.getString("Address");
@@ -1204,9 +1525,10 @@ public class App {
             Email = rs.getString("Email");  
             JoiningDate = rs.getDate("JoiningDate").toString();
 
-        } catch (SQLException e) {
-			e.printStackTrace();
-		}
+     	    System.out.println("Staff ID: " + StaffID + ", storeID: " + StoreID + ", age: " + Age + ", name: " +Name 
+					+ ", job title: " + JobTitle +  ", Address: " + Address
+					+ ", phone: " + PhoneNumber + ", email: " + Email);
+     	}
         int option = 0;
         while(option != 100) {
             System.out.println("1 - Update StoreID");
@@ -1221,31 +1543,31 @@ public class App {
 
 
             System.out.println("100 - Confirm");
-            option = sc.nextInt();
+            option = in.nextInt();
             switch(option){
                 case 1: System.out.println("Enter the StoreID");
-                        StoreID = new sc.next();
+                        StoreID = Integer.parseInt(in.next());
                         break;
                 case 2: System.out.println("Enter the Name");
-                        Name = sc.next();
+                        Name = in.next();
                         break;
                 case 3: System.out.println("Enter the Age");
-                        Age = Integer(sc.next());
+                        Age = Integer.parseInt(in.next());
                         break;
                 case 4: System.out.println("Enter the Address");
-                        Address = sc.next();
+                        Address = in.next();
                         break;
                 case 5: System.out.println("Enter the job tite");
-                        JobTitle = sc.next();
+                        JobTitle = in.next();
                         break;
                 case 6: System.out.println("Enter the phone number");
-                        PhoneNumber = sc.next();
+                        PhoneNumber = in.next();
                         break;
                 case 7: System.out.println("Enter the email address");
-                        Email = sc.next();
+                        Email = in.next();
                         break;
                 case 8: System.out.println("Enter the joining date (yyyy-mm-dd)");
-                        JoiningDate = sc.next();
+                        JoiningDate = in.next();
                         break;
                 default:
                         break; 
@@ -1255,15 +1577,15 @@ public class App {
 			conn.setAutoCommit(false);
 			try {
                 
-                prepUpdateStaff.setString(1,StoreID);
+                prepUpdateStaff.setInt(1,StoreID);
                 prepUpdateStaff.setString(2,Name);
-                prepUpdateStaff.setString(3, Integer.parseInt(Age));
+                prepUpdateStaff.setInt(3, Age);
                 prepUpdateStaff.setString(4,Address);
                 prepUpdateStaff.setString(5,JobTitle);
                 prepUpdateStaff.setString(6,PhoneNumber);
                 prepUpdateStaff.setString(7, Email);
                 prepUpdateStaff.setDate(8,java.sql.Date.valueOf(JoiningDate));
-                prepUpdateStaff.setInt(9,StaffID);
+                prepUpdateStaff.setInt(9,Integer.parseInt(StaffID));
 				prepUpdateStaff.executeUpdate();
 				conn.commit();
 			} catch (SQLException e) {
@@ -1275,8 +1597,11 @@ public class App {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	} catch (SQLException e) {
+                        e.printStackTrace();
+                }
 
-    }*/
+    }
     
     public static void enterStoreInfo() {
         // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
@@ -1524,6 +1849,9 @@ public class App {
                         case 3:
                             updateMember();
                         break;
+			case 4:
+			    userTransactionAdd();
+			break;
                         // To do: Build out remaining options
                     }
                 break;
@@ -1598,8 +1926,7 @@ public class App {
                         // Delete a store
                         case 3:
                             deleteStore();
-                        break;
-
+                            break;
                         case 4:
                             updateStore();
                         break;
@@ -1628,6 +1955,15 @@ public class App {
                         case 12:
                             userGetProductList();
                             break;
+                        case 13:
+                        	  userStaffAdd();
+                            break;
+			                  case 14:
+                             updateStaff();
+                             break;
+			                  case 15:
+                             deleteStaff();
+                             break;
                     }
                 break;
 
@@ -1711,6 +2047,7 @@ public class App {
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Signup a new club member");
             System.out.println("\t3 - Update an existing member's information");
+	    System.out.println("\t4 - Add new transaction information");
             break;
 
             // billing staff options
@@ -1740,6 +2077,10 @@ public class App {
             System.out.println("\t10 - Update Merchandise");
             System.out.println("\t11 - Check if Customer is Eligible for Rewards");
             System.out.println("\t12 - Get list of product for transaction ID");
+            System.out.println("\t13 - Add a Staff Member");
+            System.out.println("\t14 - Update a Staff Information");
+            System.out.println("\t15 - Delete a Staff Member");
+
             break;
         }
     }
