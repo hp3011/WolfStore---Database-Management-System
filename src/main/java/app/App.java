@@ -1956,14 +1956,14 @@ public class App {
                             userGetProductList();
                             break;
                         case 13:
-                        	  userStaffAdd();
+                        	userStaffAdd();
                             break;
-			                  case 14:
-                             updateStaff();
-                             break;
-			                  case 15:
-                             deleteStaff();
-                             break;
+			            case 14:
+                            updateStaff();
+                            break;
+			            case 15:
+                            deleteStaff();
+                            break;
                     }
                 break;
 
