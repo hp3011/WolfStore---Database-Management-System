@@ -3,6 +3,9 @@ import java.math.BigDecimal;
 import java.sql.*;  
 import java.util.*;
 import java.util.regex.Pattern;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.ParseException;
 
 // when in remote server run from CSC540_WolfWR/src
 // javac main/java/app/*.java then java main/java/app/App
@@ -48,8 +51,8 @@ public class App {
     private static PreparedStatement prepUpdateStore;
 
     private static PreparedStatement prepGetPrice;
-
-
+    private static PreparedStatement prepGetDiscount;
+ 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -105,9 +108,11 @@ public class App {
                     + "WHERE TransactionID = ?;";
             prepUpdateTransaction = conn.prepareStatement(sql);
 
-            sql = "SELECT MarketPrice FROM `Merchandise` WHERE `ProductID` = ?;";
-			prepGetPrice = conn.prepareStatement(sql);
+            sql = "SELECT MarketPrice,IsOnSale FROM `Merchandise` WHERE `ProductID` = ?;";
+	    prepGetPrice = conn.prepareStatement(sql);
 
+	    sql = "SELECT Discount, ValidThrough FROM `Rewards` WHERE `PromoID` = ?;";
+            prepGetDiscount = conn.prepareStatement(sql);
             //Purchased Items
 
             sql="INSERT INTO `PurchasedItems` (`TransactionID`, `ProductID`, `Quantity` )"
@@ -370,8 +375,12 @@ public class App {
 		}
     }
 
-    public static BigDecimal getPrice(String ProductID) {
+    public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
     	BigDecimal price = null;
+	int isonsale = 0;
+	String PromoID = "OFF05";
+	BigDecimal discount = null;
+	String validthrough = null;
         try {
             
 
@@ -379,12 +388,43 @@ public class App {
                 ResultSet rs = prepGetPrice.executeQuery();
                 if (rs.next()) {
                         price = rs.getBigDecimal("MarketPrice");
+			isonsale= rs.getInt("IsOnSale");
 			}
+		prepGetDiscount.setString(1,PromoID);
+		ResultSet rs_2 = prepGetDiscount.executeQuery();
+		if(rs_2.next()){
+			discount = rs_2.getBigDecimal("Discount");
+			validthrough = rs_2.getDate("ValidThrough").toString();
+		
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try{
+			Date d1 = sdf.parse(validthrough);
+			Date d2 = sdf.parse(PurchaseDate);
+		
+		if(isonsale==1 && d1.compareTo(d2)>0){
+			price = price.subtract(price.multiply(discount));}
+		}catch (ParseException e) {
+                        e.printStackTrace();
+                }
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
         return price;
-    }
+    	}
+
+	public static boolean isActiveClub(String CustomerID) {
+	
+	String isactive = null;
+		prepGetCustomer.setInt(1,Integer.parseInt(CustomerID));
+                ResultSet rs = prepGetPrice.executeQuery();
+                if (rs.next()) {
+                        isactive= rs.getString("ActiveStatus");
+                        }
+
+	
+
+	}
 	public static void userTransactionAdd() {
 		// Declare local variables
 	    String transactionid;
@@ -425,9 +465,7 @@ public class App {
                     String[] array = myStr.split(":");
                     productid = array[0];
                     quantity = array[1];
-		    System.out.println(array[0]+"-----"+array[1]);
-                    price= getPrice(productid);
-		    System.out.println(price+"-Price");
+                    price= getPrice(productid,customerid,purchasedate);
 		    BigDecimal price_temp = price.multiply(new BigDecimal(quantity));	
                     totalprice = totalprice.add(price_temp);
             }
