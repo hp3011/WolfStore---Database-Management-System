@@ -1127,8 +1127,6 @@ public static void enterShipmentinfo() {
 
     public static ResultSet getProductList(int transactionID){
         ResultSet rs = null;
-        int quantity;
-        String procductID;
         try{
             prepGetProductList.setInt(1,transactionID);
             rs = prepGetProductList.executeQuery();
@@ -1281,7 +1279,7 @@ public static void enterShipmentinfo() {
 			e.printStackTrace();
 		}
         //Add to StoreStock
-        addStoreStock(storeID, productID, quantity);
+        //addStoreStock(storeID, productID, quantity);
     }
 
     public static void deleteMerchandise() {
@@ -1311,7 +1309,7 @@ public static void enterShipmentinfo() {
 		 catch (SQLException e) {
 			e.printStackTrace();
 		}
-        deleteStoreStock(storeID, productID);
+        //deleteStoreStock(storeID, productID);
 	}
 
     public static void updateMerchandise() {
@@ -1424,7 +1422,7 @@ public static void enterShipmentinfo() {
 		}
 
         //Update the Store Stock
-        updateStoreStock(storeID, productID, quantity);
+        //updateStoreStock(storeID, productID, quantity);
 
     }
     
