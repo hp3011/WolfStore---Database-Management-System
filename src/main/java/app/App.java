@@ -2034,7 +2034,7 @@ public static void enterShipmentinfo() {
 
             if(rs.next()){
                 newSignups = rs.getInt("new_signups");
-                totalSignups = rs.getInt("MembershipLevel");
+                totalSignups = rs.getInt("total_signups");
 
                 System.out.println("There were " + newSignups + " in the last month (" + totalSignups + " signups total)");
             }
