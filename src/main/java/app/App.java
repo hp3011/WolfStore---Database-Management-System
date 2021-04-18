@@ -318,7 +318,7 @@ public class App {
             prepDeleteStoreStock = conn.prepareStatement(sql);
 
             //Reports
-            sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(month,-1,NOW()), 1, 0)) AS new_signups,"
+            sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(month,-1,CURDATE(), 1, 0)) AS new_signups,"
                 + "COUNT(*) AS total_signups FROM Signup;";
             prepCustomerReport = conn.prepareStatement(sql);
             
