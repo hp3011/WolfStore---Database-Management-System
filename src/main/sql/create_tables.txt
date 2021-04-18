@@ -285,18 +285,14 @@ CREATE TABLE StoreStock
     FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
 )
 
-INSERT INTO Store (StoreID, ManagerID,StoreAddress,PhoneNumber) VALUES (2001, 1001, "2221, B Street, NC", "919-2222-123"),
-(2002, 1002, "2222, C Street, NC", "919-2222-456")
-
 INSERT INTO Store (ManagerID,StoreAddress,PhoneNumber) VALUES (1,"372 Vulputate Ave","1-697-890-1785"),
 (2,"Ap #130-2852 Eu Rd","1-127-970-2557"),
 (3,"4085 Venenatis Avenue","1-539-577-4357"),
 (4,"543-7199 Eleifend, Ave","1-830-830-0312"),
 (5,"Ap #467-606 Cubilia Rd.","1-353-126-9229")
 
-INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (1001, 2001, "John", 32, "1101, S Street, NC", "Manager", "919-1111-123", "john01@gmail.com", "2018-10-10"),
-(1002, 2002, "Alex", 42, "1102, T Street, NC", "Manager", "919-1111-456", "alex12@gmail.com", "2015/07/19"),
-(1003, 2001, "Mary", 28, "1103, U Street, NC", "Cashier", "919-1111-789", "mary34@gmail.com", "2019/07/19")
+INSERT INTO Store (StoreID, ManagerID,StoreAddress,PhoneNumber) VALUES (2001, 1001, "2221, B Street, NC", "919-2222-123"),
+(2002, 1002, "2222, C Street, NC", "919-2222-456")
 
 INSERT INTO StaffMember (StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (1,"Rae",37,"971-510 Sagittis Avenue","BillingExecutive","1-497-623-4521", "augue.id.ante@orci.ca", "2015/05/30"),
 (2,"Hedley",19,"465-8737 Sagittis St.","BillingExecutive","1-661-557-0964", "sagittis.Nullam.vitae@velsapien.net","2016/09/06"),
@@ -314,9 +310,9 @@ INSERT INTO StaffMember (StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,Joi
 (5,"Velma",43,"530-4936 Augue Street","RegistrationStaff","1-965-665-0203", "Morbi@nulla.ca","2015/08/14"),
 (1,"Abbot",25,"5958 Non, St.","Admin","1-129-509-1332", "risus@nec.org", "2015/05/19")
 
-INSERT INTO ClubMember (CustomerID, ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES 
-(5001, "Active", "James Smith", "Gold", "5500, E Street, NC", "919-5555-123", "James5001@gmail.com"),
-(5002, "Active", "David Smith", "Platinum", "5501 F Street, NC", "919-5555-456", "David5002@gmail.com")
+INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (1001, 2001, "John", 32, "1101, S Street, NC", "Manager", "919-1111-123", "john01@gmail.com", "2018-10-10"),
+(1002, 2002, "Alex", 42, "1102, T Street, NC", "Manager", "919-1111-456", "alex12@gmail.com", "2015/07/19"),
+(1003, 2001, "Mary", 28, "1103, U Street, NC", "Cashier", "919-1111-789", "mary34@gmail.com", "2019/07/19")
 
 INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES 
 ("Active","Cameron Alvarado","Standard","5624 Mi Rd. , Charlotte", "1-877-521-8507", "nunc@acturpisegestas.edu"),
@@ -330,10 +326,11 @@ INSERT INTO ClubMember (ActiveStatus,Name,MembershipLevel,Address,Phone,Email) V
 ("Active","Frances Wiley","Platinum","295-4154 Fringilla Rd., Cary","1-409-702-5355", "facilisis@risusDonec.com"),
 ("Active","Grace Sparks","Platinum","251-3974 Sit Ave, Raleigh","1-804-629-4981", "mauris@liberonec.co.uk")
 
-INSERT INTO Cashier (StaffID) VALUES (1003),(4),(5),(6),(7),(8)
+INSERT INTO ClubMember (CustomerID, ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES 
+(5001, "Active", "James Smith", "Gold", "5500, E Street, NC", "919-5555-123", "James5001@gmail.com"),
+(5002, "Active", "David Smith", "Platinum", "5501 F Street, NC", "919-5555-456", "David5002@gmail.com")
 
-INSERT INTO Transaction (TransactionID, StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (6001, 2001, 5002, 1003, "2020/05/01", 100),
-(6002, 2001, 5002, 1003, "2020/06/01", 100), (6003,2001, 1003, "2020/07/01", 160) 
+INSERT INTO Cashier (StaffID) VALUES (1003),(4),(5),(6),(7),(8)
 
 INSERT INTO Transaction (StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (2,9,5,"2021/01/18",29.75), 
 (2,1,5,"2021/01/29",446.5),
@@ -350,6 +347,9 @@ INSERT INTO Transaction (StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) V
 (5,1,8,"2021/02/10",52.25),
 (4,1,7,"2021/02/13",47.5),
 (4,2,7,"2021/02/18",437)
+
+INSERT INTO Transaction (TransactionID, StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (6001, 2001, 5002, 1003, "2020/05/01", 100),
+(6002, 2001, 5002, 1003, "2020/06/01", 100), (6003,2001, 1003, "2020/07/01", 160) 
 
 INSERT INTO Shipment (ShipmentID,Type,SentBy,ReceivedBy,SentDate,ReceivedDate) VALUES 
 ("SHP100","Customer","Caesar Poole",3,"2021/01/25","2021/02/02"),
