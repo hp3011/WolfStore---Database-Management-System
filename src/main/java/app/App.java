@@ -1155,6 +1155,7 @@ public static void enterShipmentinfo() {
             }
         }catch (SQLException e) {System.out.println(e);}
     }
+    
     public static int getQuantityStoreStock(int storeID, String productID){
     
         try{
@@ -1494,6 +1495,73 @@ public static void enterShipmentinfo() {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
+    }
+
+    public static void userAddStoreStock(){
+        String productID;
+        int storeID;
+        int quantity;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+        
+        System.out.println("\nEnter the quantity:");
+        quantity = in.nextInt();
+
+        addStoreStock(storeID, productID, quantity);
+    }
+
+    public static void userUpdateStoreStock(){
+        String productID;
+        int storeID;
+        int quantity;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+        
+        System.out.println("\nEnter the quantity:");
+        quantity = in.nextInt();
+
+        updateStoreStock(storeID, productID, quantity);
+    }
+
+    public static void userDeleteStoreStock(){
+        String productID;
+        int storeID;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+
+        deleteStoreStock(storeID, productID);
+    }
+
+    public static void userGetQuantityStoreStock(){
+        String productID;
+        int storeID;
+        int quantity;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+
+        quantity = getQuantityStoreStock(storeID, productID);
+        System.out.println("\nThe Store("+storeID+") has " + quantity + " amount of " +productID);
+
     }
 
     public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
@@ -2328,7 +2396,19 @@ public static void enterShipmentinfo() {
                         break;
 
                         // To do: Build out remaining options
-                        //case 2:
+                        case 2:
+                            userAddStoreStock();
+                            break;
+                        case 3:
+                            userDeleteStoreStock();
+                            break;
+                        case 4:
+                            userUpdateStoreStock();
+                            break;
+                        case 5:
+                            userGetQuantityStoreStock();
+                            break;
+
                     }
                 break;
 
@@ -2514,6 +2594,10 @@ public static void enterShipmentinfo() {
             case 4:
             System.out.println("Welcome warehouse staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\t2 - Add storeStock");
+            System.out.println("\t3 - Delete storeStock");
+            System.out.println("\t4 - Update storeStock");
+            System.out.println("\t5 - Get quantity from a storeStock");
             break;
 
             // admin options
