@@ -1300,13 +1300,13 @@ public static void enterShipmentinfo() {
 
     }
     
-    public static void updateStoreStock(int storeId, String productId, int stock) {
+    public static void updateStoreStock(int storeId, int productId, int stock) {
 
         // "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;"
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setString(1,productId);
+                prepUpdateStoreStock.setInt(1,productId);
                 prepUpdateStoreStock.setInt(2, stock);
                 prepUpdateStoreStock.setInt(3, storeId);
 
@@ -1323,13 +1323,13 @@ public static void enterShipmentinfo() {
 		}
     }
 
-    public static void addStoreStock(int storeId, String productId, int stock){
+    public static void addStoreStock(int storeId, int productId, int stock){
         // "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
         try {
             conn.setAutoCommit(false);
             try{
                 prepUpdateStoreStock.setInt(1, storeId);
-                prepUpdateStoreStock.setString(2, productId);
+                prepUpdateStoreStock.setInt(2, productId);
                 prepUpdateStoreStock.setInt(3, stock);
 
                 prepUpdateStoreStock.executeUpdate();
