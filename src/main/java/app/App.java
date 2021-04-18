@@ -96,6 +96,8 @@ public class App {
 
     private static PreparedStatement prepGetPrice;
     private static PreparedStatement prepGetDiscount;
+
+    private static PreparedStatement prepCustomerReport;
  
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -314,6 +316,11 @@ public class App {
 
             sql = "DELETE FROM StoreStock WHERE StoreID = ?;";
             prepDeleteStoreStock = conn.prepareStatement(sql);
+
+            //Reports
+            sql = "SELECT SUM(IF(SignupDate >= DATEADD(month,-1,GETDATE()), 1, 0)) AS new_signups,"
+                + "COUNT(*) AS total_signups FROM Signup;";
+            prepCustomerReport = conn.prepareStatement(sql);
             
         }catch (SQLException e) {
 			e.printStackTrace();
@@ -2015,6 +2022,27 @@ public static void enterShipmentinfo() {
 
         // Execute update
     }
+
+    public static void customerGrowthReport(){
+        int newSignups;
+        int totalSignups;
+
+        try {
+            ResultSet rs = prepCustomerReport.executeQuery();
+            // SELECT SUM(IF(SignupDate >= DATEADD(month,-1,GETDATE()), 1, 0)) AS new_signups
+            // COUNT(*) AS total_signups
+
+            if(rs.next()){
+                newSignups = rs.getInt("new_signups");
+                totalSignups = rs.getInt("MembershipLevel");
+
+                System.out.println("There were " + newSignups + " in the last month (" + totalSignups + " signups total)");
+            }
+
+        } catch (SQLException e) {
+			e.printStackTrace();
+        }
+    }
     public static void main(String[] args) {
         
         // Setup db connection w username and password
@@ -2114,8 +2142,9 @@ public static void enterShipmentinfo() {
                             showOptions(1);
                         break;
 
-                        // To do: Build out remaining options
-                        // case 2:
+                        case 2:
+                            customerGrowthReport();
+                        break;
                     }
                 break;
 
@@ -2315,7 +2344,8 @@ public static void enterShipmentinfo() {
             // billing staff options
             case 3:
             System.out.println("Welcome billing staff. Please choose from the available options below:");
-            System.out.println("\t0 - Exit program\n\t1 - Return to main menu");           
+            System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\t2 - View the customer growth report");           
             break;
 
             // warehouse operator options
