@@ -1221,7 +1221,6 @@ public static void enterShipmentinfo() {
         String manufactureDate;
         String expirationDate;
         int isOnSale;
-        int storeID;
 
         Scanner in = new Scanner(System.in);
 
@@ -1250,10 +1249,7 @@ public static void enterShipmentinfo() {
         quantity = in.nextInt();
 
         System.out.println("\nEnter isOnSale: (for yes enter 1 and for no enter 0)");
-        isOnSale = in.nextInt();
-
-        System.out.println("\nEnter your StoreID:");
-        storeID = in.nextInt();        
+        isOnSale = in.nextInt();        
 
         try {
             conn.setAutoCommit(false);
@@ -1279,19 +1275,14 @@ public static void enterShipmentinfo() {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
-        //Add to StoreStock
-        addStoreStock(storeID, productID, quantity);
     }
 
     public static void deleteMerchandise() {
         String productID;
-        int storeID;
 
         Scanner in = new Scanner(System.in);
 
         System.out.println("\nEnter your StoreID:");
-        storeID = in.nextInt();
-        System.out.println("\nEnter productID:");
         productID = in.nextLine();
 
 		try {
@@ -1310,7 +1301,6 @@ public static void enterShipmentinfo() {
 		 catch (SQLException e) {
 			e.printStackTrace();
 		}
-        deleteStoreStock(storeID, productID);
 	}
 
     public static void updateMerchandise() {
@@ -1324,11 +1314,8 @@ public static void enterShipmentinfo() {
         String expirationDate = "";
         int isOnSale = 0;
         boolean validProductID = false;
-        int storeID;
 
         Scanner in = new Scanner(System.in);
-        System.out.println("\nEnter your StoreID:");
-        storeID = in.nextInt();
 
         System.out.println("\nEnter productID:");
         try{
@@ -1421,10 +1408,6 @@ public static void enterShipmentinfo() {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-        //Update the Store Stock
-        updateStoreStock(storeID, productID, quantity);
-
     }
     
     public static void updateStoreStock(int storeId, String productId, int stock) {
