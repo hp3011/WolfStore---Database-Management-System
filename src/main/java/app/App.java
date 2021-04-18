@@ -318,7 +318,7 @@ public class App {
             prepDeleteStoreStock = conn.prepareStatement(sql);
 
             //Reports
-            sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 1, 0)) AS new_signups,"
+            sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(CURDATE(), INTERVAL - 1 MONTH), 1, 0)) AS new_signups,"
                 + "COUNT(*) AS total_signups FROM Signup;";
             prepCustomerReport = conn.prepareStatement(sql);
             
@@ -2036,7 +2036,7 @@ public static void enterShipmentinfo() {
                 newSignups = rs.getInt("new_signups");
                 totalSignups = rs.getInt("total_signups");
 
-                System.out.println("There were " + newSignups + " in the last month (" + totalSignups + " signups total)");
+                System.out.println("There were " + newSignups + " new signups in the last month (" + totalSignups + " signups total)");
             }
 
         } catch (SQLException e) {
