@@ -59,7 +59,7 @@ public class App {
     private static PreparedStatement prepDeleteSupplierEntry;
     private static PreparedStatement prepUpdateSupplierSpecificEntry;
 
-
+    private static PreparedStatement prepGetQuantityStoreStock;
     private static PreparedStatement prepAddShipment;
     private static PreparedStatement prepDeleteShipment;
     private static PreparedStatement prepUpdateShipment;
@@ -141,6 +141,11 @@ public class App {
 
             sql = "SELECT * from `PurchasedItems` WHERE TransactionID = ?;";
             prepGetProductList = conn.prepareStatement(sql);
+
+            // TransferProduct
+            sql = "SELECT Stock from `StoreStock` WHERE StoreID = ? AND ProductID = ?;";
+            prepGetQuantityStoreStock = conn.prepareStatement(sql);
+
             //Staff Table
             sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
                     + "VALUES(?,?,?,?,?,?,?,?,?);";
@@ -963,7 +968,61 @@ public class App {
             }
         }catch (SQLException e) {System.out.println(e);}
     }
+    public static int getQuantityStoreStock(int storeID, String productID){
+    
+        try{
+            prepGetQuantityStoreStock.setInt(1,storeID);
+            prepGetQuantityStoreStock.setString(2,productID);
 
+            ResultSet rs = prepGetQuantityStoreStock.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt("Stock");
+            }else{
+                return -1;
+            }
+        }catch (SQLException e) {System.out.println(e);}
+        return -1;
+    }
+
+    public static void transferProduct(){
+        int quantity;
+        String productID;
+        int yourStore;
+        int sendStore;
+
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("\nEnter your storeID:");
+        yourStore = in.nextInt();
+
+        System.out.println("\nEnter the storeID from where you want to get products:");
+        sendStore = in.nextInt();
+
+        System.out.println("\nEnter the ProductID which you want to request:");
+        productID = in.nextLine();
+
+        System.out.println("\nEnter the quantity for the Product:");
+        quantity = in.nextInt();
+
+        //Check if sending store have the product and quantity.
+        //getquantity of product.
+        int avaliableQuantity = getQuantityStoreStock(sendStore, productID);
+
+        if(avaliableQuantity >= quantity){
+            //transferproduct
+            updateStoreStock(sendStore, productID, avaliableQuantity - quantity);
+            avaliableQuantity = getQuantityStoreStock(yourStore, productID);
+            if(avaliableQuantity<0){
+                addStoreStock(yourStore, productID, quantity);
+            }else{
+                updateStoreStock(yourStore, productID, avaliableQuantity + quantity);
+            }
+            System.out.println("\nSucess - Products are transfered between Store");
+        }else{
+            System.out.println("\nRequested Store has "+ quantity +" quantity of product left in their stock");
+        }
+    }
     public static void addMerchandise() {
         String productID;
         String productName;
@@ -974,6 +1033,7 @@ public class App {
         String manufactureDate;
         String expirationDate;
         int isOnSale;
+        int storeID;
 
         Scanner in = new Scanner(System.in);
 
@@ -1004,6 +1064,9 @@ public class App {
         System.out.println("\nEnter isOnSale: (for yes enter 1 and for no enter 0)");
         isOnSale = in.nextInt();
 
+        System.out.println("\nEnter your StoreID:");
+        storeID = in.nextInt();        
+
         try {
             conn.setAutoCommit(false);
             try{
@@ -1028,13 +1091,18 @@ public class App {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
+        //Add to StoreStock
+        addStoreStock(storeID, productID, quantity);
     }
 
     public static void deleteMerchandise() {
         String productID;
+        int storeID;
 
         Scanner in = new Scanner(System.in);
 
+        System.out.println("\nEnter your StoreID:");
+        storeID = in.nextInt();
         System.out.println("\nEnter productID:");
         productID = in.nextLine();
 
@@ -1053,6 +1121,7 @@ public class App {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+        deleteStoreStock(storeID, productID);
 	}
     
     public static void updateMerchandise() {
@@ -1066,8 +1135,12 @@ public class App {
         String expirationDate = "";
         int isOnSale = 0;
         boolean validProductID = false;
+        int storeID;
 
         Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter your StoreID:");
+        storeID = in.nextInt();
+
         System.out.println("\nEnter productID:");
         try{
             while(!validProductID){
@@ -1160,7 +1233,11 @@ public class App {
 			e.printStackTrace();
 		}
 
+        //Update the Store Stock
+        updateStoreStock(storeID, productID, quantity);
+
     }
+    
     public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
 
         try {
@@ -1289,16 +1366,12 @@ public class App {
                 
 	}
 
-
-
-
-
     public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
     	BigDecimal price = null;
-	int isonsale = 0;
-	String PromoID = getRewardsEligible(Integer.parseInt(CustomerID));
-	BigDecimal discount = null;
-	String validthrough = null;
+        int isonsale = 0;
+        String PromoID = getRewardsEligible(Integer.parseInt(CustomerID));
+        BigDecimal discount = null;
+        String validthrough = null;
         try {
             
 
@@ -1331,7 +1404,7 @@ public class App {
 			e.printStackTrace();
 		}
         return price;
-    	}
+    }
 
 	public static boolean isActiveClub(String CustomerID) {
 	
