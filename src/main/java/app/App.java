@@ -330,7 +330,7 @@ public class App {
             sql = "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
             prepAddStoreStock = conn.prepareStatement(sql);
 
-            sql = "DELETE FROM StoreStock WHERE StoreID = ?;";
+            sql = "DELETE FROM StoreStock WHERE StoreID = ? AND ProductID = ?;";
             prepDeleteStoreStock = conn.prepareStatement(sql);
 
             //Reports
@@ -1210,6 +1210,7 @@ public static void enterShipmentinfo() {
             System.out.println("\nRequested Store has "+ quantity +" quantity of product left in their stock");
         }
     }
+    
     public static void addMerchandise() {
         String productID;
         String productName;
@@ -1279,7 +1280,7 @@ public static void enterShipmentinfo() {
 			e.printStackTrace();
 		}
         //Add to StoreStock
-        //addStoreStock(storeID, productID, quantity);
+        addStoreStock(storeID, productID, quantity);
     }
 
     public static void deleteMerchandise() {
@@ -1309,7 +1310,7 @@ public static void enterShipmentinfo() {
 		 catch (SQLException e) {
 			e.printStackTrace();
 		}
-        //deleteStoreStock(storeID, productID);
+        deleteStoreStock(storeID, productID);
 	}
 
     public static void updateMerchandise() {
@@ -1422,17 +1423,17 @@ public static void enterShipmentinfo() {
 		}
 
         //Update the Store Stock
-        //updateStoreStock(storeID, productID, quantity);
+        updateStoreStock(storeID, productID, quantity);
 
     }
     
-    public static void updateStoreStock(int storeId, int productId, int stock) {
+    public static void updateStoreStock(int storeId, String productId, int stock) {
 
         // "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;"
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1,productId);
+                prepUpdateStoreStock.setString(1,productId);
                 prepUpdateStoreStock.setInt(2, stock);
                 prepUpdateStoreStock.setInt(3, storeId);
 
@@ -1449,16 +1450,16 @@ public static void enterShipmentinfo() {
 		}
     }
 
-    public static void addStoreStock(int storeId, int productId, int stock){
+    public static void addStoreStock(int storeId, String productId, int stock){
         // "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1, storeId);
-                prepUpdateStoreStock.setInt(2, productId);
-                prepUpdateStoreStock.setInt(3, stock);
+                prepAddStoreStock.setInt(1, storeId);
+                prepAddStoreStock.setString(2, productId);
+                prepAddStoreStock.setInt(3, stock);
 
-                prepUpdateStoreStock.executeUpdate();
+                prepAddStoreStock.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
@@ -1477,9 +1478,9 @@ public static void enterShipmentinfo() {
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1, storeId);
+                prepGetStoreStock.setInt(1, storeId);
 
-                prepUpdateStoreStock.executeQuery();
+                prepGetStoreStock.executeQuery();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
@@ -1492,14 +1493,14 @@ public static void enterShipmentinfo() {
 		}
     }
 
-    public static void deleteStoreStock(int storeId) {
+    public static void deleteStoreStock(int storeId, String productId) {
         // DELETE FROM StoreStock WHERE StoreID = ?;
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1, storeId);
-
-                prepUpdateStoreStock.executeUpdate();
+                prepDeleteStoreStock.setInt(1, storeId);
+                prepDeleteStoreStock.setString(2, productId);
+                prepDeleteStoreStock.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
