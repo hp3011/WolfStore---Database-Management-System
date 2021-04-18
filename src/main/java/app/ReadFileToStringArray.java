@@ -12,7 +12,7 @@ public class ReadFileToStringArray {
  
     public static String[] readLineByLine() 
     {
-        String filePath = "main/sql/create_tables.txt";
+        String filePath = "main/sql/demo_tables.txt";
 
         StringBuilder contentBuilder = new StringBuilder();
  
