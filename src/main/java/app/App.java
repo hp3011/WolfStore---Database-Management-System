@@ -2015,13 +2015,13 @@ public static void enterShipmentinfo() {
     public static void main(String[] args) {
         
         // Setup db connection w username and password
-        System.out.println("Connecting to database...");
+        System.out.println("Connecting to database...\n");
         conn = getConnection();
         // TO DO if connection can't be made then try again or exit
 
         generatePreparedStatement();
         // Create db and tables- loop through commands and execute each
-        System.out.println("Loading data...");
+        System.out.println("Loading data...\n");
         setupDb();
 
         in = new Scanner(System.in);
