@@ -181,9 +181,11 @@ CREATE TABLE Signup
     StaffID INT NOT NULL,
 	CustomerID INT NOT NULL,
 	SignupDate DATE  NOT NULL,
+  StoreID INT NOT NULL,
     PRIMARY KEY(CustomerID),
 	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE,
-    FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE	
+    FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE,
+    FOREIGN KEY (StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE
   )
 
 CREATE TABLE CustomerPaysBillTo
@@ -384,10 +386,10 @@ INSERT INTO Merchandise (ProductID,ProductName,SupplierID,Quantity,BuyPrice,Mark
 ("ITEM_03","nike shoes ","SUP100",92,200,235,"2021/06/03","2025/02/28"), ("ITEM_04","jeans","SUP100",174,207,230,"2020/11/08","2023/09/30"), ("ITEM_05","jacket","SUP100",86,188,230,"2020/06/14","2024/06/12"), ("ITEM_06","medicine","SUP104",139,20,25,"2020/10/27","2022/07/11"), 
 ("ITEM_07","utensil set","SUP103",77,107,200,"2021/09/15","2021/10/16"), ("ITEM_08","lamp","SUP103",85,40,85,"2020/05/08","2022/11/09"), ("ITEM_09","cookies","SUP101",191,25,55,"2022/03/03","2024/09/19"), ("ITEM_10","makeup set","SUP102",171,300,460,"2021/07/23","2022/05/04")
 
-INSERT INTO Signup (StaffID,CustomerID,SignupDate) VALUES (13,10,"2015/08/18"),(13,1,"2016/01/07"),(13,2,"2015/11/28"),
-(13,3,"2016/03/04"),(13,4,"2016/03/04"),(9,5,"2015/08/28"),
-(13,6,"2015/07/30"),(9,7,"2015/05/30"),(13,8,"2016/01/17"),
-(12,9,"2015/07/03"), (1003, 5001, "2019/08/01"), (2001, 5002, "2018/01/01")
+INSERT INTO Signup (StaffID,CustomerID,SignupDate, StoreID) VALUES (13,10,"2015/08/18",1),(13,1,"2016/01/07",2),(13,2,"2015/11/28",3),
+(13,3,"2016/03/04",1),(13,4,"2016/03/04",2),(9,5,"2015/08/28",3),
+(13,6,"2015/07/30",1),(9,7,"2015/05/30",2),(13,8,"2016/01/17",3),
+(12,9,"2015/07/03",1), (1003, 5001, "2019/08/01", 2001), (1003, 5002, "2018/01/01", 2001)
 
 INSERT INTO CustomerPaysBillTo (CustomerID,TransactionID) VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(1,10),(2,11),(3,12),(4,13),(2,14),(5,15)
 
