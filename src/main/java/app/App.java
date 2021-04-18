@@ -87,6 +87,7 @@ public class App {
     private static PreparedStatement prepDeleteStore;
     private static PreparedStatement prepUpdateStore;
     private static PreparedStatement prepUpdateStorePhone;
+    private static PreparedStatement prepUpdateStoreAddress;
 
     private static PreparedStatement prepGetStoreStock;
     private static PreparedStatement prepAddStoreStock;
@@ -297,6 +298,9 @@ public class App {
             
             sql = "UPDATE Store SET PhoneNumber = ? WHERE StoreID = ?;";
             prepUpdateStorePhone = conn.prepareStatement(sql);
+
+            sql = "UPDATE Store SET StoreAddress = ? WHERE StoreID = ?;";
+            prepUpdateStoreAddress = conn.prepareStatement(sql);
 
             //StoreStock
             sql = "SELECT * FROM StoreStock WHERE StoreID = ?;";
@@ -1983,10 +1987,9 @@ public static void enterShipmentinfo() {
                 if (updatedAttribute == 1) {
                     System.out.println("Enter new address:");
                     String address = in.nextLine();
-                    prepUpdateStore.setString(1, "StoreAddress");
-                    prepUpdateStore.setString(2, address);
-                    prepUpdateStore.setInt(3, storeId);
-                    prepUpdateStore.executeUpdate();
+                    prepUpdateStoreAddress.setString(1, address);
+                    prepUpdateStoreAddress.setInt(2, storeId);
+                    prepUpdateStoreAddress.executeUpdate();
                     validInput = true;
                     System.out.println("Address updated successfully");
                 } else if (updatedAttribute ==2){
