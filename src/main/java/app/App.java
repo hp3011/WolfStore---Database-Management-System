@@ -1893,7 +1893,9 @@ public static void enterShipmentinfo() {
     }
     
     public static void updatePositionTables(int staffId, String currentPosition, String newPosition){
-        try {   
+
+        try {
+            conn.setAutoCommit(false);
             switch (currentPosition) {
                 case "BillingExecutive":
                     prepDeleteBillingExecutive.setInt(1, staffId);
@@ -1942,7 +1944,13 @@ public static void enterShipmentinfo() {
                 default:
                 break;
             }
-        } catch (Exception e) {System.out.println(e);}
+            conn.commit();
+            conn.setAutoCommit(true);
+
+        } catch (Exception e) {
+            try {conn.rollback();} catch(Exception z) {System.out.println(z);}
+            System.out.println(e);
+        }
     }
 
     public static void enterStoreInfo() {
