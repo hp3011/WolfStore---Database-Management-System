@@ -334,6 +334,8 @@ INSERT INTO ClubMember (CustomerID, ActiveStatus,Name,MembershipLevel,Address,Ph
 
 INSERT INTO Cashier (StaffID) VALUES (1003),(4),(5),(6),(7),(8)
 
+INSERT INTO BillingExecutive (StaffID) VALUES (1), (2)
+
 INSERT INTO Transaction (StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (2,9,5,"2021/01/18",29.75), 
 (2,1,5,"2021/01/29",446.5),
 (1,8,4,"2021/02/16",207),
