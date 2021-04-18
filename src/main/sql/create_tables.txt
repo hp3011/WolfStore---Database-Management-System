@@ -261,7 +261,7 @@ CREATE TABLE Report
 
 CREATE TABLE Rewards
   (
-	PromoID  CHAR(5) NOT NULL,
+	PromoID  INT NOT NULL AUTO_INCREMENT,
 	Discount  DECIMAL(9,2)  NOT NULL,
 	ValidThrough	 DATE  NOT NULL,
 	MembershipLevel  VARCHAR(10)  NOT NULL,
@@ -271,7 +271,7 @@ CREATE TABLE Rewards
 CREATE TABLE RewardsEligibleFor
   (
     CustomerID INT NOT NULL,
-	PromoID  CHAR(5) NOT NULL,
+	PromoID  INT NOT NULL,
 	PRIMARY KEY(CustomerID, PromoID),
 	FOREIGN KEY (PromoID) REFERENCES Rewards(PromoID) ON UPDATE CASCADE,
 	FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE
@@ -450,14 +450,15 @@ INSERT INTO Report (ReportID, FromDate, ToDate, ReportType, ReportDetail) VALUES
 (3, "2021/01/02", "2021/01/01","StockReport", "Number of items in warehouse 700"),
 (4, "2021/01/02", "2021/03/02", "Spending", "Total Store Spendings= 5000")
 
-INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES ("OFF05", 0.05,"2021/12/20","Standard"),
-("OFF10", 0.10,"2021/05/05","Gold"),
-("OFF20", 0.20, "2021/04/07","Platinum"),
-("7001", 0.20, "2021/05/01", "Gold"),
-("7002", 0.20, "2021/05/01", "Gold")
+INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES (1, 0.05,"2021/12/20","Standard"),
+(2, 0.10,"2021/05/05","Gold"),
+(3, 0.20, "2021/04/07","Platinum"),
+(4, 0.20, "2021/05/01", "Gold"),
+(7001, 0.20, "2021/05/01", "Gold"),
+(7002, 0.20, "2021/05/01", "Gold")
 
 INSERT INTO RewardsEligibleFor (CustomerID, PromoID) VALUES 
-(10,"OFF05"), (1,"OFF05"), (2,"OFF05"), (3,"OFF05"), (4,"OFF10"), (5,"OFF10"), (6,"OFF10"), (7,"OFF20"), (8,"OFF20"), (9,"OFF20")
+(10,1), (1,1), (2,1), (3,1), (4,2), (5,2), (6,2), (7,3), (8,4), (9,7001)
 
 INSERT INTO Admin (StaffID) VALUES (14)
 
