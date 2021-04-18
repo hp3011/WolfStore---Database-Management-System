@@ -1,0 +1,355 @@
+SET FOREIGN_KEY_CHECKS = 0
+
+DROP TABLE IF EXISTS ClubMember CASCADE
+
+DROP TABLE IF EXISTS Shipment CASCADE
+
+DROP TABLE IF EXISTS Store CASCADE
+
+DROP TABLE IF EXISTS StaffMember CASCADE
+
+DROP TABLE IF EXISTS Supplier CASCADE
+
+DROP TABLE IF EXISTS Merchandise CASCADE
+
+DROP TABLE IF EXISTS BillingExecutive CASCADE
+
+DROP TABLE IF EXISTS Admin CASCADE
+
+DROP TABLE IF EXISTS Cashier CASCADE
+
+DROP TABLE IF EXISTS Signup CASCADE
+
+DROP TABLE IF EXISTS WarehouseOperator CASCADE
+
+DROP TABLE IF EXISTS RegistrationStaff CASCADE
+
+DROP TABLE IF EXISTS Transaction CASCADE
+
+DROP TABLE IF EXISTS ShipmentBill CASCADE
+
+DROP TABLE IF EXISTS CustomerPaysBillTo CASCADE
+
+DROP TABLE IF EXISTS ShipmentConsistsOf CASCADE
+
+DROP TABLE IF EXISTS CustomerShipment CASCADE
+
+DROP TABLE IF EXISTS SupplierShipment CASCADE
+
+DROP TABLE IF EXISTS PurchasedItems CASCADE
+
+DROP TABLE IF EXISTS StoreShipment CASCADE
+
+DROP TABLE IF EXISTS Report CASCADE
+
+DROP TABLE IF EXISTS Rewards CASCADE
+
+DROP TABLE IF EXISTS StoreStock CASCADE
+
+DROP TABLE IF EXISTS RewardsEligibleFor CASCADE
+
+SET FOREIGN_KEY_CHECKS = 1
+
+CREATE TABLE ClubMember
+  (
+    CustomerID       INT NOT NULL AUTO_INCREMENT,
+    ActiveStatus    VARCHAR(32) NULL,
+    Name        VARCHAR(128) NOT NULL,
+    MembershipLevel VARCHAR(128) NOT NULL,
+    Address          VARCHAR(128),
+    Phone            VARCHAR(128),
+    Email            VARCHAR(128),
+	PRIMARY KEY(CustomerID),
+	UNIQUE (Phone),
+	UNIQUE (Email)
+  )
+
+CREATE TABLE Shipment
+  (
+    ShipmentID  CHAR(6) NOT NULL,
+	Type VARCHAR(20) NOT NULL,
+    SentBy VARCHAR(128) NOT NULL,
+    ReceivedBy VARCHAR(128) NOT NULL,
+    SentDate DATE  NOT NULL,
+    ReceivedDate DATE  NOT NULL,
+    PRIMARY KEY(ShipmentID)
+  )
+
+CREATE TABLE Store
+  (
+	  StoreID INT NOT NULL AUTO_INCREMENT,
+	  ManagerID  INT  NOT NULL,
+          StoreAddress  VARCHAR(128) NOT NULL,
+          PhoneNumber   VARCHAR(128) NOT NULL,
+	  PRIMARY KEY(StoreID),
+	  UNIQUE(PhoneNumber),
+	  UNIQUE (StoreAddress)
+	  )
+
+CREATE TABLE StaffMember
+  (
+    StaffID  INT NOT NULL,
+    StoreID  INT,
+    Name     VARCHAR(128) NOT NULL,
+    Age      INT,
+    Address  VARCHAR(128) NOT NULL,
+    JobTitle VARCHAR(128) NOT NULL,
+    PhoneNumber  VARCHAR(128) NOT NULL,
+    Email  VARCHAR(128),
+    JoiningDate  DATE NOT NULL,
+	PRIMARY KEY(StaffID),
+	FOREIGN KEY(StoreID) REFERENCES Store (StoreID) ON UPDATE CASCADE ON DELETE SET NULL
+  )
+
+CREATE TABLE Supplier
+  (
+    SupplierID	  CHAR(6) NOT NULL,
+    SupplierName  VARCHAR(128) NOT NULL,
+    PhoneNumber   VARCHAR(128) NOT NULL,
+    Email  VARCHAR(128) NOT NULL,
+    Location  VARCHAR(128) NOT NULL,
+    UNIQUE(Email),
+    UNIQUE(PhoneNumber),
+    PRIMARY KEY(supplierID)
+	  )
+
+ CREATE TABLE Merchandise
+  (
+    ProductID  CHAR(7) NOT NULL,
+    ProductName  VARCHAR(128) NOT NULL,
+    SupplierID  CHAR(6) NOT NULL,
+  	Quantity  INT NOT NULL,
+	BuyPrice  DECIMAL(9,2) NOT NULL,
+ 	MarketPrice  DECIMAL(9,2) NOT NULL,
+	ManufactureDate  DATE NOT NULL,
+	ExpirationDate  DATE NOT NULL,
+    	IsOnSale INT NOT NULL,
+    	CONSTRAINT ck_testbool_isonsale CHECK (IsOnSale IN (1,0)),
+     	PRIMARY KEY(ProductID),
+	FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE BillingExecutive
+  (
+     StaffID INT NOT NULL,
+     PRIMARY KEY(StaffID),
+     FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE Admin
+  (
+     StaffID INT NOT NULL,
+     PRIMARY KEY(StaffID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE Cashier
+  (
+     StaffID INT NOT NULL,
+     PRIMARY KEY(StaffID),
+     FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE RegistrationStaff
+  (
+    StaffID INT NOT NULL,
+	PRIMARY KEY(StaffID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE WarehouseOperator
+  (
+	StaffID  INT  NOT NULL,
+	PRIMARY KEY(StaffID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE
+	  )
+
+CREATE TABLE Transaction
+  (
+	TransactionID  INT  NOT NULL,
+	StoreID  INT NOT NULL,
+    CustomerID	 INT  NOT NULL,
+    CashierID  INT  NOT NULL,
+    PurchaseDate  DATE NOT NULL,
+    TotalPrice  DECIMAL(9,2) NOT NULL,
+	PRIMARY KEY(TransactionID),
+	FOREIGN KEY(CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE,
+  FOREIGN KEY(StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE, #ON DELETE SET NULL,
+	FOREIGN KEY(CashierID) REFERENCES Cashier(StaffID) ON UPDATE CASCADE
+	  )
+
+CREATE TABLE Signup
+  (
+    StaffID INT NOT NULL,
+    CustomerID INT NOT NULL,
+	SignupDate DATE  NOT NULL,
+    PRIMARY KEY(CustomerID),
+	FOREIGN KEY (StaffID) REFERENCES StaffMember(StaffID) ON UPDATE CASCADE,
+    FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE	
+  )
+
+CREATE TABLE CustomerPaysBillTo
+  (
+    CustomerID    INT NOT NULL,
+    TransactionID INT NOT NULL,
+    PRIMARY KEY(CustomerID, TransactionID),
+    FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE, 	
+    FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE ShipmentConsistsOf
+  (
+    ShipmentID CHAR(6) NOT NULL,
+    ProductID CHAR(7) NOT NULL,
+	Quantity INT NOT NULL,
+    PRIMARY KEY(ShipmentID, ProductID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE CustomerShipment
+  (
+    ShipmentID  CHAR(6) NOT NULL,
+    PRIMARY KEY(ShipmentID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE SupplierShipment
+  (
+    ShipmentID  CHAR(6) NOT NULL,
+    PRIMARY KEY(ShipmentID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE StoreShipment
+  (
+	ShipmentID CHAR(6) NOT NULL,
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment(ShipmentID) ON UPDATE CASCADE
+	  )
+
+CREATE TABLE ShipmentBill
+  (
+    BillID INT NOT NULL,
+	ShipmentID CHAR(6) NOT NULL,
+	Amount DECIMAL(9,2) NOT NULL,
+    BillingDate DATE NOT NULL,
+	BillingExecutiveID INT NOT NULL,
+    PRIMARY KEY(BillID),
+	FOREIGN KEY (ShipmentID) REFERENCES Shipment (ShipmentID) ON UPDATE CASCADE,
+	FOREIGN KEY (BillingExecutiveID) REFERENCES BillingExecutive(StaffID) ON UPDATE CASCADE
+  )
+
+CREATE TABLE PurchasedItems
+  (
+	TransactionID INT  NOT NULL,
+	ProductID  CHAR(7)  NOT NULL,
+        Quantity  INT  NOT NULL,
+	PRIMARY KEY(TransactionID, ProductID),
+	FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID) ON UPDATE CASCADE,
+	FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
+	  )
+
+CREATE TABLE Report
+(
+  ReportID INT NOT NULL,
+	FromDate  DATE  NOT NULL,
+	ToDate  DATE NOT NULL,
+	ReportType VARCHAR(128),
+	ReportDetail VARCHAR(128),
+	PRIMARY KEY(ReportID)
+)
+
+CREATE TABLE Rewards
+  (
+	PromoID  CHAR(5) NOT NULL,
+	Discount  DECIMAL(9,2)  NOT NULL,
+	ValidThrough	 DATE  NOT NULL,
+	MembershipLevel  VARCHAR(10)  NOT NULL,
+	PRIMARY KEY(PromoID)
+  )
+
+CREATE TABLE RewardsEligibleFor
+  (
+    CustomerID INT NOT NULL,
+	PromoID  CHAR(5) NOT NULL,
+	PRIMARY KEY(CustomerID, PromoID),
+	FOREIGN KEY (PromoID) REFERENCES Rewards(PromoID) ON UPDATE CASCADE,
+	FOREIGN KEY (CustomerID) REFERENCES ClubMember(CustomerID) ON UPDATE CASCADE
+	  )
+
+CREATE TABLE StoreStock 
+(
+    StoreID  INT NOT NULL ,
+    ProductID  CHAR(7) NOT NULL,
+    Stock INT NOT NULL,
+    PRIMARY KEY (StoreID,ProductID),
+    FOREIGN KEY (StoreID) REFERENCES Store(StoreID) ON UPDATE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Merchandise(ProductID) ON UPDATE CASCADE
+)
+
+
+INSERT INTO Store (StoreID, ManagerID,StoreAddress,PhoneNumber) VALUES (2001,1001,"2221, B Street, NC","919-2222-123"),
+(2002,1002,"2222,C Street, NC","919-2222-456")
+
+INSERT INTO StaffMember (StaffID,StoreID,Name,Age,Address,JobTitle,PhoneNumber,Email,JoiningDate) VALUES (1001,2001,"John",32,"1101, S Street, NC","Manager","919-1111-123","john01@gmail.com","2018/10/10"),
+(1002,2002,"Alex",42,"1102, T Street, NC","Manager","919-1111-456","alex12@gmail.com","2015/07/19"),
+(1003,2001,"Mary",28,"1103, U Street, NC","Cashier","919-1111-789","mary34@gmail.com","2019/07/19")
+
+INSERT INTO ClubMember (CustomerID, ActiveStatus,Name,MembershipLevel,Address,Phone,Email) VALUES 
+(5001, "Active", "James Smith", "Gold", "5500, E Street, NC", "919-5555-123", "James5001@gmail.com"),
+(5002, "Active", "David Smith", "Platinum", "5501 F Street, NC", "919-5555-456", "David5002@gmail.com")
+
+INSERT INTO Cashier (StaffID) VALUES (1003)
+
+
+INSERT INTO Transaction (TransactionID, StoreID,CustomerID,CashierID,PurchaseDate,TotalPrice) VALUES (6001,2001,5002,1003,"2020/05/01",100),
+(6002,2001,5002,1003,"2020/06/01",100), (6003,2001,5001,1003,"2020/07/01",160) 
+
+
+INSERT INTO Supplier (SupplierID,SupplierName,PhoneNumber,Email,Location) VALUES 
+("4001", "A Food Wholesale", "919-4444-123", "afood@gmail.com", "4401, A Street, NC"),
+("4002", "US Foods", "919-4444-456", "usfoods@gmail.com", "4402, G Street, NC")
+
+INSERT INTO Merchandise (ProductID,ProductName,SupplierID,Quantity,BuyPrice,MarketPrice,ManufactureDate,ExpirationDate, IsOnSale) VALUES
+("3001", "AAA Paper Towels", "4001",500,10,20, "2020/01/01", "2025/01/01", "1"), ("3002", "BBB Hand Soap", "4002",500,5,10, "2020/01/01", "2022/01/01","0"),
+("3003", "CCC Red Wine","4002",500,15,30, "2021/01/01", "2022/01/01","0")
+
+INSERT INTO Signup (StaffID,CustomerID,SignupDate) VALUES 
+(1003,5001, "2019/08/01"), (1001,5002, "2018/01/01")
+
+INSERT INTO CustomerPaysBillTo (CustomerID,TransactionID) VALUES (5001,6003),(5002,6002),(5002,6001)
+
+
+INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (2001,"3001",100), (2001,"3002",200), (2002,"3001",150), (2002,"3002",0), (2001,"3003",100)
+
+INSERT INTO PurchasedItems (TransactionID,ProductID,Quantity) VALUES (6001,"3001",2), (6001,"3002",2),(6002,"3002",10),(6003,"3001",10)
+
+INSERT INTO Report (ReportID, FromDate, ToDate, ReportType, ReportDetail) VALUES (1,"2021/01/15","2021/02/15","TotalSales","Total Sales are 1200 including all stores"),
+(2,"2020/01/05","2021/01/05","CustomerGrowth","Increase of 5% in customer registration"),
+(3, "2021/01/02", "2021/01/01","StockReport", "Number of items in warehouse 700"),
+(4, "2021/01/02", "2021/03/02", "Spending", "Total Store Spendings= 5000")
+
+INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES ("7001",0.20, "2021/05/01","Gold"),("7002",0.20, "2021/05/01","Platinum")
+
+INSERT INTO RewardsEligibleFor (CustomerID, PromoID) VALUES (5001,"7001"),(5002,"7002")
+
+
+INSERT INTO Shipment (ShipmentID,Type,SentBy,ReceivedBy,SentDate,ReceivedDate) VALUES ("SHP100","Customer","Caesar Poole",2001,"2021/01/25","2021/02/02"),("SHP101","Supplier","4001",2002,"2021/02/07","2021/02/10"), ("SHP102","Supplier","4002",2001,"2021/01/15","2021/01/19"),("SHP103","Store",2001,2002,"2021/01/04","2021/01/07")
+
+INSERT INTO ShipmentConsistsOf (ShipmentID,ProductID,Quantity) VALUES ("SHP100",3001,5),("SHP101",3002,100),("SHP102",3003,110),("SHP103",3002,100)
+
+INSERT INTO CustomerShipment (ShipmentID) VALUES ("SHP100")
+
+INSERT INTO SupplierShipment (ShipmentID) VALUES ("SHP103")
+
+INSERT INTO StoreShipment (ShipmentID) VALUES ("SHP101"),("SHP102")
+
+INSERT INTO BillingExecutive (StaffID) VALUES (1001)
+
+INSERT INTO ShipmentBill (BillID, ShipmentID , Amount, BillingDate , BillingExecutiveID ) VALUES (101,"SHP100",35,"2021/02/03",1001)
+
+INSERT INTO Admin (StaffID) VALUES (1002)
+
+INSERT INTO RegistrationStaff (StaffID) VALUES (1001)
+
+INSERT INTO WarehouseOperator (StaffID) VALUES (1001)
