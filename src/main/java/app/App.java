@@ -98,6 +98,17 @@ public class App {
     private static PreparedStatement prepGetDiscount;
 
     private static PreparedStatement prepCustomerReport;
+
+    private static PreparedStatement prepAddCashier;
+    private static PreparedStatement prepAddBillingExecutive;
+    private static PreparedStatement prepAddAdmin;
+    private static PreparedStatement prepAddWarehouseOperator;
+    private static PreparedStatement prepAddRegistrationStaff;
+    private static PreparedStatement prepDeleteCashier;
+    private static PreparedStatement prepDeleteBillingExecutive;
+    private static PreparedStatement prepDeleteAdmin;
+    private static PreparedStatement prepDeleteWarehouseOperator;
+    private static PreparedStatement prepDeleteRegistrationStaff;
  
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -321,6 +332,37 @@ public class App {
             sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(CURDATE(), INTERVAL - 1 MONTH), 1, 0)) AS new_signups,"
                 + "COUNT(*) AS total_signups FROM Signup;";
             prepCustomerReport = conn.prepareStatement(sql);
+
+            // Job tables
+            sql = "INSERT INTO Cashier(StaffID) VALUES (?);";
+            prepAddCashier = conn.prepareStatement(sql);
+
+            sql = "INSERT INTO BillingExecutive(StaffID) VALUES (?);";
+            prepAddBillingExecutive = conn.prepareStatement(sql);
+
+            sql = "INSERT INTO Admin(StaffID) VALUES (?);";
+            prepAddAdmin = conn.prepareStatement(sql);
+
+            sql = "INSERT INTO RegistrationStaff(StaffID) VALUES (?);";
+            prepAddRegistrationStaff = conn.prepareStatement(sql);
+
+            sql = "INSERT INTO WarehouseOperator(StaffID) VALUES (?);";
+            prepAddWarehouseOperator = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM Cashier WHERE StaffID = ?;";
+            prepDeleteCashier = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM BillingExecutive WHERE StaffID = ?;";
+            prepDeleteBillingExecutive = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM Admin WHERE StaffID = ?;";
+            prepDeleteAdmin = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM RegistrationStaff WHERE StaffID = ?;";
+            prepDeleteRegistrationStaff = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM WarehouseOperator WHERE StaffID = ?;";
+            prepDeleteWarehouseOperator = conn.prepareStatement(sql);
             
         }catch (SQLException e) {
 			e.printStackTrace();
@@ -1757,6 +1799,7 @@ public static void enterShipmentinfo() {
         Integer Age = 0;
         String Address =null;
         String JobTitle =null;
+        String newJobTitle = null;
         String PhoneNumber =null;
         String Email =null;
         String JoiningDate = null ;
@@ -1802,8 +1845,9 @@ public static void enterShipmentinfo() {
                 case 4: System.out.println("Enter the Address");
                         Address = in.next();
                         break;
-                case 5: System.out.println("Enter the job tite");
-                        JobTitle = in.next();
+                case 5: System.out.println("Enter the job title");
+                        newJobTitle = in.next();
+                        updatePositionTables(Integer.parseInt(StaffID), JobTitle, newJobTitle);
                         break;
                 case 6: System.out.println("Enter the phone number");
                         PhoneNumber = in.next();
@@ -1826,7 +1870,7 @@ public static void enterShipmentinfo() {
                 prepUpdateStaff.setString(2,Name);
                 prepUpdateStaff.setInt(3, Age);
                 prepUpdateStaff.setString(4,Address);
-                prepUpdateStaff.setString(5,JobTitle);
+                prepUpdateStaff.setString(5,newJobTitle);
                 prepUpdateStaff.setString(6,PhoneNumber);
                 prepUpdateStaff.setString(7, Email);
                 prepUpdateStaff.setDate(8,java.sql.Date.valueOf(JoiningDate));
@@ -1848,6 +1892,59 @@ public static void enterShipmentinfo() {
 
     }
     
+    public static void updatePositionTables(int staffId, String currentPosition, String newPosition){
+        try {   
+            switch (currentPosition) {
+                case "BillingExecutive":
+                    prepDeleteBillingExecutive.setInt(1, staffId);
+                    prepDeleteBillingExecutive.executeUpdate();
+                break;
+                case "WarehouseOperator":
+                    prepDeleteWarehouseOperator.setInt(1, staffId);
+                    prepDeleteWarehouseOperator.executeUpdate();
+                break;
+                case "Cashier":
+                    prepDeleteCashier.setInt(1, staffId);
+                    prepDeleteCashier.executeUpdate();
+                break;
+                case "RegistrationStaff":
+                    prepDeleteRegistrationStaff.setInt(1, staffId);
+                    prepDeleteRegistrationStaff.executeUpdate();
+                break;
+                case "Admin":
+                    prepDeleteAdmin.setInt(1, staffId);
+                    prepDeleteAdmin.executeUpdate();
+                break;
+                default:
+                break;
+            }
+            switch (newPosition) {
+                case "BillingExecutive":
+                    prepAddBillingExecutive.setInt(1, staffId);
+                    prepAddBillingExecutive.executeUpdate();
+                break;
+                case "WarehouseOperator":
+                    prepAddWarehouseOperator.setInt(2, staffId);
+                    prepAddWarehouseOperator.executeUpdate();
+                break;
+                case "Cashier":
+                    prepAddCashier.setInt(1, staffId);
+                    prepAddCashier.executeUpdate();
+                break;
+                case "RegistrationStaff":
+                    prepAddRegistrationStaff.setInt(1, staffId);
+                    prepAddRegistrationStaff.executeUpdate();
+                break;
+                case "Admin":
+                    prepAddAdmin.setInt(1, staffId);
+                    prepAddAdmin.executeUpdate();
+                break;
+                default:
+                break;
+            }
+        } catch (Exception e) {System.out.println(e);}
+    }
+
     public static void enterStoreInfo() {
         // "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`) VALUES(?,?,?);";
         int managerId = -1;
