@@ -78,6 +78,10 @@ public class App {
     private static PreparedStatement prepUpdateStore;
     private static PreparedStatement prepUpdateStorePhone;
 
+    private static PreparedStatement prepGetStoreStock;
+    private static PreparedStatement prepAddStoreStock;
+    private static PreparedStatement prepUpdateStoreStock;
+    private static PreparedStatement prepDeleteStoreStock;
 
     private static PreparedStatement prepGetPrice;
     private static PreparedStatement prepGetDiscount;
@@ -261,7 +265,18 @@ public class App {
             sql = "UPDATE Store SET PhoneNumber = ? WHERE StoreID = ?;";
             prepUpdateStorePhone = conn.prepareStatement(sql);
 
-           
+            //StoreStock
+            sql = "SELECT * FROM StoreStock WHERE StoreID = ?;";
+            prepGetStoreStock = conn.prepareStatement(sql);
+
+            sql = "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;";
+            prepUpdateStoreStock = conn.prepareStatement(sql);
+
+            sql = "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
+            prepAddStoreStock = conn.prepareStatement(sql);
+
+            sql = "DELETE FROM StoreStock WHERE StoreID = ?;";
+            prepDeleteStoreStock = conn.prepareStatement(sql);
             
         }catch (SQLException e) {
 			e.printStackTrace();
@@ -1055,7 +1070,7 @@ public class App {
 		}
 	
 	}
-    
+
     public static void updateMerchandise() {
         String productID = "";
         String productName = "";
@@ -1162,6 +1177,93 @@ public class App {
 		}
 
     }
+    
+    public static void updateStoreStock(int storeId, String productId, int stock) {
+
+        // "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;"
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepUpdateStoreStock.setString(1,productId);
+                prepUpdateStoreStock.setInt(2, stock);
+                prepUpdateStoreStock.setInt(3, storeId);
+
+                prepUpdateStoreStock.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void addStoreStock(int storeId, String productId, int stock){
+        // "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepUpdateStoreStock.setInt(1, storeId);
+                prepUpdateStoreStock.setString(2, productId);
+                prepUpdateStoreStock.setInt(3, stock);
+
+                prepUpdateStoreStock.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void getStoreStock(int storeId) {
+
+        // SELECT * FROM StoreStock WHERE StoreID = ?
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepUpdateStoreStock.setInt(1, storeId);
+
+                prepUpdateStoreStock.executeQuery();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void deleteStoreStock(int storeId) {
+        // DELETE FROM StoreStock WHERE StoreID = ?;
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepUpdateStoreStock.setInt(1, storeId);
+
+                prepUpdateStoreStock.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
     public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
 
         try {
@@ -1214,8 +1316,7 @@ public class App {
 		}
     }
     public static void deleteTransaction(String TransactionID) {
-
-			
+    
 				deleteCustomerPaysBill(Integer.parseInt(TransactionID));
 			        deletePurchasedItems(TransactionID);
 			 try {
@@ -1250,7 +1351,6 @@ public class App {
 			
         }
  
-
     public static void addPurchasedItems(String TransactionID, String ProductID, String Quantity) {
         try {
             conn.setAutoCommit(false);
@@ -1295,10 +1395,6 @@ public class App {
         //	}
                 
 	}
-
-
-
-
 
     public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
     	BigDecimal price = null;
@@ -1438,6 +1534,7 @@ public class App {
 
 	}
 	public static void userStaffAdd() {
+	
 		// Declare local variables
 	String staffID;
         String storeID ;
