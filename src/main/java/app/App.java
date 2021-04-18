@@ -917,7 +917,6 @@ public class App {
             conn.setAutoCommit(false);
             try{
                 prepDeleteCustomerPaysBill.setInt(1,transactionID);
-
                 prepDeleteCustomerPaysBill.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
@@ -1050,9 +1049,11 @@ public class App {
 			} finally {
 				conn.setAutoCommit(true);
 			}
-		} catch (SQLException e) {
+		}
+		 catch (SQLException e) {
 			e.printStackTrace();
 		}
+	
 	}
     
     public static void updateMerchandise() {
@@ -1212,19 +1213,17 @@ public class App {
 			e.printStackTrace();
 		}
     }
-    public static void deleteTransaction() {
-        String TransactionID;
+    public static void deleteTransaction(String TransactionID) {
 
-        Scanner in = new Scanner(System.in);
-        System.out.println("\nEnter Transaction ID to delete:");
-        TransactionID = in.nextLine();
-		try {
-			conn.setAutoCommit(false);
-			try {
+			
+				deleteCustomerPaysBill(Integer.parseInt(TransactionID));
+			        deletePurchasedItems(TransactionID);
+			 try {
+                        	conn.setAutoCommit(false);	
+				try{
 				prepDeleteTransaction.setString(1, TransactionID);
 				prepDeleteTransaction.executeUpdate();
 				conn.commit();
-				deleteCustomerPaysBill(Integer.parseInt(TransactionID));
 			} catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1235,6 +1234,21 @@ public class App {
 			e.printStackTrace();
 		}
 	}
+
+    public static void updateTransaction() {
+        String TransactionID;
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter Transaction ID to update:");	
+        TransactionID = in.nextLine();
+                       // conn.setAutoCommit(false);
+			System.out.println("\nDeleting old transaction and dependencies:");
+			deletePurchasedItems(TransactionID);
+			deleteCustomerPaysBill(Integer.parseInt(TransactionID));
+			deleteTransaction(TransactionID);			
+			System.out.println("\nCreate new updated transaction with modifed values");
+			userTransactionAdd();
+			
+        }
  
 
     public static void addPurchasedItems(String TransactionID, String ProductID, String Quantity) {
@@ -1260,15 +1274,8 @@ public class App {
     }
 
 
-   public static void deletePurchasedItems() {
-        String TransactionID;
-        Scanner in = new Scanner(System.in);
-        System.out.println("\nEnter Transaction ID to delete:");
-        TransactionID = in.nextLine();
-        //System.out.println("\n1- delete all enteries for Transaction");
-        //System.out.println("\n2- delete Specific enteries for Transaction");
-        //int option = in.nextInt();
-        //	if(option==1){
+   public static void deletePurchasedItems(String TransactionID) {
+        
                 try {
                         conn.setAutoCommit(false);
                         try {
@@ -1420,6 +1427,15 @@ public class App {
 		} catch (Throwable err) {
 			err.printStackTrace();
 		}
+	}
+	public static void userTransactionDelete(){
+		String TransactionID;
+		Scanner in = new Scanner(System.in);
+		System.out.println("\nEnter Transaction ID to delete");
+		TransactionID = in.nextLine();
+		deleteTransaction(TransactionID);
+		System.out.println("\nTransaction has been deleted!");	
+
 	}
 	public static void userStaffAdd() {
 		// Declare local variables
@@ -1839,18 +1855,22 @@ public class App {
                             menu = 1;
                             System.out.println("Returning to main menu");
                             showOptions(1);
-                        break;
-
+                            break;
                         case 2:
                             signUpMember(conn);
-                        break;
-
+                            break;
                         case 3:
                             updateMember();
-                        break;
+                            break;
 			case 4:
 			    userTransactionAdd();
-			break;
+			    break;
+			case 5:
+                            userTransactionDelete();
+			    break;
+			case 6:
+                            updateTransaction();
+			    break;
                         // To do: Build out remaining options
                     }
                 break;
@@ -2047,6 +2067,8 @@ public class App {
             System.out.println("\t2 - Signup a new club member");
             System.out.println("\t3 - Update an existing member's information");
 	    System.out.println("\t4 - Add new transaction information");
+	    System.out.println("\t5 - Delete existing Transaction");
+	    System.out.println("\t6 - Update existing Transaction");	
             break;
 
             // billing staff options
