@@ -2517,9 +2517,9 @@ public static void enterShipmentinfo() {
                 break;
 
                 default:
-                break;
+                    menu = 1;
+                    break;
             }
-            menu = 1;
         }
         try {
             in.close();
