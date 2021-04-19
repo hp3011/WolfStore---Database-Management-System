@@ -2371,6 +2371,7 @@ public static void enterShipmentinfo() {
 			                break;
                         // To do: Build out remaining options
                         }
+                        input = in.nextInt();
                     }
                 break;
 
