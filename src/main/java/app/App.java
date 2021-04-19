@@ -110,6 +110,10 @@ public class App {
     private static PreparedStatement prepDeleteAdmin;
     private static PreparedStatement prepDeleteWarehouseOperator;
     private static PreparedStatement prepDeleteRegistrationStaff;
+
+    private static PreparedStatement perpCreateStoreSalesGrowthReport;
+
+    private static PreparedStatement perpCreateCustomerActivityReport;
  
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
@@ -369,20 +373,131 @@ public class App {
 
             sql = "DELETE FROM WarehouseOperator WHERE StaffID = ?;";
             prepDeleteWarehouseOperator = conn.prepareStatement(sql);
+
+            // Shop Sales Growth Report
+
+            sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate >= ? AND PurchaseDate <= ? AND StoreID = ?;";
+            perpCreateStoreSalesGrowthReport = conn.prepareStatement(sql);
+
+            // Customer Activity Report
+                        
+            sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate >= ? AND PurchaseDate <= ? AND CustomerID = ?;";
+            perpCreateCustomerActivityReport = conn.prepareStatement(sql);
+
             
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
 
+
+
+    // Customer Activity Report function
+
+public static void generateCustomerActivityReport()
+{
+    Scanner sc = new Scanner(System.in);
+    String CustomerID = null;
+    String fromDate = null;
+    String toDate = null;
+    String totalSales = null;
+
+    System.out.println("Enter CustomerID for the report ");
+    CustomerID = sc.next();
+    System.out.println("Enter timeperiod From date the report ");
+    fromDate = sc.next();
+    System.out.println("Enter timeperiod To date the report ");
+    toDate = sc.next();    
+
+    try {         
+                conn.setAutoCommit(false);
+                try{
+                    perpCreateCustomerActivityReport.setString(1,fromDate);
+                    perpCreateCustomerActivityReport.setString(2,toDate);
+                    perpCreateCustomerActivityReport.setString(3,CustomerID);
+
+
+                    ResultSet rs = perpCreateCustomerActivityReport.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");  
+                        System.out.println("For Customer ID "+ CustomerID + " Total purchase were  " + totalSales + " for entered time period." );
+                    }                   
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+}
+
+// Shop Sales Growth Report function
+
+public static void generateShopSalesGrowthReport()
+{
+    Scanner sc = new Scanner(System.in);
+    String stroreID = null;
+    String fromDate = null;
+    String toDate = null;
+    String totalSales = null;
+
+    System.out.println("Enter stroreID for the report ");
+    stroreID = sc.next();
+    System.out.println("Enter timeperiod From date the report ");
+    fromDate = sc.next();
+    System.out.println("Enter timeperiod To date the report ");
+    toDate = sc.next();    
+
+    try {         
+                conn.setAutoCommit(false);
+                try{
+                    perpCreateStoreSalesGrowthReport.setString(1,fromDate);
+                    perpCreateStoreSalesGrowthReport.setString(2,toDate);
+                    perpCreateStoreSalesGrowthReport.setString(3,stroreID);
+
+
+                    ResultSet rs = perpCreateStoreSalesGrowthReport.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");  
+                        System.out.println("For Store ID "+ stroreID + " Total sales were  " + totalSales + " for entered time period." );
+                    }                   
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+}
+
+
+
     // Supplier Functions
-
-
-
-
    
-
-    
     //public static void deleteSupplierInfo(String supplierId)
     public static void deleteSupplierInfo()
     {
@@ -2572,6 +2687,16 @@ public static void enterShipmentinfo() {
                             showOptions(5);
                             menu = 5;
                             break;
+                        case 22:
+                            generateShopSalesGrowthReport();
+                            showOptions(5);
+                            menu = 5;
+                            break;
+                        case 23:
+                            generateCustomerActivityReport();
+                            showOptions(5);
+                            menu = 5;
+                            break;
 			    
                     }
                 break;
@@ -2702,6 +2827,8 @@ public static void enterShipmentinfo() {
             System.out.println("\t19 - Enter new Shipment");
             System.out.println("\t20 - Delete a shipment");
             System.out.println("\t21 - Update information of a shipment");
+            System.out.println("\t22 - Store sales report");
+            System.out.println("\t23 - Customer activity report");
 
             break;
         }
