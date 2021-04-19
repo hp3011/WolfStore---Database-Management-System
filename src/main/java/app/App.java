@@ -1199,6 +1199,75 @@ public static void enterShipmentinfo() {
 }
 
 
+public static void generatePlatinumCashback()
+{
+    Scanner sc = new Scanner(System.in);
+    String customerID = null;
+    String fromDate = null;
+    String toDate = null;
+    String year = null;
+    String totalSales = null;
+    double cashback = 0;
+    String membershipLevel = null;
+
+    System.out.println("Enter CustomerID for the report ");
+    customerID = sc.next();
+    //Check If a Platinum Member or not.
+    try{
+        prepGetCustomer.setString(1, customerID);
+        ResultSet rs = prepGetCustomer.executeQuery();
+        if(rs.next()){
+            membershipLevel = rs.getString("MembershipLevel");
+            if(!membershipLevel.equals("Platinum")){
+                System.out.println("CustomerID "+ customerID +" is not eligible for yearly 2% Cashback");
+                return;
+            }
+        }
+    }catch (SQLException e) {System.out.println(e);}
+    System.out.println("Enter the year: ");
+    year = sc.next();
+    
+    fromDate = year+"01/01";
+    toDate = year+"12/31";
+
+    try {         
+                conn.setAutoCommit(false);
+                try{
+                    perpCreateCustomerActivityReport.setString(1,fromDate);
+                    perpCreateCustomerActivityReport.setString(2,toDate);
+                    perpCreateCustomerActivityReport.setString(3,customerID);
+
+
+                    ResultSet rs = perpCreateCustomerActivityReport.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");
+                        cashback = Double.parseDouble(totalSales) * 0.02; 
+                        // System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+                        System.out.println("\tFor Customer ID "+ customerID + " Cashback for year  " + year + " is" + cashback);
+                        // System.out.println("\n\n###############################################################################################\n");
+
+                    }                   
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+}
+
    
 public static void generateStoreStockReport(){
     Scanner sc = new Scanner(System.in);
@@ -3120,6 +3189,21 @@ public static void generateStoreStockReport(){
                             showOptions(4);
                             menu = 4;
                             break;
+                        case 7:
+                            addMerchandise();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 8:
+                            deleteMerchandise();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 9:
+                            userUpdateMerchandise();
+                            showOptions(4);
+                            menu = 4;
+                            break;
 
                     }
                 break;
@@ -3272,6 +3356,11 @@ public static void generateStoreStockReport(){
                             showOptions(5);
                             menu = 5;
                             break;
+                        case 27:
+                            generatePlatinumCashback();
+                            showOptions(5);
+                            menu = 5;
+                            break;
                                         
                     }
                     break;
@@ -3389,6 +3478,9 @@ public static void generateStoreStockReport(){
             System.out.println("\t4 - Update storeStock");
             System.out.println("\t5 - Transfer Stock from store to store");
             System.out.println("\t6 - Get Quantity of product in storeStock");
+            System.out.println("\t7 - Add Merchandise");
+            System.out.println("\t8 - Delete Merchandise");
+            System.out.println("\t9 - Update Merchandise");
             break;
 
             // admin options
@@ -3429,6 +3521,8 @@ public static void generateStoreStockReport(){
             System.out.println("\t24 - Total Sales Report By Month,Year,Day");
             System.out.println("\t25 - Store Stock Report for a Store");
             System.out.println("\t26 - Store Stock Report for a ProductID");
+            System.out.println("\t27 - Get 2% cashback amount for a customer");
+
 
 
             break;
