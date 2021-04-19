@@ -1684,7 +1684,20 @@ public static void generateStoreStockReport(){
 		}
 	}
 
-    public static void updateMerchandise() {
+    public static ResultSet getMerchandise(String productID){
+        ResultSet rs = null;
+        try{
+            prepGetMerchandise.setString(1, productID);
+            rs = prepGetMerchandise.executeQuery();
+            if(rs.next()){
+                return rs;
+            }
+            
+        }catch (SQLException e) {System.out.println(e);}
+        return rs;
+
+    }
+    public static void userUpdateMerchandise() {
         String productID = "";
         String productName = "";
         String supplierID = "";
@@ -1694,35 +1707,23 @@ public static void generateStoreStockReport(){
         String manufactureDate = "";
         String expirationDate = "";
         int isOnSale = 0;
-        boolean validProductID = false;
 
         Scanner in = new Scanner(System.in);
 
         System.out.println("\nEnter productID:");
+        productID = in.next();
+        ResultSet rs = getMerchandise(productID);
         try{
-            while(!validProductID){
-                productID = in.nextLine();
-
-                prepGetMerchandise.setString(1, productID);
-                ResultSet rs = prepGetMerchandise.executeQuery();
-
-                if (rs.next() == false) {
-                    System.out.println("Invalid PromoID");
-                } else {
-                    productName = rs.getString("ProductName");
-                    supplierID = rs.getString("SupplierID");
-                    quantity = rs.getInt("Quantity");
-                    buyPrice = rs.getBigDecimal("BuyPrice").toString();
-                    marketPrice = rs.getBigDecimal("MarketPrice").toString();
-                    manufactureDate = rs.getDate("ManufactureDate").toString();
-                    expirationDate = rs.getDate("ExpirationDate").toString();
-                    isOnSale = rs.getInt("IsOnSale");
-                    validProductID = true;
-                }
-            }
-        } catch (SQLException e) {System.out.println(e);}
-        
-            
+            productName = rs.getString("ProductName");
+            supplierID = rs.getString("SupplierID");
+            quantity = rs.getInt("Quantity");
+            buyPrice = rs.getBigDecimal("BuyPrice").toString();
+            marketPrice = rs.getBigDecimal("MarketPrice").toString();
+            manufactureDate = rs.getDate("ManufactureDate").toString();
+            expirationDate = rs.getDate("ExpirationDate").toString();
+            isOnSale = rs.getInt("IsOnSale");
+        }catch (SQLException e) {System.out.println(e);}
+          
 
         int option = 0;
         while(option != 100) {
@@ -3100,7 +3101,7 @@ public static void generateStoreStockReport(){
                             menu = 5;
                             break;
                         case 10:
-                            updateMerchandise();
+                            userUpdateMerchandise();
                             showOptions(5);
                             menu = 5;
                             break;
