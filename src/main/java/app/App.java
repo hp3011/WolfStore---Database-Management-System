@@ -116,7 +116,9 @@ public class App {
     private static PreparedStatement prepAddShipmentBill;
     private static PreparedStatement prepGetSupShipment; 
     private static PreparedStatement perpCreateStoreSalesGrowthReport;
-
+    private static PreparedStatement perpTotalSalesYear; 
+    private static PreparedStatement perpTotalSalesMonth;
+    private static PreparedStatement perpTotalSalesDate;
     private static PreparedStatement perpCreateCustomerActivityReport;
  
     //Add SQL query Statement here.
@@ -397,7 +399,18 @@ public class App {
 
             sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate >= ? AND PurchaseDate <= ? AND StoreID = ?;";
             perpCreateStoreSalesGrowthReport = conn.prepareStatement(sql);
-
+	 
+	    // Total Sales by Date
+	    
+	    sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate = ?;";
+            perpTotalSalesDate = conn.prepareStatement(sql);
+		 
+	    // Total Sales by Year
+	    sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE year(PurchaseDate) = ?;";
+            perpTotalSalesYear = conn.prepareStatement(sql);
+	    // Total Sales by month
+            sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE month(PurchaseDate) = ? AND year(PurchaseDate) = ?;";
+            perpTotalSalesMonth = conn.prepareStatement(sql);	    
             // Customer Activity Report
                         
             sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate >= ? AND PurchaseDate <= ? AND CustomerID = ?;";
@@ -408,6 +421,155 @@ public class App {
 			e.printStackTrace();
 		}
     }
+
+// Total Sales report
+//
+
+
+public static void generateTotalSalesReport()
+{
+    Scanner sc = new Scanner(System.in);
+    String totalSales = null;
+
+    System.out.println("Enter Option");
+    System.out.println("\t 1-Total Sales Report By Year:");
+    System.out.println("\t 2-Total Sales Report By Month:");
+    System.out.println("\t 3-Total Sales Report By Date:");
+    int option = sc.nextInt();
+
+    if(option==1){
+
+		System.out.println("Enter Year which you want report for: ");
+    		String year = sc.next();
+		totalSales = null;	
+
+
+    try {
+                conn.setAutoCommit(false);
+                try{
+                    perpTotalSalesYear.setString(1,year);
+
+
+                    ResultSet rs = perpTotalSalesYear.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");
+                        System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+                        System.out.println("\tFor Year "+ year + " Total sales were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n###############################################################################################\n");
+
+                    }
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+
+
+
+
+
+    }
+    else if(option ==2){
+
+                System.out.println("Enter Year which you want report for: ");
+                String year = sc.next();
+		System.out.println("Enter Month of year "+year+" which you want report for: ");
+		String month= sc.next();
+		totalSales=null;
+
+    try {
+                conn.setAutoCommit(false);
+                try{
+                    perpTotalSalesMonth.setString(1,month);
+		    perpTotalSalesMonth.setString(2,year);
+
+
+                    ResultSet rs = perpTotalSalesMonth.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");
+			System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+                        System.out.println("\tFor Month  "+month+"  of year  "+ year + ", Total sales were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n###############################################################################################\n");
+
+                    }
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+	}
+    else if(option==3){
+
+                System.out.println("Enter Date which you want report for: ");
+                String date = sc.next();
+		totalSales = null;
+
+    try {
+                conn.setAutoCommit(false);
+                try{
+                    perpTotalSalesDate.setString(1,date);
+                    ResultSet rs = perpTotalSalesMonth.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");
+                        System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+                        System.out.println("\tFor Date  "+ date + ",  Total sales were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n###############################################################################################\n");
+
+                    }
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+}
+
 
 
 
@@ -446,7 +608,10 @@ public static void generateCustomerActivityReport()
                     else
                     {
                         totalSales = rs.getString("TotalPriceSum");  
-                        System.out.println("For Customer ID "+ CustomerID + " Total purchase were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+                        System.out.println("\tFor Customer ID "+ CustomerID + " Total purchase were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n###############################################################################################\n");
+
                     }                   
 
 
@@ -497,7 +662,10 @@ public static void generateShopSalesGrowthReport()
                     else
                     {
                         totalSales = rs.getString("TotalPriceSum");  
-                        System.out.println("For Store ID "+ stroreID + " Total sales were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+                        System.out.println("\tFor Store ID "+ stroreID + " Total sales were  " + totalSales + " for entered time period." );
+                        System.out.println("\n\n###############################################################################################\n");
+
                     }                   
 
 
@@ -1992,6 +2160,7 @@ public static void enterShipmentinfo() {
 	}catch (SQLException e) {
                                  e.printStackTrace(); }
 
+	System.out.println("Successfully Generated Supplier Bill!");
 	}
 
 
@@ -2029,7 +2198,7 @@ public static void enterShipmentinfo() {
 			System.out.println("\nEnter the purchase date :\n");
 			purchasedate = in.nextLine();
 			// Get job title
-			System.out.println("\nEnter the purchased product ID list with quantity [i.e 2:3,3:3] :\n");
+			System.out.println("\nEnter the purchased product ID list with quantity [i.e 3001:3,3003:3] :\n");
 			productlist = in.nextLine();
             		String[] res = productlist.split(",");
             		for(String myStr: res) {
@@ -2698,6 +2867,9 @@ public static void enterShipmentinfo() {
 		
 			    case 7:
                             isActiveClub();
+				updateTransaction();
+                                showOptions(2);
+                                menu =2;
                             break;			    
                     }
                 break;
@@ -2726,6 +2898,8 @@ public static void enterShipmentinfo() {
                         break;
 			case 3:
 			    generateSupplierBill();
+                            showOptions(3);
+                            menu = 3;	
 			break;
                     }
                 break;
@@ -2764,7 +2938,7 @@ public static void enterShipmentinfo() {
                             menu = 4;
                             break;
                         case 5:
-                            userGetQuantityStoreStock();
+			    transferProduct();
                             showOptions(4);
                             menu = 4;
                             break;
@@ -2905,6 +3079,11 @@ public static void enterShipmentinfo() {
                             showOptions(5);
                             menu = 5;
                             break;
+			case 24:
+			    generateTotalSalesReport();
+			    showOptions(5);
+                            menu = 5;
+                            break;
 			    
                     }
                 break;
@@ -2979,15 +3158,19 @@ public static void enterShipmentinfo() {
         switch(view) {
             // main menu options
             case 1:
-	    System.out.println("Welcome to WolfWR Management System: Wholesale Store chain!");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	    System.out.println("\tWelcome to WolfWR Management System: Wholesale Store chain!");
 	    System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n"); 
             System.out.println("\nWhich department do you belong to? Enter the corresponding number:");
             System.out.println("2 - Registration Staff\n3 - Billing Staff\n4 - Warehouse\n5 - Admin\nEnter 0 to quit");
             break;
 
             // registration staff options
+            //
             case 2:
-            System.out.println("Welcome registration staff. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
+            System.out.println("\tWelcome registration staff. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Signup a new club member");
             System.out.println("\t3 - Update an existing member's information");
@@ -2999,7 +3182,9 @@ public static void enterShipmentinfo() {
 
             // billing staff options
             case 3:
-            System.out.println("Welcome billing staff. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
+            System.out.println("\tWelcome billing staff. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - View the customer growth report");           
 	    System.out.println("\t3 - Generate Bill for the Supplier");
@@ -3007,7 +3192,9 @@ public static void enterShipmentinfo() {
 
             // warehouse operator options
             case 4:
-            System.out.println("Welcome warehouse staff. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
+            System.out.println("\tWelcome warehouse staff. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Add storeStock");
             System.out.println("\t3 - Delete storeStock");
@@ -3017,30 +3204,40 @@ public static void enterShipmentinfo() {
 
             // admin options
             case 5:
-            System.out.println("Welcome admin. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
+            System.out.println("\tWelcome admin. Please choose from the available options below:");
+            System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\n\t***************     Store     ********************\n");
             System.out.println("\t2 - Add a new store");
             System.out.println("\t3 - Delete a store");
             System.out.println("\t4 - Update a store's information");
+            System.out.println("\n\t***************   Discount    ********************\n");
             System.out.println("\t5 - Add Discount");
             System.out.println("\t6 - Delete Discount");
             System.out.println("\t7 - Update Discount");
+            System.out.println("\n\t***************   Inventory   ********************\n");
             System.out.println("\t8 - Add Merchandise");
             System.out.println("\t9 - Delete Merchandise");
             System.out.println("\t10 - Update Merchandise");
             System.out.println("\t11 - Check if Customer is Eligible for Rewards");
             System.out.println("\t12 - Get list of product for transaction ID");
+            System.out.println("\n\t***************   StaffMember ********************\n");
             System.out.println("\t13 - Add a Staff Member");
             System.out.println("\t14 - Update a Staff Information");
             System.out.println("\t15 - Delete a Staff Member");
+            System.out.println("\n\t***************   Supplier    ********************\n");
             System.out.println("\t16 - Enter new Supplier");
             System.out.println("\t17 - Delete a Supplier");
             System.out.println("\t18 - Update information of a supplier");
+            System.out.println("\n\t***************   Shipment    ********************\n");
             System.out.println("\t19 - Enter new Shipment");
             System.out.println("\t20 - Delete a shipment");
             System.out.println("\t21 - Update information of a shipment");
+	    System.out.println("\n\t***************    Report     ********************\n");
             System.out.println("\t22 - Store sales report");
             System.out.println("\t23 - Customer activity report");
+            System.out.println("\t24 - Total Sales Report By Month,Year,Day");
 
             break;
         }
