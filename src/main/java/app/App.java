@@ -2339,35 +2339,38 @@ public static void enterShipmentinfo() {
                 // registration staff menu
                 // Owner: Jake
                 case 2:
-                    switch (input) {
-                        // Exit
-                        case 0:
-                            exit = true;
-                            System.out.println("Exiting...");
-                        break;
+                    while (input != 1 && input != 0){
+                        switch (input) {
+                            // Exit
+                            case 0:
+                                exit = true;
+                                System.out.println("Exiting...");
+                            break;
 
-                        // Return to main menu
-                        case 1:
-                            menu = 1;
-                            System.out.println("Returning to main menu");
-                            showOptions(1);
-                            break;
-                        case 2:
-                            signUpMember(conn);
-                            break;
-                        case 3:
-                            updateMember();
-                            break;
-			case 4:
-			    userTransactionAdd();
-			    break;
-			case 5:
-                            userTransactionDelete();
-			    break;
-			case 6:
-                            updateTransaction();
-			    break;
+                            // Return to main menu
+                            case 1:
+                                menu = 1;
+                                System.out.println("Returning to main menu");
+                                showOptions(1);
+                                break;
+                            case 2:
+                                signUpMember(conn);
+                                break;
+                            case 3:
+                                updateMember();
+                                break;
+                    
+			                case 4:
+			                    userTransactionAdd();
+			                    break;
+			                case 5:
+                                userTransactionDelete();
+			                    break;
+			                case 6:
+                                updateTransaction();
+			                break;
                         // To do: Build out remaining options
+                        }
                     }
                 break;
 
