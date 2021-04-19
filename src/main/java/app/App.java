@@ -18,6 +18,7 @@ public class App {
     static int input;
     static boolean exit = false;
     static Pattern phonePattern = Pattern.compile("\\d{1}-\\d{3}-\\d{3}-\\d{4}");
+    static Pattern monthYear = Pattern.compile("\\d{4}/\\d{2}");
     private static Scanner in;
     static  int a= 1;
     static int shipmentIDCounter = 1; 
@@ -61,7 +62,7 @@ public class App {
     private static PreparedStatement prepDeleteSupplierEntry;
     private static PreparedStatement prepUpdateSupplierSpecificEntry;
 
-
+    private static PreparedStatement prepGetQuantityStoreStock;
     private static PreparedStatement prepAddShipment;
     private static PreparedStatement prepDeleteShipment;
     private static PreparedStatement prepUpdateShipment;
@@ -111,10 +112,13 @@ public class App {
     private static PreparedStatement prepDeleteWarehouseOperator;
     private static PreparedStatement prepDeleteRegistrationStaff;
 
-
     private static PreparedStatement prepAddReport;
     private static PreparedStatement prepAddShipmentBill;
     private static PreparedStatement prepGetSupShipment; 
+    private static PreparedStatement perpCreateStoreSalesGrowthReport;
+
+    private static PreparedStatement perpCreateCustomerActivityReport;
+ 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -174,6 +178,11 @@ public class App {
 
             sql = "SELECT * from `PurchasedItems` WHERE TransactionID = ?;";
             prepGetProductList = conn.prepareStatement(sql);
+
+            // TransferProduct
+            sql = "SELECT Stock from `StoreStock` WHERE StoreID = ? AND ProductID = ?;";
+            prepGetQuantityStoreStock = conn.prepareStatement(sql);
+
             //Staff Table
             sql="INSERT INTO `StaffMember` (`StaffID`, `StoreID`, `Name`, `Age`, `Address`, `JobTitle` , `PhoneNumber`, `Email`, `JoiningDate` )"
                     + "VALUES(?,?,?,?,?,?,?,?,?);";
@@ -340,11 +349,11 @@ public class App {
             sql = "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
             prepAddStoreStock = conn.prepareStatement(sql);
 
-            sql = "DELETE FROM StoreStock WHERE StoreID = ?;";
+            sql = "DELETE FROM StoreStock WHERE StoreID = ? AND ProductID = ?;";
             prepDeleteStoreStock = conn.prepareStatement(sql);
 
             //Reports
-            sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(CURDATE(), INTERVAL - 1 MONTH), 1, 0)) AS new_signups,"
+            sql = "SELECT SUM(IF(MONTH(SignupDate) = MONTH(?) AND YEAR(SignupDate) = YEAR(?), 1, 0)) AS new_signups,"
                 + "COUNT(*) AS total_signups FROM Signup;";
             prepCustomerReport = conn.prepareStatement(sql);
 
@@ -384,20 +393,130 @@ public class App {
 	    sql = "INSERT INTO `Reports` ( `ReportType`, `ReportDetail`)"
                     + "VALUES(?,?);";
 	    prepAddReport= conn.prepareStatement(sql);
+            // Shop Sales Growth Report
+
+            sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate >= ? AND PurchaseDate <= ? AND StoreID = ?;";
+            perpCreateStoreSalesGrowthReport = conn.prepareStatement(sql);
+
+            // Customer Activity Report
+                        
+            sql = "SELECT SUM(TotalPrice) AS TotalPriceSum FROM Transaction WHERE PurchaseDate >= ? AND PurchaseDate <= ? AND CustomerID = ?;";
+            perpCreateCustomerActivityReport = conn.prepareStatement(sql);
+
             
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
 
+
+
+    // Customer Activity Report function
+
+public static void generateCustomerActivityReport()
+{
+    Scanner sc = new Scanner(System.in);
+    String CustomerID = null;
+    String fromDate = null;
+    String toDate = null;
+    String totalSales = null;
+
+    System.out.println("Enter CustomerID for the report ");
+    CustomerID = sc.next();
+    System.out.println("Enter timeperiod From date the report ");
+    fromDate = sc.next();
+    System.out.println("Enter timeperiod To date the report ");
+    toDate = sc.next();    
+
+    try {         
+                conn.setAutoCommit(false);
+                try{
+                    perpCreateCustomerActivityReport.setString(1,fromDate);
+                    perpCreateCustomerActivityReport.setString(2,toDate);
+                    perpCreateCustomerActivityReport.setString(3,CustomerID);
+
+
+                    ResultSet rs = perpCreateCustomerActivityReport.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");  
+                        System.out.println("For Customer ID "+ CustomerID + " Total purchase were  " + totalSales + " for entered time period." );
+                    }                   
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+}
+
+// Shop Sales Growth Report function
+
+public static void generateShopSalesGrowthReport()
+{
+    Scanner sc = new Scanner(System.in);
+    String stroreID = null;
+    String fromDate = null;
+    String toDate = null;
+    String totalSales = null;
+
+    System.out.println("Enter stroreID for the report ");
+    stroreID = sc.next();
+    System.out.println("Enter timeperiod From date the report ");
+    fromDate = sc.next();
+    System.out.println("Enter timeperiod To date the report ");
+    toDate = sc.next();    
+
+    try {         
+                conn.setAutoCommit(false);
+                try{
+                    perpCreateStoreSalesGrowthReport.setString(1,fromDate);
+                    perpCreateStoreSalesGrowthReport.setString(2,toDate);
+                    perpCreateStoreSalesGrowthReport.setString(3,stroreID);
+
+
+                    ResultSet rs = perpCreateStoreSalesGrowthReport.executeQuery();
+
+                     if(!rs.next())
+                    {
+                        System.out.println("No data available for entered values.");
+                        return;
+                    }
+                    else
+                    {
+                        totalSales = rs.getString("TotalPriceSum");  
+                        System.out.println("For Store ID "+ stroreID + " Total sales were  " + totalSales + " for entered time period." );
+                    }                   
+
+
+                    conn.commit();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+}
+
+
+
     // Supplier Functions
-
-
-
-
    
-
-    
     //public static void deleteSupplierInfo(String supplierId)
     public static void deleteSupplierInfo()
     {
@@ -1143,8 +1262,6 @@ public static void enterShipmentinfo() {
 
     public static ResultSet getProductList(int transactionID){
         ResultSet rs = null;
-        int quantity;
-        String procductID;
         try{
             prepGetProductList.setInt(1,transactionID);
             rs = prepGetProductList.executeQuery();
@@ -1173,7 +1290,63 @@ public static void enterShipmentinfo() {
             }
         }catch (SQLException e) {System.out.println(e);}
     }
+    
+    public static int getQuantityStoreStock(int storeID, String productID){
+    
+        try{
+            prepGetQuantityStoreStock.setInt(1,storeID);
+            prepGetQuantityStoreStock.setString(2,productID);
 
+            ResultSet rs = prepGetQuantityStoreStock.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt("Stock");
+            }else{
+                return -1;
+            }
+        }catch (SQLException e) {System.out.println(e);}
+        return -1;
+    }
+
+    public static void transferProduct(){
+        int quantity;
+        String productID;
+        int yourStore;
+        int sendStore;
+
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("\nEnter your storeID:");
+        yourStore = in.nextInt();
+
+        System.out.println("\nEnter the storeID from where you want to get products:");
+        sendStore = in.nextInt();
+
+        System.out.println("\nEnter the ProductID which you want to request:");
+        productID = in.nextLine();
+
+        System.out.println("\nEnter the quantity for the Product:");
+        quantity = in.nextInt();
+
+        //Check if sending store have the product and quantity.
+        //getquantity of product.
+        int avaliableQuantity = getQuantityStoreStock(sendStore, productID);
+
+        if(avaliableQuantity >= quantity){
+            //transferproduct
+            updateStoreStock(sendStore, productID, avaliableQuantity - quantity);
+            avaliableQuantity = getQuantityStoreStock(yourStore, productID);
+            if(avaliableQuantity<0){
+                addStoreStock(yourStore, productID, quantity);
+            }else{
+                updateStoreStock(yourStore, productID, avaliableQuantity + quantity);
+            }
+            System.out.println("\nSucess - Products are transfered between Store");
+        }else{
+            System.out.println("\nRequested Store has "+ quantity +" quantity of product left in their stock");
+        }
+    }
+    
     public static void addMerchandise() {
         String productID;
         String productName;
@@ -1212,7 +1385,7 @@ public static void enterShipmentinfo() {
         quantity = in.nextInt();
 
         System.out.println("\nEnter isOnSale: (for yes enter 1 and for no enter 0)");
-        isOnSale = in.nextInt();
+        isOnSale = in.nextInt();        
 
         try {
             conn.setAutoCommit(false);
@@ -1245,7 +1418,7 @@ public static void enterShipmentinfo() {
 
         Scanner in = new Scanner(System.in);
 
-        System.out.println("\nEnter productID:");
+        System.out.println("\nEnter your StoreID:");
         productID = in.nextLine();
 
 		try {
@@ -1264,7 +1437,6 @@ public static void enterShipmentinfo() {
 		 catch (SQLException e) {
 			e.printStackTrace();
 		}
-	
 	}
 
     public static void updateMerchandise() {
@@ -1280,6 +1452,7 @@ public static void enterShipmentinfo() {
         boolean validProductID = false;
 
         Scanner in = new Scanner(System.in);
+
         System.out.println("\nEnter productID:");
         try{
             while(!validProductID){
@@ -1371,16 +1544,15 @@ public static void enterShipmentinfo() {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
     }
     
-    public static void updateStoreStock(int storeId, int productId, int stock) {
+    public static void updateStoreStock(int storeId, String productId, int stock) {
 
         // "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;"
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1,productId);
+                prepUpdateStoreStock.setString(1,productId);
                 prepUpdateStoreStock.setInt(2, stock);
                 prepUpdateStoreStock.setInt(3, storeId);
 
@@ -1397,16 +1569,16 @@ public static void enterShipmentinfo() {
 		}
     }
 
-    public static void addStoreStock(int storeId, int productId, int stock){
+    public static void addStoreStock(int storeId, String productId, int stock){
         // "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1, storeId);
-                prepUpdateStoreStock.setInt(2, productId);
-                prepUpdateStoreStock.setInt(3, stock);
+                prepAddStoreStock.setInt(1, storeId);
+                prepAddStoreStock.setString(2, productId);
+                prepAddStoreStock.setInt(3, stock);
 
-                prepUpdateStoreStock.executeUpdate();
+                prepAddStoreStock.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
@@ -1425,9 +1597,9 @@ public static void enterShipmentinfo() {
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1, storeId);
+                prepGetStoreStock.setInt(1, storeId);
 
-                prepUpdateStoreStock.executeQuery();
+                prepGetStoreStock.executeQuery();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
@@ -1440,14 +1612,14 @@ public static void enterShipmentinfo() {
 		}
     }
 
-    public static void deleteStoreStock(int storeId) {
+    public static void deleteStoreStock(int storeId, String productId) {
         // DELETE FROM StoreStock WHERE StoreID = ?;
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setInt(1, storeId);
-
-                prepUpdateStoreStock.executeUpdate();
+                prepDeleteStoreStock.setInt(1, storeId);
+                prepDeleteStoreStock.setString(2, productId);
+                prepDeleteStoreStock.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
 				conn.rollback();
@@ -1459,6 +1631,73 @@ public static void enterShipmentinfo() {
 			System.out.println(e);
 			
 		}
+    }
+
+    public static void userAddStoreStock(){
+        String productID;
+        int storeID;
+        int quantity;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+        
+        System.out.println("\nEnter the quantity:");
+        quantity = in.nextInt();
+
+        addStoreStock(storeID, productID, quantity);
+    }
+
+    public static void userUpdateStoreStock(){
+        String productID;
+        int storeID;
+        int quantity;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+        
+        System.out.println("\nEnter the quantity:");
+        quantity = in.nextInt();
+
+        updateStoreStock(storeID, productID, quantity);
+    }
+
+    public static void userDeleteStoreStock(){
+        String productID;
+        int storeID;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+
+        deleteStoreStock(storeID, productID);
+    }
+
+    public static void userGetQuantityStoreStock(){
+        String productID;
+        int storeID;
+        int quantity;
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("\nEnter the StoreID:");
+        storeID = in.nextInt();
+
+        System.out.println("\nEnter the productID:");
+        productID = in.nextLine();
+
+        quantity = getQuantityStoreStock(storeID, productID);
+        System.out.println("\nThe Store("+storeID+") has " + quantity + " amount of " +productID);
+
     }
 
     public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
@@ -1596,10 +1835,10 @@ public static void enterShipmentinfo() {
 
     public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
     	BigDecimal price = null;
-	int isonsale = 0;
-	String PromoID = getRewardsEligible(Integer.parseInt(CustomerID));
-	BigDecimal discount = null;
-	String validthrough = null;
+        int isonsale = 0;
+        String PromoID = getRewardsEligible(Integer.parseInt(CustomerID));
+        BigDecimal discount = null;
+        String validthrough = null;
         try {
             
 
@@ -1632,7 +1871,7 @@ public static void enterShipmentinfo() {
 			e.printStackTrace();
 		}
         return price;
-    	}
+    }
 
 	public static boolean isActiveClub() {
 		Scanner in = new Scanner(System.in);
@@ -2328,8 +2567,23 @@ public static void enterShipmentinfo() {
     public static void customerGrowthReport(){
         int newSignups;
         int totalSignups;
+        String date = "";
+
+        in = new Scanner(System.in);
+
+        System.out.println("Customer growth report: Enter the desired month and year (format YYYY-MM)");
+        while (!in.hasNext(monthYear)){
+            System.out.println("Invalid date format, try again");
+            in.nextLine();
+        };
+        date = in.nextLine();
+        date = date + "/01"; // put date in format YYYY/MM/DD
 
         try {
+
+            prepCustomerReport.setString(1, date);
+            prepCustomerReport.setString(2, date);
+
             ResultSet rs = prepCustomerReport.executeQuery();
             // SELECT SUM(IF(SignupDate >= DATEADD(month,-1,GETDATE()), 1, 0)) AS new_signups
             // COUNT(*) AS total_signups
@@ -2338,9 +2592,8 @@ public static void enterShipmentinfo() {
                 newSignups = rs.getInt("new_signups");
                 totalSignups = rs.getInt("total_signups");
 
-		String ReportDetail = "There were " + newSignups + " new signups in the last month (" + totalSignups + " signups total)";
-                System.out.println("There were " + newSignups + " new signups in the last month (" + totalSignups + " signups total)");
 		
+                System.out.println("There was " + newSignups + " signups in that month (" + totalSignups + " signups total)");
             }
 
         } catch (SQLException e) {
@@ -2402,38 +2655,48 @@ public static void enterShipmentinfo() {
                 // registration staff menu
                 // Owner: Jake
                 case 2:
-		    
-                    switch (input) {
-                        // Exit
-                        case 0:
-                            exit = true;
-                            System.out.println("Exiting...");
-                        break;
+                        switch (input) {
+                            // Exit
+                            case 0:
+                                exit = true;
+                                System.out.println("Exiting...");
+                            break;
 
-                        // Return to main menu
-                        case 1:
-                            menu = 1;
-                            System.out.println("Returning to main menu");
-                            showOptions(1);
-                            break;
-                        case 2:
-                            signUpMember(conn);
-                            break;
-                        case 3:
-                            updateMember();
-                            break;
-			case 4:
-			    userTransactionAdd();
-			    break;
-			case 5:
-                            userTransactionDelete();
-			    break;
-			case 6:
-                            updateTransaction();
-			    break;
+                            // Return to main menu
+                            case 1:
+                                menu = 1;
+                                System.out.println("Returning to main menu");
+                                showOptions(1);
+                                break;
+                            case 2:
+                                signUpMember(conn);
+                                showOptions(2);
+                                menu =2;
+                                break;
+                            case 3:
+                                updateMember();
+                                showOptions(2);
+                                menu =2;
+                                break;
+                    
+			                case 4:
+			                    userTransactionAdd();                                
+                                showOptions(2);
+                                menu =2;
+			                    break;
+			                case 5:
+                                userTransactionDelete();
+                                showOptions(2);
+                                menu =2;
+			                    break;
+			                case 6:
+                                updateTransaction();
+                                showOptions(2);
+                                menu =2;
+			                break;
                         // To do: Build out remaining options
 		
-			case 7:
+			    case 7:
                             isActiveClub();
                             break;			    
                     }
@@ -2458,6 +2721,8 @@ public static void enterShipmentinfo() {
 
                         case 2:
                             customerGrowthReport();
+                            showOptions(3);
+                            menu = 3;
                         break;
 			case 3:
 			    generateSupplierBill();
@@ -2483,7 +2748,27 @@ public static void enterShipmentinfo() {
                         break;
 
                         // To do: Build out remaining options
-                        //case 2:
+                        case 2:
+                            userAddStoreStock();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 3:
+                            userDeleteStoreStock();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 4:
+                            userUpdateStoreStock();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 5:
+                            userGetQuantityStoreStock();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+
                     }
                 break;
 
@@ -2508,73 +2793,124 @@ public static void enterShipmentinfo() {
                         // Create a new store
                         case 2:
                             enterStoreInfo();
+                            showOptions(5);
+                            menu = 5;
                         break;
 
                         // Delete a store
                         case 3:
                             deleteStore();
+                            showOptions(5);
+                            menu = 5;
                             break;
+
                         case 4:
                             updateStore();
+                            showOptions(5);
+                            menu = 5;
                         break;
 
                         case 5:
                             addDiscount();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 6:
                             deleteDiscount();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 7:
                             updateDiscount();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 8:
                             addMerchandise();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 9:
                             deleteMerchandise();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 10:
                             updateMerchandise();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 11:
                             checkRewardsEligible();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 12:
                             userGetProductList();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 13:
                        	    userStaffAdd();
+                               showOptions(5);
+                               menu = 5;
                             break;
 			            case 14:
                              updateStaff();
+                             showOptions(5);
+                             menu = 5;
                              break;
 			            case 15:
                              deleteStaff();
+                             showOptions(5);
+                             menu = 5;
                              break;
                         case 16:
                             enterSupplierinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 17:
                             deleteSupplierInfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 18:
                             updateSupplierinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 19:
                             enterShipmentinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 20:
                             deleteShipmentInfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 21:
                             updateShipmentinfo();
+                            showOptions(5);
+                            menu = 5;
+                            break;
+                        case 22:
+                            generateShopSalesGrowthReport();
+                            showOptions(5);
+                            menu = 5;
+                            break;
+                        case 23:
+                            generateCustomerActivityReport();
+                            showOptions(5);
+                            menu = 5;
                             break;
 			    
                     }
                 break;
 
                 default:
-                break;
+                    break;
             }
         }
         try {
@@ -2673,6 +3009,10 @@ public static void enterShipmentinfo() {
             case 4:
             System.out.println("Welcome warehouse staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
+            System.out.println("\t2 - Add storeStock");
+            System.out.println("\t3 - Delete storeStock");
+            System.out.println("\t4 - Update storeStock");
+            System.out.println("\t5 - Get quantity from a storeStock");
             break;
 
             // admin options
@@ -2699,6 +3039,8 @@ public static void enterShipmentinfo() {
             System.out.println("\t19 - Enter new Shipment");
             System.out.println("\t20 - Delete a shipment");
             System.out.println("\t21 - Update information of a shipment");
+            System.out.println("\t22 - Store sales report");
+            System.out.println("\t23 - Customer activity report");
 
             break;
         }
