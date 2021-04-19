@@ -95,6 +95,7 @@ public class App {
     private static PreparedStatement prepAddStoreStock;
     private static PreparedStatement prepUpdateStoreStock;
     private static PreparedStatement prepDeleteStoreStock;
+    private static PreparedStatement prepGetProductStoreStock;
 
     private static PreparedStatement prepGetPrice;
     private static PreparedStatement prepGetDiscount;
@@ -345,7 +346,10 @@ public class App {
             sql = "SELECT * FROM StoreStock WHERE StoreID = ?;";
             prepGetStoreStock = conn.prepareStatement(sql);
 
-            sql = "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;";
+            sql = "SELECT StoreID, Stock FROM StoreStock WHERE ProductID = ?;";
+            prepGetProductStoreStock = conn.prepareStatement(sql);
+
+            sql = "UPDATE StoreStock SET Stock = ? WHERE StoreID = ? AND ProductID = ?;";
             prepUpdateStoreStock = conn.prepareStatement(sql);
 
             sql = "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
@@ -1147,12 +1151,85 @@ public static void enterShipmentinfo() {
 
 
    
+public static void generateStoreStockReport(){
+    Scanner sc = new Scanner(System.in);
+    int storeID = 0;
+
+    System.out.println("Enter storeID for the report ");
+    storeID = sc.nextInt();
+
+    ResultSet resultSet = getStoreStock(storeID);
+    try{
+        ResultSetMetaData rsmd = resultSet.getMetaData();
+        int columnsNumber = rsmd.getColumnCount();
+        System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+        System.out.println("Store ID = "+storeID);
+        System.out.println("ProductID, Quantity");
+        while (resultSet.next()) {
+            for (int i = 2; i <= columnsNumber; i++) {
+                if (i > 2) System.out.print(",      ");
+                String columnValue = resultSet.getString(i);
+                System.out.print(columnValue);
+            }
+            System.out.println("");
+        }
+        System.out.println("\n\n###############################################################################################\n");
+
+    }catch (SQLException e) {System.out.println(e);}
 
     
-
-
+}
     
+    public static void generateProductStoreStockReport(){
+        Scanner sc = new Scanner(System.in);
+        String productID = "";
 
+        System.out.println("Enter ProductID for the report ");
+        productID = sc.next();
+
+        ResultSet resultSet = getProductStoreStock(productID);
+        try{
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+            System.out.println("\n\n############################Your Report Is Ready###############################################\n");
+            System.out.println("Product ID = "+productID);
+            System.out.println("Store ID, Quantity");
+            while (resultSet.next()) {
+                for (int i = 1; i <= columnsNumber; i++) {
+                    if (i > 1) System.out.print(",      ");
+                    String columnValue = resultSet.getString(i);
+                    System.out.print(columnValue);
+                }
+                System.out.println("");
+            }
+            System.out.println("\n\n###############################################################################################\n");
+
+        }catch (SQLException e) {System.out.println(e);}
+
+        
+    }
+
+    public static ResultSet getProductStoreStock(String productID){
+        ResultSet rs = null;
+        try {
+            conn.setAutoCommit(false);
+            try{
+                prepGetProductStoreStock.setString(1, productID);
+
+                rs = prepGetProductStoreStock.executeQuery();
+                conn.commit();
+                return rs;
+            }catch (SQLException e) {
+				conn.rollback();
+				e.printStackTrace();
+            } finally {
+				conn.setAutoCommit(true);
+			}
+        }catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return rs;
+    }
 
     public static void addDiscount() {
         String promoID;
@@ -1491,7 +1568,7 @@ public static void enterShipmentinfo() {
         sendStore = in.nextInt();
 
         System.out.println("\nEnter the ProductID which you want to request:");
-        productID = in.nextLine();
+        productID = in.next();
 
         System.out.println("\nEnter the quantity for the Product:");
         quantity = in.nextInt();
@@ -1511,7 +1588,7 @@ public static void enterShipmentinfo() {
             }
             System.out.println("\nSucess - Products are transfered between Store");
         }else{
-            System.out.println("\nRequested Store has "+ quantity +" quantity of product left in their stock");
+            System.out.println("\nRequested Store has "+ avaliableQuantity +" quantity of product left in their stock");
         }
     }
     
@@ -1720,12 +1797,15 @@ public static void enterShipmentinfo() {
         try {
             conn.setAutoCommit(false);
             try{
-                prepUpdateStoreStock.setString(1,productId);
-                prepUpdateStoreStock.setInt(2, stock);
-                prepUpdateStoreStock.setInt(3, storeId);
+                prepUpdateStoreStock.setInt(1, stock);
+                prepUpdateStoreStock.setInt(2, storeId);
+                prepUpdateStoreStock.setString(3,productId);
+
 
                 prepUpdateStoreStock.executeUpdate();
                 conn.commit();
+                System.out.println("\nSucess - Products are updated in StoreStock");
+
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1748,6 +1828,8 @@ public static void enterShipmentinfo() {
 
                 prepAddStoreStock.executeUpdate();
                 conn.commit();
+                System.out.println("\nSucess - Products are added in StoreStock");
+
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1759,16 +1841,17 @@ public static void enterShipmentinfo() {
 		}
     }
 
-    public static void getStoreStock(int storeId) {
-
+    public static ResultSet getStoreStock(int storeId) {
+        ResultSet rs = null;
         // SELECT * FROM StoreStock WHERE StoreID = ?
         try {
             conn.setAutoCommit(false);
             try{
                 prepGetStoreStock.setInt(1, storeId);
 
-                prepGetStoreStock.executeQuery();
+                rs = prepGetStoreStock.executeQuery();
                 conn.commit();
+                return rs;
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1778,6 +1861,7 @@ public static void enterShipmentinfo() {
         }catch (SQLException e) {
 			e.printStackTrace();
 		}
+        return rs;
     }
 
     public static void deleteStoreStock(int storeId, String productId) {
@@ -1789,6 +1873,8 @@ public static void enterShipmentinfo() {
                 prepDeleteStoreStock.setString(2, productId);
                 prepDeleteStoreStock.executeUpdate();
                 conn.commit();
+                System.out.println("\nSucess - Products are deleted from StoreStock");
+
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1807,12 +1893,11 @@ public static void enterShipmentinfo() {
         int quantity;
 
         Scanner in = new Scanner(System.in);
+        
         System.out.println("\nEnter the StoreID:");
         storeID = in.nextInt();
-
-        System.out.println("\nEnter the productID:");
-        productID = in.nextLine();
-        
+        System.out.print("\nEnter the productID:");
+        productID = in.next();
         System.out.println("\nEnter the quantity:");
         quantity = in.nextInt();
 
@@ -1829,7 +1914,7 @@ public static void enterShipmentinfo() {
         storeID = in.nextInt();
 
         System.out.println("\nEnter the productID:");
-        productID = in.nextLine();
+        productID = in.next();
         
         System.out.println("\nEnter the quantity:");
         quantity = in.nextInt();
@@ -1846,7 +1931,7 @@ public static void enterShipmentinfo() {
         storeID = in.nextInt();
 
         System.out.println("\nEnter the productID:");
-        productID = in.nextLine();
+        productID = in.next();
 
         deleteStoreStock(storeID, productID);
     }
@@ -1861,7 +1946,7 @@ public static void enterShipmentinfo() {
         storeID = in.nextInt();
 
         System.out.println("\nEnter the productID:");
-        productID = in.nextLine();
+        productID = in.next();
 
         quantity = getQuantityStoreStock(storeID, productID);
         System.out.println("\nThe Store("+storeID+") has " + quantity + " amount of " +productID);
@@ -2938,7 +3023,12 @@ public static void enterShipmentinfo() {
                             menu = 4;
                             break;
                         case 5:
-			    transferProduct();
+			                transferProduct();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 6:
+                            userGetQuantityStoreStock();
                             showOptions(4);
                             menu = 4;
                             break;
@@ -3079,14 +3169,24 @@ public static void enterShipmentinfo() {
                             showOptions(5);
                             menu = 5;
                             break;
-			case 24:
-			    generateTotalSalesReport();
-			    showOptions(5);
+                        case 24:
+                            generateTotalSalesReport();
+                            showOptions(5);
                             menu = 5;
                             break;
-			    
+                        case 25:
+                            generateStoreStockReport();
+                            showOptions(5);
+                            menu = 5;
+                            break;
+                        case 26:
+                            generateProductStoreStockReport();
+                            showOptions(5);
+                            menu = 5;
+                            break;
+                                        
                     }
-                break;
+                    break;
 
                 default:
                     break;
@@ -3174,10 +3274,10 @@ public static void enterShipmentinfo() {
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - Signup a new club member");
             System.out.println("\t3 - Update an existing member's information");
-	    System.out.println("\t4 - Add new transaction information");
-	    System.out.println("\t5 - Delete existing Transaction");
-	    System.out.println("\t6 - Update existing Transaction");	
-	    System.out.println("\t7 - Check Active Status");
+            System.out.println("\t4 - Add new transaction information");
+            System.out.println("\t5 - Delete existing Transaction");
+            System.out.println("\t6 - Update existing Transaction");	
+            System.out.println("\t7 - Check Active Status");
             break;
 
             // billing staff options
@@ -3187,7 +3287,7 @@ public static void enterShipmentinfo() {
             System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - View the customer growth report");           
-	    System.out.println("\t3 - Generate Bill for the Supplier");
+	        System.out.println("\t3 - Generate Bill for the Supplier");
             break;
 
             // warehouse operator options
@@ -3199,7 +3299,8 @@ public static void enterShipmentinfo() {
             System.out.println("\t2 - Add storeStock");
             System.out.println("\t3 - Delete storeStock");
             System.out.println("\t4 - Update storeStock");
-            System.out.println("\t5 - Get quantity from a storeStock");
+            System.out.println("\t5 - Transfer Stock from store to store");
+            System.out.println("\t6 - Get Quantity of product in storeStock");
             break;
 
             // admin options
@@ -3238,6 +3339,9 @@ public static void enterShipmentinfo() {
             System.out.println("\t22 - Store sales report");
             System.out.println("\t23 - Customer activity report");
             System.out.println("\t24 - Total Sales Report By Month,Year,Day");
+            System.out.println("\t25 - Store Stock Report for a Store");
+            System.out.println("\t26 - Store Stock Report for a ProductID");
+
 
             break;
         }
