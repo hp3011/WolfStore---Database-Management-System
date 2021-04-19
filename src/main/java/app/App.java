@@ -18,6 +18,7 @@ public class App {
     static int input;
     static boolean exit = false;
     static Pattern phonePattern = Pattern.compile("\\d{1}-\\d{3}-\\d{3}-\\d{4}");
+    static Pattern monthYear = Pattern.compile("\\d{4}/\\d{2}");
     private static Scanner in;
     static  int a= 1;
     static int shipmentIDCounter = 1; 
@@ -334,7 +335,7 @@ public class App {
             prepDeleteStoreStock = conn.prepareStatement(sql);
 
             //Reports
-            sql = "SELECT SUM(IF(SignupDate >= DATE_ADD(CURDATE(), INTERVAL - 1 MONTH), 1, 0)) AS new_signups,"
+            sql = "SELECT SUM(IF(MONTH(SignupDate) = MONTH(?) AND YEAR(SignupDate) = YEAR(?), 1, 0)) AS new_signups,"
                 + "COUNT(*) AS total_signups FROM Signup;";
             prepCustomerReport = conn.prepareStatement(sql);
 
@@ -2256,8 +2257,23 @@ public static void enterShipmentinfo() {
     public static void customerGrowthReport(){
         int newSignups;
         int totalSignups;
+        String date = "";
+
+        in = new Scanner(System.in);
+
+        System.out.println("Customer growth report: Enter the desired month and year (format YYYY-MM)");
+        while (!in.hasNext(monthYear)){
+            System.out.println("Invalid date format, try again");
+            in.nextLine();
+        };
+        date = in.nextLine();
+        date = date + "/01"; // put date in format YYYY/MM/DD
 
         try {
+
+            prepCustomerReport.setString(1, date);
+            prepCustomerReport.setString(2, date);
+
             ResultSet rs = prepCustomerReport.executeQuery();
             // SELECT SUM(IF(SignupDate >= DATEADD(month,-1,GETDATE()), 1, 0)) AS new_signups
             // COUNT(*) AS total_signups
