@@ -1,3 +1,43 @@
+/*
+ * CSC540 Project Application
+ * Team K
+ * After program starts, it create tables in the database and populate them with demo data
+ * User interface:
+ * Which Department You Belong To?
+ 
+1 - Registration Staff
+	-- Reg Staff APIs
+2 - BillingExecutive
+	-- Manage Billing
+3 - WarehouseOperator
+	-- Manager Inventory
+4 - Admin
+	-- Manager of all APIs
+5 - QUIT
+	-- exit the program
+
+Function documentations:
+	connectToDatabase function: establish connection
+	Show Options: show available commands
+	generate... functions: generate prepared statements and tables
+	Load Data... functions: populate db tables when the program starts
+	main function: print welcome message, show available commands, take input, execute query, close and quit
+
+ 
+	1. Prepared Statement: We used Prepared Statements to make our code much more clear and efficient. 
+	2. Uniqueness, primary key, and foreign key constraints: To maintain consistency, we used these constraints and reduced redundancy. 
+	3. Transactions: We used Transactions to ensure the data integrity of the database.
+	4. UI: We created a UI which is very user friendly and easy to understand.
+	5. String parameters: We have taken in String parameters as input from the user and then converted them to specific types.	
+	6. Check/Assertion in both SQL and Application Level: We have checked and Asserted some applications in both SQL and Code level. 
+	   For example, we check if a query statement return nothing in our application code with the help of "ResultSet" in JAVA while we make sure that the returned items
+	   satisfy constraints such as "CustomerID IS NOT NULL" in a SQL statement.
+	7. Unified name of functions and of variables: We ensured a single format for function names throughout the code. 
+
+*/
+
+
+
 package main.java.app;
 import java.math.BigDecimal;
 import java.sql.*;  
@@ -23,6 +63,7 @@ public class App {
     static  int a= 1;
     static int shipmentIDCounter = 1; 
 
+    //Global Definetions
     private static PreparedStatement prepAddDiscount;
     private static PreparedStatement prepUpdateDiscount;
     private static PreparedStatement prepDeleteDiscount;
@@ -310,12 +351,12 @@ public class App {
             sql = "SELECT * FROM ShipmentConsistsOf where ShipmentID= ?;";
             prepGetShipmentConsistsOf = conn.prepareStatement(sql);
 
-	   // Shipment Bill
+	    // Shipment Bill
 	   
             sql = "INSERT INTO `ShipmentBill` (`ShipmentID`, `Amount`, `BillingDate` , `BillingExecutiveID`)" +
                     "VALUES (?,?,?,?);";
             prepAddShipmentBill = conn.prepareStatement(sql);
-	  //Store
+	    //Store
             sql = "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`)"
                     + "VALUES(?,?,?);";
             prepAddStore = conn.prepareStatement(sql);
@@ -427,11 +468,11 @@ public class App {
     }
 
 // Total Sales report
-//
-
 
 public static void generateTotalSalesReport()
 {
+//This Function Generate Reports for Total Sales by Month, Year, or Day.
+
     Scanner sc = new Scanner(System.in);
     String totalSales = null;
 
@@ -467,7 +508,8 @@ public static void generateTotalSalesReport()
                         System.out.println("\n\n############################Your Report Is Ready###############################################\n");
                         System.out.println("\tFor Year "+ year + " Total sales were  " + totalSales + " for entered time period." );
                         System.out.println("\n\n###############################################################################################\n");
-
+			String ReportDetail= "For Year "+ year + " Total sales were  " + totalSales + " for entered time period.";
+			addReport("Sales",ReportDetail);
                     }
 
 
@@ -516,7 +558,8 @@ public static void generateTotalSalesReport()
 			System.out.println("\n\n############################Your Report Is Ready###############################################\n");
                         System.out.println("\tFor Month  "+month+"  of year  "+ year + ", Total sales were  " + totalSales + " for entered time period." );
                         System.out.println("\n\n###############################################################################################\n");
-
+			String ReportDetail = "For Month  "+month+"  of year  "+ year + ", Total sales were  " + totalSales + " for entered time period.";
+			addReport("Sales", ReportDetail);
                     }
 
 
@@ -555,7 +598,8 @@ public static void generateTotalSalesReport()
                         System.out.println("\n\n############################Your Report Is Ready###############################################\n");
                         System.out.println("\tFor Date  "+ date + ",  Total sales were  " + totalSales + " for entered time period." );
                         System.out.println("\n\n###############################################################################################\n");
-
+			String ReportDetail= "For Date  "+ date + ",  Total sales were  " + totalSales + " for entered time period.";
+			addReport("Sales", ReportDetail);
                     }
 
 
@@ -577,7 +621,7 @@ public static void generateTotalSalesReport()
 
 
 
-    // Customer Activity Report function
+//This API is for  Customer Activity Report function
 
 public static void generateCustomerActivityReport()
 {
@@ -615,6 +659,9 @@ public static void generateCustomerActivityReport()
                         System.out.println("\n\n############################Your Report Is Ready###############################################\n");
                         System.out.println("\tFor Customer ID "+ CustomerID + " Total purchase were  " + totalSales + " for entered time period." );
                         System.out.println("\n\n###############################################################################################\n");
+
+			String ReportDetail= "For Customer ID "+ CustomerID + " Total purchase were  " + totalSales + " for entered time period.";
+			addReport("Customer Activity", ReportDetail);
 
                     }                   
 
@@ -669,6 +716,8 @@ public static void generateShopSalesGrowthReport()
                         System.out.println("\n\n############################Your Report Is Ready###############################################\n");
                         System.out.println("\tFor Store ID "+ stroreID + " Total sales were  " + totalSales + " for entered time period." );
                         System.out.println("\n\n###############################################################################################\n");
+			String ReportDetail= "For Store ID "+ stroreID + " Total sales were  " + totalSales + " for entered time period.";
+                        addReport("Store Sales", ReportDetail);
 
                     }                   
 
@@ -1162,19 +1211,23 @@ public static void generateStoreStockReport(){
     try{
         ResultSetMetaData rsmd = resultSet.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
+	String ReportDetail="";
         System.out.println("\n\n############################Your Report Is Ready###############################################\n");
         System.out.println("Store ID = "+storeID);
         System.out.println("ProductID, Quantity");
+	ReportDetail += "Store ID = "+storeID + "ProductID, Quantity";
         while (resultSet.next()) {
             for (int i = 2; i <= columnsNumber; i++) {
                 if (i > 2) System.out.print(",      ");
                 String columnValue = resultSet.getString(i);
                 System.out.print(columnValue);
+		ReportDetail += "  "+columnValue;
             }
             System.out.println("");
         }
         System.out.println("\n\n###############################################################################################\n");
 
+	addReport("Store Stock Report",ReportDetail);
     }catch (SQLException e) {System.out.println(e);}
 
     
@@ -1203,7 +1256,6 @@ public static void generateStoreStockReport(){
                 System.out.println("");
             }
             System.out.println("\n\n###############################################################################################\n");
-
         }catch (SQLException e) {System.out.println(e);}
 
         
@@ -1579,18 +1631,19 @@ public static void generateStoreStockReport(){
 
         if(avaliableQuantity >= quantity){
             //transferproduct
-            udpdateStoreStock(sendStore, productID, avaliableQuantity - quantity);
+            updateStoreStock(sendStore, productID, avaliableQuantity - quantity);
             avaliableQuantity = getQuantityStoreStock(yourStore, productID);
             if(avaliableQuantity<0){
                 addStoreStock(yourStore, productID, quantity);
             }else{
-                updateStoreStock(yourStore, productID, avaliableQuantity + quantity);
+                updateStoreStock(yourStore, productID, (avaliableQuantity + quantity));
             }
             System.out.println("\nSucess - Products are transfered between Store");
         }else{
             System.out.println("\nRequested Store has "+ avaliableQuantity +" quantity of product left in their stock");
         }
     }
+    
     
     public static void addMerchandise() {
         String productID;
@@ -1953,9 +2006,9 @@ public static void generateStoreStockReport(){
         System.out.println("\nThe Store("+storeID+") has " + quantity + " amount of " +productID);
 
     }
-
+   
     public static void addStaff(String StaffID, String StoreID, String Name, String Age, String Address, String JobTitle , String PhoneNumber, String Email, String JoiningDate) {
-
+	//This function will Add a new Staff member
         try {
             conn.setAutoCommit(false);
             try{
@@ -1983,7 +2036,8 @@ public static void generateStoreStockReport(){
     }
 
     public static void addTransaction(String TransactionID, String StoreID, String CustomerID, String CashierID, String PurchaseDate, BigDecimal TotalPrice) {
-        try {
+	//This will add a new Transaction table 
+       try {
             conn.setAutoCommit(false);
             try{
                 prepAddTransaction.setInt(1,Integer.parseInt(TransactionID));
@@ -2027,6 +2081,8 @@ public static void generateStoreStockReport(){
 	}
 
     public static void updateTransaction() {
+	//This Function will update a transaction. Note , a single Value can not be updated . 
+	//Due to our Assumption: Need to replace the whole transaction entry with the new one. 
         String TransactionID;
         Scanner in = new Scanner(System.in);
         System.out.println("\nEnter Transaction ID to update:");	
@@ -2042,6 +2098,7 @@ public static void generateStoreStockReport(){
         }
  
     public static void addPurchasedItems(String TransactionID, String ProductID, String Quantity) {
+	//The Items which are presented in Transaction
         try {
             conn.setAutoCommit(false);
             try{
@@ -2066,7 +2123,7 @@ public static void generateStoreStockReport(){
    
 
    public static void deletePurchasedItems(String TransactionID) {
-        
+     //Delete Transaction related entry from the PurchasedItems table   
                 try {
                         conn.setAutoCommit(false);
                         try {
@@ -2088,6 +2145,7 @@ public static void generateStoreStockReport(){
 	}
 
     public static BigDecimal getPrice(String ProductID, String CustomerID, String PurchaseDate) {
+	//Calculate Discounted Price for a given Product and Customer.
     	BigDecimal price = null;
         int isonsale = 0;
         String PromoID = getRewardsEligible(Integer.parseInt(CustomerID));
@@ -2128,6 +2186,7 @@ public static void generateStoreStockReport(){
     }
 
 	public static boolean isActiveClub() {
+		//Check if customer is Active
 		Scanner in = new Scanner(System.in);
 		System.out.println("Enter Customer ID");		
 		String CustomerID= in.nextLine();
@@ -2153,7 +2212,11 @@ public static void generateStoreStockReport(){
 	}
 
        public static void generateSupplierBill(){
-
+	//generate Bills to Suplier
+	//Input: Shipment ID
+	//It will then count the total price for that Shipment delivery
+	//The price will be calculated based on BuyPrice
+	//This Bill is then added in the ShipmentBill table
 		System.out.println("Choose shipment from below list to generate Bills for: \n");			
 		String ShipmentID=null;
 	    	String SentBy = null;
@@ -2252,7 +2315,10 @@ public static void generateStoreStockReport(){
 
 	
 	public static void userTransactionAdd() {
-		// Declare local variables
+	//Adding new Transaction
+	//Also updates its child tables, such as Purchased Items & CustomerPaysBillTo
+	//It makes call to Get Price and then calculate Total price
+	// Local Variable
 	String transactionid;
         String storeid ;
         String customerid ;
@@ -2348,7 +2414,8 @@ public static void generateStoreStockReport(){
 
 	}
 	public static void userStaffAdd() {
-	
+	//User Interactive API for Adding StaffID
+	//Child TAbles such as Admin,Cashier etc will be modified as per the input provided
 		// Declare local variables
 	String staffID;
         String storeID ;
@@ -2424,11 +2491,12 @@ public static void generateStoreStockReport(){
 	}
 
    public static void updateStaff() {
-	
+	// Update Specific information about the Saff Member
+	// Wont be able to Update ID
 	Scanner in = new Scanner(System.in);
         System.out.println("\nEnter the staff id of the staff you want to update:\n");
         try{
-	String StaffID = in.nextLine();
+	String StaffID = in.next();
 
         
 	prepGetStaff.setInt(1, Integer.parseInt(StaffID));
@@ -2459,43 +2527,43 @@ public static void generateStoreStockReport(){
      	}
         int option = 0;
         while(option != 100) {
-            System.out.println("1 - Update StoreID");
-			System.out.println("2 - Update Name");
-			System.out.println("3 - Update Age");
-            System.out.println("4 - Update Address");
-			System.out.println("5 - Update Job Title");
-            System.out.println("6 - Update Phone number");
-			System.out.println("7 - Update Email ID ");
-			System.out.println("8 - Update Joining Date");
+            System.out.println("\n1 - Update StoreID");
+			System.out.println("\n2 - Update Name");
+			System.out.println("\n3 - Update Age");
+            System.out.println("\n4 - Update Address");
+			System.out.println("\n5 - Update Job Title");
+            System.out.println("\n6 - Update Phone number");
+			System.out.println("\n7 - Update Email ID ");
+			System.out.println("\n8 - Update Joining Date");
 
 
 
-            System.out.println("100 - Confirm");
+            System.out.println("\n100 - Confirm\n");
             option = in.nextInt();
             switch(option){
-                case 1: System.out.println("Enter the StoreID");
-                        StoreID = Integer.parseInt(in.next());
+                case 1: System.out.println("\nEnter the StoreID\n");
+                        StoreID = in.nextInt();
                         break;
-                case 2: System.out.println("Enter the Name");
+                case 2: System.out.println("\nEnter the Name\n");
                         Name = in.next();
                         break;
-                case 3: System.out.println("Enter the Age");
-                        Age = Integer.parseInt(in.next());
+                case 3: System.out.println("\nEnter the Age\n");
+                        Age = in.nextInt();
                         break;
-                case 4: System.out.println("Enter the Address");
+                case 4: System.out.println("\nEnter the Address\n");
                         Address = in.next();
                         break;
-                case 5: System.out.println("Enter the job title");
+                case 5: System.out.println("\nEnter the job title\n");
                         newJobTitle = in.next();
                         updatePositionTables(Integer.parseInt(StaffID), JobTitle, newJobTitle);
                         break;
-                case 6: System.out.println("Enter the phone number");
+                case 6: System.out.println("\nEnter the phone number\n");
                         PhoneNumber = in.next();
                         break;
-                case 7: System.out.println("Enter the email address");
+                case 7: System.out.println("\nEnter the email address\n");
                         Email = in.next();
                         break;
-                case 8: System.out.println("Enter the joining date (yyyy-mm-dd)");
+                case 8: System.out.println("\nEnter the joining date (yyyy-mm-dd)\n");
                         JoiningDate = in.next();
                         break;
                 default:
@@ -2536,7 +2604,7 @@ public static void generateStoreStockReport(){
     }
 
    public static void addPositionTables(int staffId, String newPosition){
-
+	//Adding Staff to its respective Postion tables, such as Admin,Cashier etc
 	try{
 	switch (newPosition) {
                 case "BillingExecutive":
@@ -2579,6 +2647,7 @@ public static void generateStoreStockReport(){
     
     public static void updatePositionTables(int staffId, String currentPosition, String newPosition){
 
+	// If a Staff position is changed by admin, changes will be reflected in DB
         try {
             conn.setAutoCommit(false);
             switch (currentPosition) {
@@ -2814,7 +2883,7 @@ public static void generateStoreStockReport(){
     }
 
     public static void addReport(String ReportType, String ReportDetail){
-
+	// Adding a new Report
 	 try {
             conn.setAutoCommit(false);
             try{
