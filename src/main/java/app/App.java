@@ -2354,6 +2354,8 @@ public static void enterShipmentinfo() {
                                 break;
                             case 2:
                                 signUpMember(conn);
+                                showOptions(1);
+                                menu =1;
                                 break;
                             case 3:
                                 updateMember();
@@ -2369,7 +2371,6 @@ public static void enterShipmentinfo() {
                                 updateTransaction();
 			                break;
                         // To do: Build out remaining options
-                        
                         }
                 break;
 
@@ -2517,7 +2518,6 @@ public static void enterShipmentinfo() {
                 break;
 
                 default:
-                    menu = 1;
                     break;
             }
         }
