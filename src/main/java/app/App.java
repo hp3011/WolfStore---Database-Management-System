@@ -2354,8 +2354,8 @@ public static void enterShipmentinfo() {
                                 break;
                             case 2:
                                 signUpMember(conn);
-                                showOptions(1);
-                                menu =1;
+                                showOptions(2);
+                                menu =2;
                                 break;
                             case 3:
                                 updateMember();
