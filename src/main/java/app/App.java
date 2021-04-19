@@ -75,6 +75,7 @@ public class App {
 
     private static PreparedStatement prepAddShipmentConsistsOf;
     private static PreparedStatement prepDeleteShipmentConsistsOf;
+    private static PreparedStatement prepGetShipmentConsistsOf;
     private static PreparedStatement prepGetSupplier;
 
 
@@ -109,7 +110,11 @@ public class App {
     private static PreparedStatement prepDeleteAdmin;
     private static PreparedStatement prepDeleteWarehouseOperator;
     private static PreparedStatement prepDeleteRegistrationStaff;
- 
+
+
+    private static PreparedStatement prepAddReport;
+    private static PreparedStatement prepAddShipmentBill;
+    private static PreparedStatement prepGetSupShipment; 
     //Add SQL query Statement here.
     public static void generatePreparedStatement(){
         try {
@@ -253,6 +258,8 @@ public class App {
             sql = "SELECT * from `Shipment` WHERE ShipmentID = ?;";
             prepGetShipment = conn.prepareStatement(sql);
 
+            sql = "SELECT * from `Shipment` WHERE Type = 'Supplier';";
+            prepGetSupShipment = conn.prepareStatement(sql);
             // Customer Shipment Table
 
             sql = "INSERT INTO `CustomerShipment` (`ShipmentID`) " + " VALUES (?);";
@@ -288,7 +295,15 @@ public class App {
             prepDeleteShipmentConsistsOf = conn.prepareStatement(sql);
 
 
-            //Store
+            sql = "SELECT * FROM ShipmentConsistsOf where ShipmentID= ?;";
+            prepGetShipmentConsistsOf = conn.prepareStatement(sql);
+
+	   // Shipment Bill
+	   
+            sql = "INSERT INTO `ShipmentBill` (`ShipmentID`, `Amount`, `BillingDate` , `BillingExecutiveID`)" +
+                    "VALUES (?,?,?,?);";
+            prepAddShipmentBill = conn.prepareStatement(sql);
+	  //Store
             sql = "INSERT INTO `Store` (`ManagerID`, `StoreAddress`, `PhoneNumber`)"
                     + "VALUES(?,?,?);";
             prepAddStore = conn.prepareStatement(sql);
@@ -363,6 +378,12 @@ public class App {
 
             sql = "DELETE FROM WarehouseOperator WHERE StaffID = ?;";
             prepDeleteWarehouseOperator = conn.prepareStatement(sql);
+
+
+	    //Report 
+	    sql = "INSERT INTO `Reports` ( `ReportType`, `ReportDetail`)"
+                    + "VALUES(?,?);";
+	    prepAddReport= conn.prepareStatement(sql);
             
         }catch (SQLException e) {
 			e.printStackTrace();
@@ -1435,7 +1456,8 @@ public static void enterShipmentinfo() {
 				conn.setAutoCommit(true);
 			}
         }catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e);
+			
 		}
     }
 
@@ -1548,6 +1570,7 @@ public static void enterShipmentinfo() {
 		}
     }
 
+   
 
    public static void deletePurchasedItems(String TransactionID) {
         
@@ -1564,7 +1587,7 @@ public static void enterShipmentinfo() {
                                 conn.setAutoCommit(true);
                         }
                 } catch (SQLException e) {
-                        e.printStackTrace();
+			System.out.println(e);
                 }
 		
         //	}
@@ -1611,8 +1634,11 @@ public static void enterShipmentinfo() {
         return price;
     	}
 
-	public static boolean isActiveClub(String CustomerID) {
-	
+	public static boolean isActiveClub() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("Enter Customer ID");		
+		String CustomerID= in.nextLine();
+
 		String isactive = null;
 		try {
 		prepGetCustomer.setInt(1,Integer.parseInt(CustomerID));
@@ -1620,20 +1646,120 @@ public static void enterShipmentinfo() {
                 if (rs.next()) {
                         isactive= rs.getString("ActiveStatus");
                         }
-		if(isactive=="Active"){
+		if(isactive.equals("Active")){
+			System.out.println("\n\n------------------This Customer is Active!---------------------\n\n");
 			return true;
 		}
 
 		}catch (SQLException e) {
                         e.printStackTrace();
                 }
+		System.out.println("\n\n------------------This Customer is In-Active!---------------------\n\n");
 		return false;	
 
 	}
+
+       public static void generateSupplierBill(){
+
+		System.out.println("Choose shipment from below list to generate Bills for: \n");			
+		String ShipmentID=null;
+	    	String SentBy = null;
+   		String ReceivedBy = null;
+  	  	String SentDate = null;
+  	  	String ReceivedDate = null;
+		String date="2021-04-20";
+  
+	try{
+ 	 try{
+        	//prepGetShipment.setString(1,ShipmentID);
+        	ResultSet rs = prepGetSupShipment.executeQuery();
+		while (rs.next()) {
+		ShipmentID = rs.getString("ShipmentID");	
+       		SentBy = rs.getString("SentBy");
+        	ReceivedBy = rs.getString("ReceivedBy");
+        	SentDate = rs.getString("SentDate");
+        	ReceivedDate = rs.getString("ReceivedDate");
+
+               	 	System.out.print(ShipmentID + " | ");
+                	System.out.print(SentBy + " | ");
+                	System.out.print(ReceivedBy + " | ");
+                	System.out.print(SentDate + " | ");
+			System.out.print(ReceivedDate + "\n");
+            	}
+
+   	 } catch (SQLException e) {
+        e.printStackTrace();
+   	 }
+
+		Scanner in = new Scanner(System.in);
+                System.out.println("Enter Supplier Shipment ID");
+                ShipmentID = in.nextLine();
+		System.out.println("Enter Your BillingExecutive ID");
+		int BillingExecutiveID = in.nextInt();
+		String prod =null;
+		int Qnty= 0;
+		BigDecimal price = BigDecimal.ZERO;
+	 	BigDecimal Amount = BigDecimal.ZERO;	
+	try{ 
+		prepGetShipmentConsistsOf.setString(1, ShipmentID);
+		ResultSet rs2 = prepGetShipmentConsistsOf.executeQuery();
+		while(rs2.next()){
+		
+			prod = rs2.getString("ProductID");
+			Qnty = rs2.getInt("Quantity");
+
+			try{
+				prepGetMerchandise.setString(1,prod);
+                		ResultSet rs3= prepGetMerchandise.executeQuery();
+				if (rs3.next()) {
+                        		price = rs3.getBigDecimal("BuyPrice");
+                        		//	isonsale= rs.getInt("IsOnSale");
+                        	}
+				
+
+			}catch (SQLException e) {
+       				 e.printStackTrace(); }
+
+                        BigDecimal price_temp = price.multiply(new BigDecimal(Qnty));
+			Amount = Amount.add(price_temp);
+		}	
+
+	}catch (SQLException e) {
+                                 e.printStackTrace(); }
+
+	try{
+
+		conn.setAutoCommit(false);
+		
+		prepAddShipmentBill.setString(1,ShipmentID);
+		prepAddShipmentBill.setBigDecimal(2,Amount);
+		prepAddShipmentBill.setDate(3,java.sql.Date.valueOf(date));
+		prepAddShipmentBill.setInt(4,BillingExecutiveID);	
+		
+		prepAddShipmentBill.executeUpdate();
+	
+
+
+
+		} catch (SQLException e) {
+                                conn.rollback();
+                                e.printStackTrace();
+                        } finally {
+                                conn.setAutoCommit(true);
+                        }
+
+
+
+	}catch (SQLException e) {
+                                 e.printStackTrace(); }
+
+	}
+
+
 	
 	public static void userTransactionAdd() {
 		// Declare local variables
-	    String transactionid;
+	String transactionid;
         String storeid ;
         String customerid ;
         String cashierid;
@@ -1690,13 +1816,14 @@ public static void enterShipmentinfo() {
 			conn.commit();
 			System.out.println("A new Transaction is added successfully!");
 		}catch (Throwable err) {
-				err.printStackTrace();
+				System.out.println(err);
 				conn.rollback();
 			} finally {
 				conn.setAutoCommit(true);
 			}
 		} catch (Throwable err) {
-			err.printStackTrace();
+			System.out.println(err);
+	
 		}
 	}
 	public static void userTransactionDelete(){
@@ -1742,7 +1869,6 @@ public static void enterShipmentinfo() {
 			// Get job title
 			System.out.println("\nEnter the job title of the new staff:\n");
 			jobtitle = in.nextLine();
-
 			// Get phone
 			System.out.println("\nEnter the phone of the new staff:\n");
 			phonenumber = in.nextLine();
@@ -1756,9 +1882,11 @@ public static void enterShipmentinfo() {
 
 			// call function that interacts with the Database
 			addStaff(staffID,storeID,name,age,address,jobtitle,phonenumber,email,joiningdate);
+			addPositionTables(Integer.parseInt(staffID),jobtitle);
 			System.out.println("A new staff is added successfully!");
 		} catch (Throwable err) {
-			err.printStackTrace();
+			System.out.println(err);
+			
 		}
 	}
 
@@ -1779,7 +1907,7 @@ public static void enterShipmentinfo() {
 				conn.setAutoCommit(true);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e);
 		}
 	}
 
@@ -1879,18 +2007,63 @@ public static void enterShipmentinfo() {
 				conn.commit();
 			} catch (SQLException e) {
 				conn.rollback();
-				e.printStackTrace();
+				System.out.println(e);
+
 			} finally {
 				conn.setAutoCommit(true);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e);
+			
 		}
 	} catch (SQLException e) {
-                        e.printStackTrace();
+			System.out.println(e);
+                        
                 }
 
     }
+
+   public static void addPositionTables(int staffId, String newPosition){
+
+	try{
+	switch (newPosition) {
+                case "BillingExecutive":
+                    prepAddBillingExecutive.setInt(1, staffId);
+                    prepAddBillingExecutive.executeUpdate();
+                break;
+                case "WarehouseOperator":
+                    prepAddWarehouseOperator.setInt(2, staffId);
+                    prepAddWarehouseOperator.executeUpdate();
+                break;
+                case "Cashier":
+                    prepAddCashier.setInt(1, staffId);
+                    prepAddCashier.executeUpdate();
+                break;
+                case "RegistrationStaff":
+                    prepAddRegistrationStaff.setInt(1, staffId);
+                    prepAddRegistrationStaff.executeUpdate();
+                break;
+                case "Admin":
+                    prepAddAdmin.setInt(1, staffId);
+                    prepAddAdmin.executeUpdate();
+                break;
+                default:
+                break;
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+
+        } catch (Exception e) {
+            try {conn.rollback();} catch(Exception z) {System.out.println(z);}
+            System.out.println(e);
+        }
+
+
+   }
+
+
+
+
     
     public static void updatePositionTables(int staffId, String currentPosition, String newPosition){
 
@@ -2128,6 +2301,30 @@ public static void enterShipmentinfo() {
         // Execute update
     }
 
+    public static void addReport(String ReportType, String ReportDetail){
+
+	 try {
+            conn.setAutoCommit(false);
+            try{
+                prepAddReport.setString(1,ReportType);
+                prepAddReport.setString(2,ReportDetail);
+
+                prepAddReport.executeUpdate();
+                conn.commit();
+            }catch (SQLException e) {
+                                conn.rollback();
+                                e.printStackTrace();
+            } finally {
+                                conn.setAutoCommit(true);
+                        }
+        	}catch (SQLException e) {
+                        e.printStackTrace();
+               	 }
+
+	}
+
+
+
     public static void customerGrowthReport(){
         int newSignups;
         int totalSignups;
@@ -2141,7 +2338,9 @@ public static void enterShipmentinfo() {
                 newSignups = rs.getInt("new_signups");
                 totalSignups = rs.getInt("total_signups");
 
+		String ReportDetail = "There were " + newSignups + " new signups in the last month (" + totalSignups + " signups total)";
                 System.out.println("There were " + newSignups + " new signups in the last month (" + totalSignups + " signups total)");
+		
             }
 
         } catch (SQLException e) {
@@ -2156,20 +2355,25 @@ public static void enterShipmentinfo() {
         // TO DO if connection can't be made then try again or exit
 
         generatePreparedStatement();
+	in = new Scanner(System.in);
         // Create db and tables- loop through commands and execute each
-        System.out.println("Loading data...\n");
-        setupDb();
-
-        in = new Scanner(System.in);
+	System.out.println("Do you want to Load Fresh Data? 1-Yes, 2- No\n");
+	int option = in.nextInt();
+	if(option==1){
+        	System.out.println("Loading data...\n");
+        	setupDb();
+	}
 
         // show main menu
         showOptions(1);
+	
 
         while (exit == false) {
             
+	    
             try {input = in.nextInt();} catch (Exception e) {System.out.println(e);}
 
-
+	    
             switch (menu) {
 
                 // quit
@@ -2198,6 +2402,7 @@ public static void enterShipmentinfo() {
                 // registration staff menu
                 // Owner: Jake
                 case 2:
+		    
                     switch (input) {
                         // Exit
                         case 0:
@@ -2227,6 +2432,10 @@ public static void enterShipmentinfo() {
                             updateTransaction();
 			    break;
                         // To do: Build out remaining options
+		
+			case 7:
+                            isActiveClub();
+                            break;			    
                     }
                 break;
 
@@ -2250,6 +2459,9 @@ public static void enterShipmentinfo() {
                         case 2:
                             customerGrowthReport();
                         break;
+			case 3:
+			    generateSupplierBill();
+			break;
                     }
                 break;
 
@@ -2431,7 +2643,9 @@ public static void enterShipmentinfo() {
         switch(view) {
             // main menu options
             case 1:
-            System.out.println("Which department do you belong to? Enter the corresponding number:");
+	    System.out.println("Welcome to WolfWR Management System: Wholesale Store chain!");
+	    System.out.println("\n---------------------------------------------------------------------------------------------------------------------------------------------------\n"); 
+            System.out.println("\nWhich department do you belong to? Enter the corresponding number:");
             System.out.println("2 - Registration Staff\n3 - Billing Staff\n4 - Warehouse\n5 - Admin\nEnter 0 to quit");
             break;
 
@@ -2444,6 +2658,7 @@ public static void enterShipmentinfo() {
 	    System.out.println("\t4 - Add new transaction information");
 	    System.out.println("\t5 - Delete existing Transaction");
 	    System.out.println("\t6 - Update existing Transaction");	
+	    System.out.println("\t7 - Check Active Status");
             break;
 
             // billing staff options
@@ -2451,6 +2666,7 @@ public static void enterShipmentinfo() {
             System.out.println("Welcome billing staff. Please choose from the available options below:");
             System.out.println("\t0 - Exit program\n\t1 - Return to main menu");
             System.out.println("\t2 - View the customer growth report");           
+	    System.out.println("\t3 - Generate Bill for the Supplier");
             break;
 
             // warehouse operator options

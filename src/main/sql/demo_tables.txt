@@ -229,7 +229,7 @@ CREATE TABLE StoreShipment
 
 CREATE TABLE ShipmentBill
   (
-    BillID INT NOT NULL,
+    BillID INT NOT NULL AUTO_INCREMENT,
 	ShipmentID CHAR(6) NOT NULL,
 	Amount DECIMAL(9,2) NOT NULL,
     BillingDate DATE NOT NULL,
@@ -251,9 +251,7 @@ CREATE TABLE PurchasedItems
 
 CREATE TABLE Report
 (
-  ReportID INT NOT NULL,
-	FromDate  DATE  NOT NULL,
-	ToDate  DATE NOT NULL,
+  ReportID INT NOT NULL AUTO_INCREMENT,
 	ReportType VARCHAR(128),
 	ReportDetail VARCHAR(128),
 	PRIMARY KEY(ReportID)
@@ -324,10 +322,10 @@ INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (2001,"3001",100), (20
 
 INSERT INTO PurchasedItems (TransactionID,ProductID,Quantity) VALUES (6001,"3001",2), (6001,"3002",2),(6002,"3002",10),(6003,"3001",10)
 
-INSERT INTO Report (ReportID, FromDate, ToDate, ReportType, ReportDetail) VALUES (1,"2021/01/15","2021/02/15","TotalSales","Total Sales are 1200 including all stores"),
-(2,"2020/01/05","2021/01/05","CustomerGrowth","Increase of 5% in customer registration"),
-(3, "2021/01/02", "2021/01/01","StockReport", "Number of items in warehouse 700"),
-(4, "2021/01/02", "2021/03/02", "Spending", "Total Store Spendings= 5000")
+INSERT INTO Report (ReportID,ReportType, ReportDetail) VALUES (1,"TotalSales","Total Sales are 1200 including all stores"),
+(2,"CustomerGrowth","Increase of 5% in customer registration"),
+(3,"StockReport", "Number of items in warehouse 700"),
+(4,"Spending", "Total Store Spendings= 5000")
 
 INSERT INTO Rewards (PromoID, Discount, ValidThrough, MembershipLevel) VALUES ("7001",0.20, "2021/05/01","Gold"),("7002",0.20, "2021/05/01","Platinum")
 
