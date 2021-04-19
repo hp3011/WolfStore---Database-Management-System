@@ -2339,7 +2339,6 @@ public static void enterShipmentinfo() {
                 // registration staff menu
                 // Owner: Jake
                 case 2:
-                    while (input != 1 && input != 0){
                         switch (input) {
                             // Exit
                             case 0:
@@ -2370,9 +2369,8 @@ public static void enterShipmentinfo() {
                                 updateTransaction();
 			                break;
                         // To do: Build out remaining options
+                        
                         }
-                        input = in.nextInt();
-                    }
                 break;
 
                 // billing staff menu
@@ -2521,6 +2519,7 @@ public static void enterShipmentinfo() {
                 default:
                 break;
             }
+            menu = 1;
         }
         try {
             in.close();
