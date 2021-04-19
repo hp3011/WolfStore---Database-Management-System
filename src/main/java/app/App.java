@@ -2282,7 +2282,7 @@ public static void enterShipmentinfo() {
                 newSignups = rs.getInt("new_signups");
                 totalSignups = rs.getInt("total_signups");
 
-                System.out.println("There were " + newSignups + " new signups in the last month (" + totalSignups + " signups total)");
+                System.out.println("There was " + newSignups + " signups in that month (" + totalSignups + " signups total)");
             }
 
         } catch (SQLException e) {
