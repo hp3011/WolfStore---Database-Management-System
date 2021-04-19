@@ -1579,7 +1579,7 @@ public static void generateStoreStockReport(){
 
         if(avaliableQuantity >= quantity){
             //transferproduct
-            updateStoreStock(sendStore, productID, avaliableQuantity - quantity);
+            udpdateStoreStock(sendStore, productID, avaliableQuantity - quantity);
             avaliableQuantity = getQuantityStoreStock(yourStore, productID);
             if(avaliableQuantity<0){
                 addStoreStock(yourStore, productID, quantity);
@@ -2292,6 +2292,15 @@ public static void generateStoreStockReport(){
                     		productid = array[0];
                     		quantity = array[1];
                     		price= getPrice(productid,customerid,purchasedate);
+			        int avaliableQuantity = getQuantityStoreStock(Integer.parseInt(storeid), productid);
+
+				if(avaliableQuantity >= Integer.parseInt(quantity)){
+				
+				}else{
+           			 System.out.println("\nRequested Store Do Not Have Enough Quantity, Transaction Failed!");
+				 return;
+       				 }
+
 		    		BigDecimal price_temp = price.multiply(new BigDecimal(quantity));	
                     		totalprice = totalprice.add(price_temp);
            		 }
@@ -2305,6 +2314,15 @@ public static void generateStoreStockReport(){
                     		productid = array[0];
                     		quantity = array[1];
 				addPurchasedItems(transactionid, productid, quantity);
+                                int avaliableQuantity = getQuantityStoreStock(Integer.parseInt(storeid), productid);
+
+                                if(avaliableQuantity >=Integer.parseInt(quantity)){
+					updateStoreStock(Integer.parseInt(storeid), productid, avaliableQuantity - Integer.parseInt(quantity));
+                                }else{
+				
+                                 System.out.println("\nRequested Store Do Not Have Enough Quantity!");
+                                 }
+
 			}
 			addCustomerPaysBill(Integer.parseInt(customerid),Integer.parseInt(transactionid));
 			conn.commit();
