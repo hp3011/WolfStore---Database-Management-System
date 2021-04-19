@@ -2359,16 +2359,24 @@ public static void enterShipmentinfo() {
                                 break;
                             case 3:
                                 updateMember();
+                                showOptions(2);
+                                menu =2;
                                 break;
                     
 			                case 4:
-			                    userTransactionAdd();
+			                    userTransactionAdd();                                
+                                showOptions(2);
+                                menu =2;
 			                    break;
 			                case 5:
                                 userTransactionDelete();
+                                showOptions(2);
+                                menu =2;
 			                    break;
 			                case 6:
                                 updateTransaction();
+                                showOptions(2);
+                                menu =2;
 			                break;
                         // To do: Build out remaining options
                         }
@@ -2393,6 +2401,8 @@ public static void enterShipmentinfo() {
 
                         case 2:
                             customerGrowthReport();
+                            showOptions(3);
+                            menu = 3;
                         break;
                     }
                 break;
@@ -2417,15 +2427,23 @@ public static void enterShipmentinfo() {
                         // To do: Build out remaining options
                         case 2:
                             userAddStoreStock();
+                            showOptions(4);
+                            menu = 4;
                             break;
                         case 3:
                             userDeleteStoreStock();
+                            showOptions(4);
+                            menu = 4;
                             break;
                         case 4:
                             userUpdateStoreStock();
+                            showOptions(4);
+                            menu = 4;
                             break;
                         case 5:
                             userGetQuantityStoreStock();
+                            showOptions(4);
+                            menu = 4;
                             break;
 
                     }
@@ -2452,66 +2470,107 @@ public static void enterShipmentinfo() {
                         // Create a new store
                         case 2:
                             enterStoreInfo();
+                            showOptions(5);
+                            menu = 5;
                         break;
 
                         // Delete a store
                         case 3:
                             deleteStore();
+                            showOptions(5);
+                            menu = 5;
                             break;
+
                         case 4:
                             updateStore();
+                            showOptions(5);
+                            menu = 5;
                         break;
 
                         case 5:
                             addDiscount();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 6:
                             deleteDiscount();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 7:
                             updateDiscount();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 8:
                             addMerchandise();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 9:
                             deleteMerchandise();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 10:
                             updateMerchandise();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 11:
                             checkRewardsEligible();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 12:
                             userGetProductList();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 13:
                        	    userStaffAdd();
+                               showOptions(5);
+                               menu = 5;
                             break;
 			            case 14:
                              updateStaff();
+                             showOptions(5);
+                             menu = 5;
                              break;
 			            case 15:
                              deleteStaff();
+                             showOptions(5);
+                             menu = 5;
                              break;
                         case 16:
                             enterSupplierinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 17:
                             deleteSupplierInfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 18:
                             updateSupplierinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 19:
                             enterShipmentinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 20:
                             deleteShipmentInfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
                         case 21:
                             updateShipmentinfo();
+                            showOptions(5);
+                            menu = 5;
                             break;
 			    
                     }
