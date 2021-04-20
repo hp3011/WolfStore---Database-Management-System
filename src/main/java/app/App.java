@@ -764,7 +764,7 @@ public static void generateShopSalesGrowthReport()
             }else{
                 updateStoreStock(yourStore, productID, (ExistingQuantity + quantity));
             }
-            System.out.println("\nSucess - Products are Returned to the Store");
+            System.out.println("\nSuccess - Products are Returned to the Store");
 
 	price= getPrice(productID,customerid,returndate);	
 	BigDecimal price_temp = price.multiply(new BigDecimal(quantity));
@@ -815,7 +815,7 @@ public static void generateShopSalesGrowthReport()
         String supplierId = null;
 
         System.out.println("Enter supplier ID to be Updated ");
-        supplierId = sc.next();   
+        supplierId = sc.nextLine();   
 
         String SupplierName = null;
         String PhoneNumber = null;
@@ -851,26 +851,26 @@ public static void generateShopSalesGrowthReport()
             System.out.println("3 - Update Supplier email id");
             System.out.println("4 - Update Supplier location");
 
-            System.out.println("100 - Confirm");
+            System.out.println("100 - Confirm\n");
 
-            option = sc.nextInt();            
+            option =Integer.parseInt(sc.nextLine());            
 
             switch(option)
             {
                 case 1: System.out.println("Enter the Supplier Name");
-                        SupplierName =   sc.next();
+                        SupplierName =   sc.nextLine();
                         break;
 
                 case 2: System.out.println("Enter the Supplier Phone number");
-                        PhoneNumber =   sc.next();
+                        PhoneNumber =   sc.nextLine();
                         break;
 
                 case 3: System.out.println("Enter the Supplier Email");
-                        Email =   sc.next();
+                        Email =   sc.nextLine();
                         break;
 
                 case 4: System.out.println("Enter the Supplier Location");
-                        Location =   sc.next();
+                        Location =   sc.nextLine();
                         break;
                 default:
                         break;
@@ -1767,7 +1767,7 @@ public static void generateStoreStockReport(){
             }else{
                 updateStoreStock(yourStore, productID, (avaliableQuantity + quantity));
             }
-            System.out.println("\nSucess - Products are transfered between Store");
+            System.out.println("\nSuccess - Products are transfered between Store");
         }else{
             System.out.println("\nRequested Store has "+ avaliableQuantity +" quantity of product left in their stock");
         }
@@ -1994,7 +1994,7 @@ public static void generateStoreStockReport(){
 
                 prepUpdateStoreStock.executeUpdate();
                 conn.commit();
-                System.out.println("\nSucess - Products are updated in StoreStock");
+                System.out.println("\nSuccess - Products are updated in StoreStock");
 
             }catch (SQLException e) {
 				conn.rollback();
@@ -2019,7 +2019,7 @@ public static void generateStoreStockReport(){
 
                 prepAddStoreStock.executeUpdate();
                 conn.commit();
-                System.out.println("\nSucess - Products are added in StoreStock");
+                System.out.println("\nSuccess - Products are added in StoreStock");
 
             }catch (SQLException e) {
 				conn.rollback();
@@ -2066,7 +2066,7 @@ public static void generateStoreStockReport(){
                 prepDeleteStoreStock.setString(2, productId);
                 prepDeleteStoreStock.executeUpdate();
                 conn.commit();
-                System.out.println("\nSucess - Products are deleted from StoreStock");
+                System.out.println("\nSuccess - Products are deleted from StoreStock");
 
             }catch (SQLException e) {
 				conn.rollback();
@@ -2342,9 +2342,13 @@ public static void generateStoreStockReport(){
 		try {
 		prepGetCustomer.setInt(1,Integer.parseInt(CustomerID));
                 ResultSet rs =prepGetCustomer.executeQuery();
+		
                 if (rs.next()) {
                         isactive= rs.getString("ActiveStatus");
-                        }
+                        }else{
+			System.out.println("Wrong Cust ID:");
+			return false;
+		}
 		if(isactive.equals("Active")){
 			System.out.println("\n\n------------------This Customer is Active!---------------------\n\n");
 			return true;
@@ -3197,11 +3201,12 @@ public static void generateStoreStockReport(){
                         // To do: Build out remaining options
 		
 			    case 7:
-                            isActiveClub();
+                            	isActiveClub();
 				//updateTransaction();
                                 showOptions(2);
                                 menu =2;
-                            break;			    
+                            break;
+						    
                     }
                 break;
 
