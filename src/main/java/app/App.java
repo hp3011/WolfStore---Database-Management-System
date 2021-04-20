@@ -3198,7 +3198,7 @@ public static void generateStoreStockReport(){
 		
 			    case 7:
                             isActiveClub();
-				updateTransaction();
+				//updateTransaction();
                                 showOptions(2);
                                 menu =2;
                             break;			    
