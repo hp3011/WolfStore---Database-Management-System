@@ -781,29 +781,30 @@ public static void generateShopSalesGrowthReport()
     //public static void deleteSupplierInfo(String supplierId)
     public static void deleteSupplierInfo()
     {
-        Scanner sc = new Scanner(System.in);
-        String supplierId = null;
+        System.out.println("Supplier Entry cannot be deleted.");
+        // Scanner sc = new Scanner(System.in);
+        // String supplierId = null;
 
-        System.out.println("Enter supplier ID to be deleted ");
-        supplierId = sc.next();
+        // System.out.println("Enter supplier ID to be deleted ");
+        // supplierId = sc.next();
 
-        int option = 0;
+        // int option = 0;
 
-        try {         
-                    conn.setAutoCommit(false);
-                    try{
-                        prepDeleteSupplierEntry.setString(1,supplierId);
-                        prepDeleteSupplierEntry.executeUpdate();
-                        conn.commit();
-                    }catch (SQLException e) {
-                        conn.rollback();
-                        e.printStackTrace();
-                    } finally {
-                        conn.setAutoCommit(true);
-                    }
-                }catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        // try {         
+        //             conn.setAutoCommit(false);
+        //             try{
+        //                 prepDeleteSupplierEntry.setString(1,supplierId);
+        //                 prepDeleteSupplierEntry.executeUpdate();
+        //                 conn.commit();
+        //             }catch (SQLException e) {
+        //                 conn.rollback();
+        //                 e.printStackTrace();
+        //             } finally {
+        //                 conn.setAutoCommit(true);
+        //             }
+        //         }catch (SQLException e) {
+        //             e.printStackTrace();
+        //         }
     }
     
     public static void updateSupplierinfo()
