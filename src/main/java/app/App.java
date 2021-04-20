@@ -5,15 +5,15 @@
  * User interface:
  * Which Department You Belong To?
  
-1 - Registration Staff
+2 - Registration Staff
 	-- Reg Staff APIs
-2 - BillingExecutive
+3 - BillingExecutive
 	-- Manage Billing
-3 - WarehouseOperator
+4 - WarehouseOperator
 	-- Manager Inventory
-4 - Admin
+5 - Admin
 	-- Manager of all APIs
-5 - QUIT
+0 - QUIT
 	-- exit the program
 
 Function documentations:
