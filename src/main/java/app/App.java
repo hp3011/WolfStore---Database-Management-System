@@ -914,21 +914,23 @@ public static void generateShopSalesGrowthReport()
 
                 Scanner sc = new Scanner(System.in);
 
+                System.out.println("Enter Supplier ID to be entered");
+                supplierID =   sc.nextLine();
+
                 System.out.println("Enter the Supplier Name");
-                supplierName =   sc.next();
+                supplierName =   sc.nextLine();
 
                 System.out.println("Enter the Phone Number");
-                phoneNumber =   sc.next();
+                phoneNumber =   sc.nextLine();
 
                 System.out.println("Enter the Email");
-                email =   sc.next();
+                email =   sc.nextLine();
 
                 System.out.println("Enter the Location");
-                location =   sc.next();
+                location =   sc.nextLine();
 
                
-                supplierID = "SUP_"+a;
-                a++;
+                
 
 
             conn.setAutoCommit(false);
@@ -1156,6 +1158,10 @@ public static void enterShipmentinfo() {
 
          Scanner sc = new Scanner(System.in);
 
+
+        System.out.println("Enter Shipment ID to be entered");
+        shipmentID =   sc.nextLine();
+
         System.out.println("Enter the Shipment Type");
         shipmentType =   sc.next();
 
@@ -1171,8 +1177,7 @@ public static void enterShipmentinfo() {
         System.out.println("Enter the Shipment Received date");
         receivedDate =   sc.next();
 
-        shipmentID = "SHIP_"+shipmentIDCounter;
-        shipmentIDCounter ++;        
+      
 
 
         System.out.println("\nEnter the shipment consists of  product ID list with quantity [i.e ITEM_01:3,ITEM_02:3] - \n");
