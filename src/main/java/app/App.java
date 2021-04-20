@@ -3287,6 +3287,21 @@ public static void generateStoreStockReport(){
                             showOptions(4);
                             menu = 4;
                             break;
+                        case 10:
+                            enterShipmentinfo();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 11:
+                            deleteShipmentInfo();
+                            showOptions(4);
+                            menu = 4;
+                            break;
+                        case 12:
+                            updateShipmentinfo();
+                            showOptions(4);
+                            menu = 4;
+                            break;
 
                     }
                 break;
@@ -3569,6 +3584,10 @@ public static void generateStoreStockReport(){
             System.out.println("\t7 - Add Merchandise");
             System.out.println("\t8 - Delete Merchandise");
             System.out.println("\t9 - Update Merchandise");
+            System.out.println("\t10 - Add Shipment");
+            System.out.println("\t11 - Delete Shipment");
+            System.out.println("\t12 - Update Shipment");
+
             break;
 
             // admin options
