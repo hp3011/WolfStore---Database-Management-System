@@ -3038,7 +3038,7 @@ public static void generateStoreStockReport(){
 
         in = new Scanner(System.in);
 
-        System.out.println("Customer growth report: Enter the desired month and year (format YYYY-MM)");
+        System.out.println("Customer growth report: Enter the desired month and year (format YYYY/MM)");
         while (!in.hasNext(monthYear)){
             System.out.println("Invalid date format, try again");
             in.nextLine();
