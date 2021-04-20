@@ -437,7 +437,7 @@ public class App {
 
 
 	    //Report 
-	    sql = "INSERT INTO `Reports` ( `ReportType`, `ReportDetail`)"
+	    sql = "INSERT INTO `Report` ( `ReportType`, `ReportDetail`)"
                     + "VALUES(?,?);";
 	    prepAddReport= conn.prepareStatement(sql);
             // Shop Sales Growth Report
@@ -735,6 +735,46 @@ public static void generateShopSalesGrowthReport()
 }
 
 
+    public static void handleReturns(){
+        int quantity;
+        String productID;
+        int yourStore;
+        BigDecimal price;
+	String returndate;
+        Scanner in = new Scanner(System.in);
+	String customerid;
+	
+	System.out.println("\nEnter Customer ID:");
+        customerid = in.next();
+
+        System.out.println("\nEnter your storeID:");
+        yourStore = in.nextInt();
+        System.out.println("\nEnter Return Date:");
+        returndate = in.next();
+
+        System.out.println("\nEnter the ProductID which you are returning:");
+        productID = in.next();
+
+        System.out.println("\nEnter the quantity for the Product:");
+        quantity = in.nextInt();
+	int ExistingQuantity = getQuantityStoreStock(yourStore, productID);
+	
+            if(ExistingQuantity<0){
+                addStoreStock(yourStore, productID, quantity);
+            }else{
+                updateStoreStock(yourStore, productID, (ExistingQuantity + quantity));
+            }
+            System.out.println("\nSucess - Products are Returned to the Store");
+
+	price= getPrice(productID,customerid,returndate);	
+	BigDecimal price_temp = price.multiply(new BigDecimal(quantity));
+        System.out.println("\n\n######################## Refund Initiated ###############################################\n");
+
+	System.out.println("\t Customer Gets Dollar "+price_temp.toString()+" of refund, Collect it from Staff!");	
+        System.out.println("\n\n#########################################################################################\n");
+	
+
+    }
 
     // Supplier Functions
    
@@ -1713,7 +1753,8 @@ public static void generateStoreStockReport(){
         }
     }
     
-    
+   
+ 
     public static void addMerchandise() {
         String productID;
         String productName;
@@ -2119,13 +2160,15 @@ public static void generateStoreStockReport(){
                 prepAddTransaction.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
+				System.out.println("Error, try Again!");	
 				conn.rollback();
-				e.printStackTrace();
+			//	e.printStackTrace();
             } finally {
 				conn.setAutoCommit(true);
 			}
         }catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("Error, try Again!");
+			//e.printStackTrace();
 		}
     }
     public static void deleteTransaction(String TransactionID) {
@@ -2179,13 +2222,14 @@ public static void generateStoreStockReport(){
                 prepAddPurchasedItems.executeUpdate();
                 conn.commit();
             }catch (SQLException e) {
+				System.out.println("Error, try Again!");
 				conn.rollback();
-				e.printStackTrace();
+				//e.printStackTrace();
             } finally {
 				conn.setAutoCommit(true);
 			}
         }catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
     }
 
@@ -2249,6 +2293,7 @@ public static void generateStoreStockReport(){
                 }
 		}
         }catch (SQLException e) {
+		System.out.println("Error, In Get Price!");
 			e.printStackTrace();
 		}
         return price;
@@ -2350,7 +2395,9 @@ public static void generateStoreStockReport(){
 		}	
 
 	}catch (SQLException e) {
-                                 e.printStackTrace(); }
+				System.out.println("Error, try Again!");
+                                // e.printStackTrace(); 
+                               }
 
 	try{
 
@@ -2367,18 +2414,21 @@ public static void generateStoreStockReport(){
 
 
 		} catch (SQLException e) {
+			        System.out.println("Sorry Could not generate Bill!");
                                 conn.rollback();
                                 e.printStackTrace();
                         } finally {
+				
                                 conn.setAutoCommit(true);
                         }
 
 
 
 	}catch (SQLException e) {
-                                 e.printStackTrace(); }
+			System.out.println("Error, try Again!");
+                                // e.printStackTrace();
+                           }
 
-	System.out.println("Successfully Generated Supplier Bill!");
 	}
 
 
@@ -2463,13 +2513,15 @@ public static void generateStoreStockReport(){
 			conn.commit();
 			System.out.println("A new Transaction is added successfully!");
 		}catch (Throwable err) {
-				System.out.println(err);
+				System.out.println("Error, try Again!");
+				//System.out.println(err);
 				conn.rollback();
 			} finally {
 				conn.setAutoCommit(true);
 			}
 		} catch (Throwable err) {
-			System.out.println(err);
+			 System.out.println("Error, try Again!");
+			//System.out.println(err);
 	
 		}
 	}
@@ -2539,7 +2591,8 @@ public static void generateStoreStockReport(){
 	}
 
     public static void deleteStaff() {
-		Scanner in = new Scanner(System.in);		
+		System.out.println("You can not delete a Staff Member");
+		/*Scanner in = new Scanner(System.in);		
 		System.out.println("\nEnter the staff id of the staff you want to delete:\n");
 		String StaffID = in.nextLine();
 		try {
@@ -2555,8 +2608,9 @@ public static void generateStoreStockReport(){
 				conn.setAutoCommit(true);
 			}
 		} catch (SQLException e) {
-			System.out.println(e);
-		}
+			System.out.println("Error, try Again!");
+			//System.out.println(e);
+		}*/
 	}
 
    public static void updateStaff() {
@@ -2565,7 +2619,7 @@ public static void generateStoreStockReport(){
 	Scanner in = new Scanner(System.in);
         System.out.println("\nEnter the staff id of the staff you want to update:\n");
         try{
-	String StaffID = in.next();
+	String StaffID = in.nextLine();
 
         
 	prepGetStaff.setInt(1, Integer.parseInt(StaffID));
@@ -2580,17 +2634,19 @@ public static void generateStoreStockReport(){
         String PhoneNumber =null;
         String Email =null;
         String JoiningDate = null ;
+
 	while(rs.next()){
             StoreID = rs.getInt("StoreID");
             Name = rs.getString("Name");
             Age = rs.getInt("Age");
             Address = rs.getString("Address");
             JobTitle = rs.getString("JobTitle");   
+	    newJobTitle = JobTitle;
             PhoneNumber = rs.getString("PhoneNumber");
             Email = rs.getString("Email");  
             JoiningDate = rs.getDate("JoiningDate").toString();
 
-     	    System.out.println("Staff ID: " + StaffID + ", storeID: " + StoreID + ", age: " + Age + ", name: " +Name 
+     	    System.out.println("\nStaff ID: " + StaffID + ", storeID: " + StoreID + ", age: " + Age + ", name: " +Name 
 					+ ", job title: " + JobTitle +  ", Address: " + Address
 					+ ", phone: " + PhoneNumber + ", email: " + Email);
      	}
@@ -2608,32 +2664,32 @@ public static void generateStoreStockReport(){
 
 
             System.out.println("\n100 - Confirm\n");
-            option = in.nextInt();
+            option = Integer.parseInt(in.nextLine());
             switch(option){
-                case 1: System.out.println("\nEnter the StoreID\n");
-                        StoreID = in.nextInt();
+                case 1: System.out.println("\nEnter the StoreID");
+                        StoreID = Integer.parseInt(in.nextLine());
                         break;
-                case 2: System.out.println("\nEnter the Name\n");
-                        Name = in.next();
+                case 2: System.out.println("\nEnter the Name");
+                        Name = in.nextLine();
                         break;
-                case 3: System.out.println("\nEnter the Age\n");
-                        Age = in.nextInt();
+                case 3: System.out.println("\nEnter the Age");
+                        Age = Integer.parseInt(in.nextLine());
                         break;
-                case 4: System.out.println("\nEnter the Address\n");
-                        Address = in.next();
+                case 4: System.out.println("\nEnter the Address");
+                        Address = in.nextLine();
                         break;
-                case 5: System.out.println("\nEnter the job title\n");
-                        newJobTitle = in.next();
+                case 5: System.out.println("\nEnter the job title");
+                        newJobTitle = in.nextLine();
                         updatePositionTables(Integer.parseInt(StaffID), JobTitle, newJobTitle);
                         break;
-                case 6: System.out.println("\nEnter the phone number\n");
-                        PhoneNumber = in.next();
+                case 6: System.out.println("\nEnter the phone number");
+                        PhoneNumber = in.nextLine();
                         break;
-                case 7: System.out.println("\nEnter the email address\n");
-                        Email = in.next();
+                case 7: System.out.println("\nEnter the email address");
+                        Email = in.nextLine();
                         break;
-                case 8: System.out.println("\nEnter the joining date (yyyy-mm-dd)\n");
-                        JoiningDate = in.next();
+                case 8: System.out.println("\nEnter the joining date (yyyy-mm-dd)");
+                        JoiningDate = in.nextLine();
                         break;
                 default:
                         break; 
@@ -3361,6 +3417,11 @@ public static void generateStoreStockReport(){
                             showOptions(5);
                             menu = 5;
                             break;
+			case 28:
+			    handleReturns();
+			    showOptions(5);
+			    menu = 5;
+			    break;
                                         
                     }
                     break;
@@ -3522,6 +3583,7 @@ public static void generateStoreStockReport(){
             System.out.println("\t25 - Store Stock Report for a Store");
             System.out.println("\t26 - Store Stock Report for a ProductID");
             System.out.println("\t27 - Get 2% cashback amount for a customer");
+            System.out.println("\t28 - Handle Returns");
 
 
 
