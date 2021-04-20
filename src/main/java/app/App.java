@@ -1149,21 +1149,21 @@ public static void enterShipmentinfo() {
     }
 }
 
-
-public static void generatePlatinumCashback()
-{
+//prints cashback for the Platinum customers
+public static void generatePlatinumCashback() {
+    
     Scanner sc = new Scanner(System.in);
     String customerID = null;
     String fromDate = null;
     String toDate = null;
     String year = null;
-    String totalSales = null;
-    double cashback = 0;
+    String total = null;
+    double cashback = 0.0;
     String membershipLevel = null;
 
     System.out.println("Enter CustomerID for the report ");
     customerID = sc.next();
-    //Check If a Platinum Member or not.
+    // Checks if the the customer has Platinum Membership or not
     try{
         prepGetCustomer.setString(1, customerID);
         ResultSet rs = prepGetCustomer.executeQuery();
@@ -1178,9 +1178,9 @@ public static void generatePlatinumCashback()
     System.out.println("Enter the year: ");
     year = sc.next();
     
-    fromDate = year+"01/01";
-    toDate = year+"12/31";
-
+    fromDate = year+"-01-01";
+    toDate = year+"-12-31";
+    //Gets the totat price for transaction in particular year and multiply it with 0.02
     try {         
                 conn.setAutoCommit(false);
                 try{
@@ -1190,23 +1190,19 @@ public static void generatePlatinumCashback()
 
 
                     ResultSet rs = perpCreateCustomerActivityReport.executeQuery();
-
-                     if(!rs.next())
+                    
+                    if(!rs.next())
                     {
                         System.out.println("No data available for entered values.");
                         return;
                     }
                     else
                     {
-                        totalSales = rs.getString("TotalPriceSum");
-                        cashback = Double.parseDouble(totalSales) * 0.02; 
-                        // System.out.println("\n\n############################Your Report Is Ready###############################################\n");
-                        System.out.println("\tFor Customer ID "+ customerID + " Cashback for year  " + year + " is" + cashback);
-                        // System.out.println("\n\n###############################################################################################\n");
-
+                        total = rs.getString("TotalPriceSum");
+                        System.out.println("Total = " + total);
+                        cashback = Double.parseDouble(total) * 0.02;
+                        System.out.println("\tFor Customer ID "+ customerID + " Cashback for year  " + year + " is " + cashback);
                     }                   
-
-
                     conn.commit();
                 }catch (SQLException e) {
                     conn.rollback();
@@ -1300,6 +1296,7 @@ public static void generateStoreStockReport(){
         return rs;
     }
 
+    //Add the discount information into Rewards Table
     public static void addDiscount() {
         String promoID;
         String discount;
@@ -1309,16 +1306,16 @@ public static void generateStoreStockReport(){
         Scanner in = new Scanner(System.in);
 
         System.out.println("\nEnter PromoID:");
-        promoID = in.nextLine();
+        promoID = in.next();
 
         System.out.println("\nEnter Discount:");
-        discount = in.nextLine();
+        discount = in.next();
 
         System.out.println("\nEnter validThrough(yyyy-mm-dd):");
-        validThrough = in.nextLine();
+        validThrough = in.next();
 
         System.out.println("\nEnter membershipLevel (Standard/Gold/Platinum):");
-        membershipLevel = in.nextLine();
+        membershipLevel = in.next();
 
         try {
             conn.setAutoCommit(false);
@@ -1330,6 +1327,7 @@ public static void generateStoreStockReport(){
 
                 prepAddDiscount.executeUpdate();
                 conn.commit();
+                System.out.println("Success");
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1341,6 +1339,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //delete the discount information from the rewards table
     public static void deleteDiscount() {
         String promoID;
 
@@ -1353,6 +1352,7 @@ public static void generateStoreStockReport(){
 				prepDeleteDiscount.setString(1, promoID);
 				prepDeleteDiscount.executeUpdate();
 				conn.commit();
+                System.out.println("Success");
 			} catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1364,6 +1364,7 @@ public static void generateStoreStockReport(){
 		}
 	}
 
+    //Update the discount inforamtion to the Rewards table
     public static void updateDiscount() {
         String promoID = "";
         String membershiplevel = "";
@@ -1398,7 +1399,7 @@ public static void generateStoreStockReport(){
             System.out.println("1 - Update Discount");
 			System.out.println("2 - Update Valid Through");
 			System.out.println("3 - Update Membership Level");
-            System.out.println("100 - Confirm");
+            System.out.println("100 - Enter to Confirm all the changes");
             option = in.nextInt();
             switch(option){
                 case 1: System.out.println("Enter the Discount");
@@ -1423,6 +1424,7 @@ public static void generateStoreStockReport(){
                 prepUpdateDiscount.setString(4, promoID);
 				prepUpdateDiscount.executeUpdate();
 				conn.commit();
+                System.out.println("Success");
 			} catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1434,7 +1436,8 @@ public static void generateStoreStockReport(){
 		}
 
     } 
-    
+
+    //Returns the promoID for a customer elgible for a discount
     public static String getRewardsEligible(int customerID){
         String customerPromoID = "";
 
@@ -1451,6 +1454,7 @@ public static void generateStoreStockReport(){
         return customerPromoID;
     }
 
+    //Check if a customer is eligible for a discount
     public static void checkRewardsEligible() {
         int customerID;
         String promoID;
@@ -1472,6 +1476,7 @@ public static void generateStoreStockReport(){
         }
     }
     
+    //Add a rows in Rewards_Eligible_For Table
     public static void addRewardsEligible(int customerID, String customerMembershiplevel){
         String promoID = "";
         try{
@@ -1492,6 +1497,7 @@ public static void generateStoreStockReport(){
 
                 prepAddRewardsEligible.executeUpdate();
                 conn.commit();
+                System.out.println("Success");
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1504,6 +1510,7 @@ public static void generateStoreStockReport(){
         
     }
     
+    //Updates a row in Rewards_Eligibile_For Table
     public static void updateRewardsEligible(int customerID, String membershipLevel){
         String promoID = "";
         try{
@@ -1524,6 +1531,7 @@ public static void generateStoreStockReport(){
 
                 prepUpdateRewardsEligible.executeUpdate();
                 conn.commit();
+                
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1535,7 +1543,8 @@ public static void generateStoreStockReport(){
 		}
 
     }
-    
+
+    //Adds a row in customerPaysBill 
     public static void addCustomerPaysBill(int customerID, int transactionID){
         try {
             conn.setAutoCommit(false);
@@ -1556,6 +1565,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //Delete a row based on transactionId in customerPaysBill Table
     public static void deleteCustomerPaysBill(int transactionID){
         try {
             conn.setAutoCommit(false);
@@ -1574,6 +1584,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //Return a Product list for a transaction made.
     public static ResultSet getProductList(int transactionID){
         ResultSet rs = null;
         try{
@@ -1584,6 +1595,7 @@ public static void generateStoreStockReport(){
         return rs;
     }
 
+    //Prints the Product list for a transaction made.
     public static void userGetProductList(){
         int transactionID;
         Scanner in = new Scanner(System.in);
@@ -1605,6 +1617,7 @@ public static void generateStoreStockReport(){
         }catch (SQLException e) {System.out.println(e);}
     }
     
+    //return the quantity left for a product in the store.
     public static int getQuantityStoreStock(int storeID, String productID){
     
         try{
@@ -1622,6 +1635,7 @@ public static void generateStoreStockReport(){
         return -1;
     }
 
+    //Tranfer the stock between stores 
     public static void transferProduct(){
         int quantity;
         String productID;
@@ -1661,6 +1675,7 @@ public static void generateStoreStockReport(){
         }
     }
     
+    //Add a row in Merchandise Table
     public static void addMerchandise() {
         String productID;
         String productName;
@@ -1716,6 +1731,7 @@ public static void generateStoreStockReport(){
 
                 prepAddMerchandise.executeUpdate();
                 conn.commit();
+                System.out.println("Success");
             }catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1727,6 +1743,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //Delete a row from Merchandise table
     public static void deleteMerchandise() {
         String productID;
 
@@ -1741,6 +1758,7 @@ public static void generateStoreStockReport(){
 				prepDeleteMerchandise.setString(1, productID);
 				prepDeleteMerchandise.executeUpdate();
 				conn.commit();
+                System.out.println("Success");
 			} catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1753,6 +1771,7 @@ public static void generateStoreStockReport(){
 		}
 	}
 
+    //return a merchandise row for a given productID
     public static ResultSet getMerchandise(String productID){
         ResultSet rs = null;
         try{
@@ -1766,6 +1785,8 @@ public static void generateStoreStockReport(){
         return rs;
 
     }
+
+    //Updates the Merchandise Table
     public static void userUpdateMerchandise() {
         String productID = "";
         String productName = "";
@@ -1804,7 +1825,7 @@ public static void generateStoreStockReport(){
 			System.out.println("6 - Update ManufactureDate");
 			System.out.println("7 - Update ExpirationDate");
 			System.out.println("8 - Update IsOnSale");
-            System.out.println("100 - Confirm");
+            System.out.println("100 - Enter to Confirm changes");
             option = in.nextInt();
             switch(option){
                 case 1: System.out.println("Enter the ProductName");
@@ -1850,6 +1871,7 @@ public static void generateStoreStockReport(){
 
 				prepUpdateMerchandise.executeUpdate();
 				conn.commit();
+                System.out.println("Success");
 			} catch (SQLException e) {
 				conn.rollback();
 				e.printStackTrace();
@@ -1861,9 +1883,9 @@ public static void generateStoreStockReport(){
 		}
     }
     
+    //Updates StoreStock Table
     public static void updateStoreStock(int storeId, String productId, int stock) {
 
-        // "UPDATE StoreStock SET ProductID = ?, Stock = ? WHERE StoreID = ?;"
         try {
             conn.setAutoCommit(false);
             try{
@@ -1887,6 +1909,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //Adds a new roe in StoreStock Table
     public static void addStoreStock(int storeId, String productId, int stock){
         // "INSERT INTO StoreStock (StoreID, ProductID, Stock) VALUES (?,?,?);";
         try {
@@ -1911,6 +1934,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //Returns a table for product and quantity present inside a store 
     public static ResultSet getStoreStock(int storeId) {
         ResultSet rs = null;
         // SELECT * FROM StoreStock WHERE StoreID = ?
@@ -1934,6 +1958,7 @@ public static void generateStoreStockReport(){
         return rs;
     }
 
+    //Deletes a row from a StoreStock Table
     public static void deleteStoreStock(int storeId, String productId) {
         // DELETE FROM StoreStock WHERE StoreID = ?;
         try {
@@ -1957,6 +1982,7 @@ public static void generateStoreStockReport(){
 		}
     }
 
+    //Adds a row in StoreStock
     public static void userAddStoreStock(){
         String productID;
         int storeID;
@@ -1974,6 +2000,7 @@ public static void generateStoreStockReport(){
         addStoreStock(storeID, productID, quantity);
     }
 
+    //Updates a row in Store Stock
     public static void userUpdateStoreStock(){
         String productID;
         int storeID;
@@ -1992,6 +2019,7 @@ public static void generateStoreStockReport(){
         updateStoreStock(storeID, productID, quantity);
     }
 
+    //Delete a row from StoreStock
     public static void userDeleteStoreStock(){
         String productID;
         int storeID;
@@ -2006,6 +2034,7 @@ public static void generateStoreStockReport(){
         deleteStoreStock(storeID, productID);
     }
 
+    //Prints Quantity a product in the store
     public static void userGetQuantityStoreStock(){
         String productID;
         int storeID;
